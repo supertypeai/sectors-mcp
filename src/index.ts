@@ -1,122 +1,152 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
+import { getSubsectors } from "./tools/subsectors.js";
+import { getIndustries } from "./tools/industries.js";
+import { fetchSubIndustries } from "./tools/subindustries.js";
+import { fetchIndex } from "./tools/indexData.js";
+import { fetchCompaniesBySubsector } from "./tools/companies.js";
 
-const SECTORS_API_BASE = "https://api.sectors.app/v1/";
+const SECTORS_API_BASE = "https://api.sectors.app/v1";
 const SECTORS_API_KEY = process.env.SECTORS_API_KEY;
 
-// Create server instance
 const server = new McpServer({
   name: "sectors-mcp",
   version: "1.0.0",
 });
 
-// Subsector list retrieval
-server.tool(
-  "get-subsectors",
-  "Get list of subsectors",
-  { params: z.string().describe("Fill this with any string").default("abc") },
-  async ({ params }) => {
-    if (!SECTORS_API_KEY) {
-      return {
-        content: [
-          {
-            type: "text",
-            text: "Failed to retrieve subsectors: SECTORS_API_KEY not found",
-          },
-        ],
-      };
-    }
-    const response = await fetch(`${SECTORS_API_BASE}subsectors/`, {
-      method: "GET",
-      headers: {
-        Authorization: SECTORS_API_KEY,
-      },
-    }).catch((err) => console.error(err));
-    if (!response?.ok) {
-      return {
-        content: [
-          {
-            type: "text",
-            text: `Failed to retrieve subsectors: ${response?.statusText}`,
-          },
-        ],
-      };
-    }
-    const data = await response.json();
+// Register tools
+server.tool("get-subsectors", "Get list of subsectors", async () => {
+  try {
+    const subsectorsText = await getSubsectors(
+      SECTORS_API_BASE,
+      SECTORS_API_KEY
+    );
     return {
       content: [
         {
           type: "text",
-          text: `API URL: ${SECTORS_API_BASE}subsectors\n\n Here are the list of subsectors:\n\n${data
-            .map(
-              (item: any) =>
-                `• Sector : ${item.sector}, Subsector : ${item.subsector}`
-            )
-            .join("\n")}`,
+          text: `API URL: ${SECTORS_API_BASE}/subsectors\n\n${subsectorsText}`,
         },
       ],
     };
+  } catch (error: any) {
+    return { content: [{ type: "text", text: `Error: ${error.message}` }] };
   }
-);
+});
 
-const fetchIndustries = async () => {
-  if (!SECTORS_API_KEY) {
-    return {
-      content: [
-        {
-          type: "text",
-          text: "You are unauthorized, make sure to put your API Key on MCP Settings",
-        },
-      ],
-    };
-  }
-  const options = {
-    method: "GET",
-    headers: {
-      Authorization: SECTORS_API_KEY,
-    },
-  };
-
-  return fetch("https://api.sectors.app/v1/industries/", options)
-    .then((response) => response.json())
-    .catch((err) => console.error(err));
-};
-
-// Register fetchIndustries as an MCP tool
 server.tool(
   "fetch-industries",
   "Fetch industries from the Sectors API",
-  {
-    params: z.string().default("abc").optional(),
-  },
-  async ({ params }) => {
-    const industriesData = await fetchIndustries();
-
-    if (!industriesData) {
+  async () => {
+    try {
+      const industriesText = await getIndustries(
+        SECTORS_API_BASE,
+        SECTORS_API_KEY
+      );
       return {
         content: [
           {
             type: "text",
-            text: "Failed to retrieve industries data",
+            text: `API URL: ${SECTORS_API_BASE}/industries\n\n${industriesText}`,
           },
         ],
       };
+    } catch (error: any) {
+      return { content: [{ type: "text", text: `Error: ${error.message}` }] };
     }
+  }
+);
 
-    return {
-      content: [
-        {
-          type: "text",
-          text: `API URL: ${SECTORS_API_BASE}industries\n\nFetched industries:\n\n${industriesData
-            .map(
-              (result: any) =>
-                `- Subsector: ${result.subsector}\n- Industry: ${result.industry}`
-            )
-            .join("\n")}`,
-        },
-      ],
-    };
+// Register fetchSubIndustries as an MCP tool
+server.tool(
+  "fetch-subindustries",
+  "Fetch subindustries from the Sectors API",
+  async () => {
+    try {
+      const subIndustriesData = await fetchSubIndustries(
+        SECTORS_API_BASE,
+        SECTORS_API_KEY
+      );
+      return {
+        content: [
+          {
+            type: "text",
+            text: `API URL: ${SECTORS_API_BASE}/subindustries\n\nFetched subindustries:\n\n${JSON.stringify(
+              subIndustriesData,
+              null,
+              2
+            )}`,
+          },
+        ],
+      };
+    } catch (error: any) {
+      return { content: [{ type: "text", text: `Error: ${error.message}` }] };
+    }
+  }
+);
+
+// Register fetchIndex as an MCP tool
+server.tool(
+  "fetch-index",
+  "Fetch index data from the Sectors API",
+  {
+    index: z.string().describe("The index to fetch data for"),
+  },
+  async ({ index }) => {
+    try {
+      const indexData = await fetchIndex(
+        SECTORS_API_BASE,
+        SECTORS_API_KEY,
+        index
+      );
+      return {
+        content: [
+          {
+            type: "text",
+            text: `API URL: ${SECTORS_API_BASE}/index/${index}\n\nFetched index data:\n\n${JSON.stringify(
+              indexData,
+              null,
+              2
+            )}`,
+          },
+        ],
+      };
+    } catch (error: any) {
+      return { content: [{ type: "text", text: `Error: ${error.message}` }] };
+    }
+  }
+);
+
+// Register fetchCompaniesBySubsector as an MCP tool
+server.tool(
+  "fetch-companies",
+  "Fetch companies by subsector from the Sectors API",
+  {
+    subSector: z.string().describe("The subsector to fetch companies for"),
+  },
+  async ({ subSector }) => {
+    try {
+      const companiesData = await fetchCompaniesBySubsector(
+        SECTORS_API_BASE,
+        SECTORS_API_KEY,
+        subSector
+      );
+      return {
+        content: [
+          {
+            type: "text",
+            text: `API URL: ${SECTORS_API_BASE}/companies/?sub_sector=${subSector}\n\nFetched companies:\n\n${JSON.stringify(
+              companiesData,
+              null,
+              2
+            )}`,
+          },
+        ],
+      };
+    } catch (error: any) {
+      return { content: [{ type: "text", text: `Error: ${error.message}` }] };
+    }
   }
 );
 
