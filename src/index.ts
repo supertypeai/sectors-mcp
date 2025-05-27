@@ -11,6 +11,7 @@ import {
   fetchCompaniesBySubindustry,
   fetchCompaniesWithSegments,
   fetchListingPerformance,
+  fetchQuarterlyFinancialDates,
 } from "./tools/companies.js";
 
 const SECTORS_API_BASE = "https://api.sectors.app/v1";
@@ -211,6 +212,48 @@ server.tool(
               null,
               2
             )}`,
+          },
+        ],
+      };
+    } catch (error: any) {
+      return { content: [{ type: "text", text: `Error: ${error.message}` }] };
+    }
+  }
+);
+
+// Register fetchQuarterlyFinancialDates as an MCP tool
+server.tool(
+  "fetch-quarterly-financial-dates",
+  "Fetch quarterly financial dates for a company",
+  {
+    ticker: z.string().min(1, "Ticker is required").describe("Company ticker (e.g., 'BBRI' or 'BBRI.JK')")
+  },
+  async ({ ticker }) => {
+    try {
+      const financialDates = await fetchQuarterlyFinancialDates(
+        SECTORS_API_BASE,
+        SECTORS_API_KEY,
+        ticker
+      );
+      
+      // Format the response for better readability
+      const formattedResponse = Object.entries(financialDates)
+        .sort(([yearA], [yearB]) => parseInt(yearB) - parseInt(yearA)) // Sort years in descending order
+        .map(([year, quarters]) => {
+          const quartersList = quarters
+            .sort(([dateA], [dateB]) => new Date(dateA).getTime() - new Date(dateB).getTime()) // Sort quarters chronologically
+            .map(([date, quarter]) => `  • ${date} (${quarter})`)
+            .join('\n');
+          return `${year}:\n${quartersList}`;
+        })
+        .join('\n\n');
+      
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Quarterly Financial Dates for ${ticker.toUpperCase()}:\n\n${formattedResponse}\n\n` +
+                  `API Endpoint: ${SECTORS_API_BASE}/company/get_quarterly_financial_dates/${ticker}/`
           },
         ],
       };
