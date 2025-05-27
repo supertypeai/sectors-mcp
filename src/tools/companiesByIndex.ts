@@ -16,7 +16,7 @@ export async function fetchCompaniesByIndex(
     throw new Error("SECTORS_API_KEY is not defined");
   }
 
-  const response = await fetch(`${baseUrl}/index/${index}/constituents/`, {
+  const response = await fetch(`${baseUrl}/index/${index}/`, {
     method: "GET",
     headers: createApiHeaders(apiKey),
   });
@@ -26,21 +26,21 @@ export async function fetchCompaniesByIndex(
 
 // Available index types for TypeScript type checking
 export type IndexType =
-  | 'ftse'
-  | 'idx30'
-  | 'idxbumn20'
-  | 'idxesgl'
-  | 'idxg30'
-  | 'idxhidiv20'
-  | 'idxq30'
-  | 'idxv30'
-  | 'jii70'
-  | 'kompas100'
-  | 'lq45'
-  | 'sminfra18'
-  | 'srikehati'
-  | 'economic30'
-  | 'idxvesta28';
+  | "ftse"
+  | "idx30"
+  | "idxbumn20"
+  | "idxesgl"
+  | "idxg30"
+  | "idxhidiv20"
+  | "idxq30"
+  | "idxv30"
+  | "jii70"
+  | "kompas100"
+  | "lq45"
+  | "sminfra18"
+  | "srikehati"
+  | "economic30"
+  | "idxvesta28";
 
 export function registerCompaniesByIndexTool(
   server: McpServer,
@@ -51,7 +51,9 @@ export function registerCompaniesByIndexTool(
     "fetch-companies-by-index",
     "Fetch companies by stock index from the Sectors API",
     {
-      index: z.string().describe("The index name (e.g., 'lq45', 'idx30', 'kompas100')")
+      index: z
+        .string()
+        .describe("The index name (e.g., 'lq45', 'idx30', 'kompas100')"),
     },
     async ({ index }) => {
       try {
