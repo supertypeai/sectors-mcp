@@ -5,6 +5,14 @@ export interface CompanyResponse {
   [key: string]: any;
 }
 
+export interface ListingPerformance {
+  symbol: string;
+  chg_7d: number;
+  chg_30d: number;
+  chg_90d: number;
+  chg_365d: number;
+}
+
 export interface QuarterlyFinancialDates {
   [year: string]: Array<[string, string]>; // [date, quarter]
 }
@@ -72,17 +80,23 @@ export async function fetchListingPerformance(
   baseUrl: string,
   apiKey: string | undefined,
   ticker: string
-) {
+): Promise<ListingPerformance> {
   if (!apiKey) {
     throw new Error("SECTORS_API_KEY is not defined");
   }
 
-  const response = await fetch(`${baseUrl}/listing-performance/${ticker}/`, {
-    method: "GET",
-    headers: createApiHeaders(apiKey),
-  });
+  // Ensure ticker is in uppercase and remove .JK if present
+  const formattedTicker = ticker.toUpperCase().replace(/\.JK$/, '');
+  
+  const response = await fetch(
+    `${baseUrl}/listing-performance/${formattedTicker}/`,
+    {
+      method: "GET",
+      headers: createApiHeaders(apiKey),
+    }
+  );
 
-  return handleApiResponse<CompanyResponse[]>(response);
+  return handleApiResponse<ListingPerformance>(response);
 }
 
 export async function fetchQuarterlyFinancialDates(

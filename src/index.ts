@@ -294,13 +294,12 @@ server.tool(
 // Register fetchListingPerformance as an MCP tool
 server.tool(
   "fetch-listing-performance",
-  "Fetch listing performance by ticker from the Sectors API",
+  "Fetch company's performance since IPO from the Sectors API",
   {
     ticker: z
       .string()
-      .describe(
-        "The ticker symbol for the listing performance. Example tickers: BBCA, TLKM, BMRI, ADES, ADRO"
-      ),
+      .min(1, "Ticker is required")
+      .describe("Company ticker (e.g., 'GOTO' or 'GOTO.JK')"),
   },
   async ({ ticker }) => {
     try {
@@ -309,15 +308,23 @@ server.tool(
         SECTORS_API_KEY,
         ticker
       );
+      
+      // Format the response for better readability
+      const formattedResponse = `Symbol: ${performanceData.symbol}
+
+Price Changes Since IPO:
+  7 Days:    ${(performanceData.chg_7d * 100).toFixed(2)}%
+  30 Days:   ${(performanceData.chg_30d * 100).toFixed(2)}%
+  90 Days:   ${(performanceData.chg_90d * 100).toFixed(2)}%
+  1 Year:    ${(performanceData.chg_365d * 100).toFixed(2)}%`;
+      
       return {
         content: [
           {
             type: "text",
-            text: `API URL: ${SECTORS_API_BASE}/listing-performance/${ticker}/\n\nFetched listing performance:\n\n${JSON.stringify(
-              performanceData,
-              null,
-              2
-            )}`,
+            text: `${formattedResponse}\n\n` +
+                  `Note: Listing performance data is only available for tickers listed after May 2005.\n` +
+                  `API Endpoint: ${SECTORS_API_BASE}/listing-performance/${ticker}/`
           },
         ],
       };
