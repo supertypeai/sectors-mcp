@@ -1,6 +1,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
+import { createApiHeaders, handleApiResponse, formatNumber } from "./utils/api.js";
 import { getSubsectors } from "./tools/subsectors.js";
 import { getIndustries } from "./tools/industries.js";
 import { fetchSubIndustries } from "./tools/subindustries.js";
@@ -12,6 +13,7 @@ import {
   fetchCompaniesWithSegments,
   fetchListingPerformance,
   fetchQuarterlyFinancialDates,
+  fetchQuarterlyFinancials,
 } from "./tools/companies.js";
 
 const SECTORS_API_BASE = "https://api.sectors.app/v1";
@@ -254,6 +256,86 @@ server.tool(
             type: "text",
             text: `Quarterly Financial Dates for ${ticker.toUpperCase()}:\n\n${formattedResponse}\n\n` +
                   `API Endpoint: ${SECTORS_API_BASE}/company/get_quarterly_financial_dates/${ticker}/`
+          },
+        ],
+      };
+    } catch (error: any) {
+      return { content: [{ type: "text", text: `Error: ${error.message}` }] };
+    }
+  }
+);
+
+// Register fetchQuarterlyFinancials as an MCP tool
+server.tool(
+  "fetch-quarterly-financials",
+  "Fetch quarterly financial data for a company from the Sectors API",
+  {
+    ticker: z
+      .string()
+      .min(1, "Ticker is required")
+      .describe("Company ticker (e.g., 'BBRI' or 'BBRI.JK')"),
+    reportDate: z
+      .string()
+      .optional()
+      .describe("Report date in YYYY-MM-DD format"),
+    approx: z
+      .boolean()
+      .optional()
+      .describe("If true, returns closest available date when exact date not found"),
+    nQuarters: z
+      .number()
+      .int()
+      .positive()
+      .optional()
+      .describe("Number of latest consecutive quarters to return"),
+  },
+  async ({ ticker, reportDate, approx, nQuarters }) => {
+    try {
+      const financials = await fetchQuarterlyFinancials(
+        SECTORS_API_BASE,
+        SECTORS_API_KEY,
+        {
+          ticker,
+          reportDate,
+          approx,
+          nQuarters,
+        }
+      );
+
+      // Format the response for better readability
+      const formattedResponse = financials
+        .map((data) => {
+          const metrics = [
+            `Date: ${data.date}`,
+            `Revenue: ${data.revenue ? formatNumber(data.revenue) : 'N/A'}`,
+            `Net Income: ${data.earnings ? formatNumber(data.earnings) : 'N/A'}`,
+            `Total Assets: ${data.total_assets ? formatNumber(data.total_assets) : 'N/A'}`,
+            `Total Liabilities: ${data.total_liabilities ? formatNumber(data.total_liabilities) : 'N/A'}`,
+            `Total Equity: ${data.total_equity ? formatNumber(data.total_equity) : 'N/A'}`,
+            `Operating Cash Flow: ${data.operating_cash_flow ? formatNumber(data.operating_cash_flow) : 'N/A'}`,
+          ];
+
+          // Add financial sector metrics if available
+          if (data.financials_sector_metrics) {
+            const m = data.financials_sector_metrics;
+            metrics.push(
+              '\nFinancial Sector Metrics:',
+              `Net Interest Income: ${m.net_interest_income ? formatNumber(m.net_interest_income) : 'N/A'}`,
+              `Total Deposit: ${m.total_deposit ? formatNumber(m.total_deposit) : 'N/A'}`,
+              `Gross Loan: ${m.gross_loan ? formatNumber(m.gross_loan) : 'N/A'}`
+            );
+          }
+
+          return metrics.join('\n');
+        })
+        .join('\n\n');
+
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Quarterly Financials for ${ticker.toUpperCase()}:\n\n${formattedResponse}\n\n` +
+                  `API Endpoint: ${SECTORS_API_BASE}/financials/quarterly/${ticker}/`
           },
         ],
       };

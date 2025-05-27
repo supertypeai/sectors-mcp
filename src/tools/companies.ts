@@ -13,6 +13,65 @@ export interface ListingPerformance {
   chg_365d: number;
 }
 
+export interface FinancialSectorMetrics {
+  interest_income: number | null;
+  interest_expense: number | null;
+  net_interest_income: number | null;
+  gross_loan: number | null;
+  allowance_for_loans: number | null;
+  net_loan: number | null;
+  total_earning_assets: number | null;
+  current_account: number | null;
+  savings_account: number | null;
+  time_deposit: number | null;
+  total_deposit: number | null;
+  other_interest_bearing_liabilities: number | null;
+  total_cash_and_due_from_banks: number | null;
+}
+
+export interface QuarterlyFinancialData {
+  symbol: string;
+  date: string;
+  financials_sector_metrics: FinancialSectorMetrics;
+  premium_income: number | null;
+  premium_expense: number | null;
+  net_premium_income: number | null;
+  non_interest_income: number | null;
+  revenue: number | null;
+  operating_expense: number | null;
+  provision: number | null;
+  operating_pnl: number | null;
+  non_operating_income_or_loss: number | null;
+  earnings_before_tax: number | null;
+  tax: number | null;
+  minorities: number | null;
+  earnings: number | null;
+  gross_profit: number | null;
+  interest_expense_non_operating: number | null;
+  ebit: number | null;
+  ebitda: number | null;
+  cost_of_revenue: number | null;
+  total_assets: number | null;
+  non_interest_bearing_liabilities: number | null;
+  cash_only: number | null;
+  total_liabilities: number | null;
+  total_equity: number | null;
+  total_debt: number | null;
+  stockholders_equity: number | null;
+  total_non_current_assets: number | null;
+  current_liabilities: number | null;
+  cash_and_short_term_investments: number | null;
+  non_loan_assets: number | null;
+  total_current_asset: number | null;
+  total_non_current_liabilities: number | null;
+  financing_cash_flow: number | null;
+  operating_cash_flow: number | null;
+  investing_cash_flow: number | null;
+  net_cash_flow: number | null;
+  free_cash_flow: number | null;
+  realized_capital_goods_investment: number | null;
+}
+
 export interface QuarterlyFinancialDates {
   [year: string]: Array<[string, string]>; // [date, quarter]
 }
@@ -120,4 +179,50 @@ export async function fetchQuarterlyFinancialDates(
   );
 
   return handleApiResponse<QuarterlyFinancialDates>(response);
+}
+
+export interface QuarterlyFinancialsParams {
+  ticker: string;
+  reportDate?: string;
+  approx?: boolean;
+  nQuarters?: number;
+}
+
+export async function fetchQuarterlyFinancials(
+  baseUrl: string,
+  apiKey: string | undefined,
+  params: QuarterlyFinancialsParams
+): Promise<QuarterlyFinancialData[]> {
+  if (!apiKey) {
+    throw new Error("SECTORS_API_KEY is not defined");
+  }
+
+  // Ensure ticker is in uppercase and remove .JK if present
+  const formattedTicker = params.ticker.toUpperCase().replace(/\.JK$/, '');
+  
+  // Build query parameters
+  const queryParams = new URLSearchParams();
+  
+  if (params.reportDate) {
+    queryParams.append('report_date', params.reportDate);
+  }
+  
+  if (params.approx !== undefined) {
+    queryParams.append('approx', params.approx.toString());
+  }
+  
+  if (params.nQuarters !== undefined) {
+    queryParams.append('n_quarters', params.nQuarters.toString());
+  }
+  
+  const queryString = queryParams.toString();
+  const url = `${baseUrl}/financials/quarterly/${formattedTicker}/` + 
+              (queryString ? `?${queryString}` : '');
+  
+  const response = await fetch(url, {
+    method: "GET",
+    headers: createApiHeaders(apiKey),
+  });
+
+  return handleApiResponse<QuarterlyFinancialData[]>(response);
 }
