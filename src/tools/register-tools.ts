@@ -5,7 +5,7 @@ import { SECTORS_API_BASE, SECTORS_API_KEY } from "../config.js";
 import { registerSubsectorsTool } from "./subsectors.js";
 import { registerIndustriesTool } from "./industries.js";
 import { registerSubIndustriesTool } from "./subindustries.js";
-import { registerIndexTool } from "./indexData.js";
+import { registerIndexTool } from "./index-data.js";
 import {
   registerCompaniesBySubsectorTool,
   registerCompaniesBySubindustryTool,
@@ -16,13 +16,17 @@ import {
   registerCompanySegmentsTool,
   registerSgxCompaniesBySectorTool,
 } from "./companies.js";
-import { registerCompaniesByIndexTool } from "./companiesByIndex.js";
-import { registerCompanyReportTool } from "./companyReport.js";
-import { registerSgxSectorsTool } from "./sgxSectors.js";
-import { registerSGXCompanyReportTool } from "./sgxCompanyReport.js";
-import { registerSgxTopCompaniesTool } from "./sgxTopCompanies.js";
-import { registerIndexDailyTool } from "./indexDaily.js";
-import { registerIDXMarketCapTool } from "./idxMarketCap.js";
+import { registerCompaniesByIndexTool } from "./companies-by-index.js";
+import { registerCompanyReportTool } from "./company-report.js";
+import { registerSgxSectorsTool } from "./sgx-sectors.js";
+import { registerSGXCompanyReportTool } from "./sgx-company-report.js";
+import { registerSgxTopCompaniesTool } from "./sgx-top-companies.js";
+import { registerIndexDailyTool } from "./index-daily.js";
+import { registerIDXMarketCapTool } from "./idx-marketcap.js";
+import { registerTopCompanyMoversTool } from "./top-movers.js";
+import { registerMostTradedTool } from "./most-traded.js";
+import { registerTopGrowthTool } from "./top-growth.js";
+import { registerTopCompaniesTool } from "./top-companies.js";
 
 export function registerAllTools(server: McpServer) {
   // Register all tools
@@ -48,5 +52,10 @@ export function registerAllTools(server: McpServer) {
   registerSgxCompaniesBySectorTool(server, SECTORS_API_BASE, SECTORS_API_KEY);
   registerSgxTopCompaniesTool(server, SECTORS_API_BASE, SECTORS_API_KEY);
   registerIndexDailyTool(server, SECTORS_API_BASE, SECTORS_API_KEY);
+  registerMostTradedTool(server, SECTORS_API_BASE, SECTORS_API_KEY);
+  registerTopCompanyMoversTool(server, SECTORS_API_BASE, SECTORS_API_KEY);
+  registerTopCompaniesTool(server, SECTORS_API_BASE, SECTORS_API_KEY);
+  registerMostTradedTool(server, SECTORS_API_BASE, SECTORS_API_KEY);
+  registerTopGrowthTool(server, SECTORS_API_BASE, SECTORS_API_KEY);
   registerIDXMarketCapTool(server, SECTORS_API_BASE, SECTORS_API_KEY);
 }
