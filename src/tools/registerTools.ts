@@ -14,11 +14,10 @@ import {
   registerQuarterlyFinancialDatesTool,
   registerQuarterlyFinancialsTool,
   registerCompanySegmentsTool,
-  registerSGXCompanyReportTool,
+  registerSgxCompaniesBySectorTool,
 } from "./companies.js";
 import { registerCompaniesByIndexTool } from "./companiesByIndex.js";
 import { registerCompanyReportTool } from "./companyReport.js";
-import { registerSubsectorReportTool } from "./subsectorReport.js";
 
 export function registerAllTools(server: McpServer) {
   // Register all tools
@@ -39,6 +38,5 @@ export function registerAllTools(server: McpServer) {
   registerCompanySegmentsTool(server, SECTORS_API_BASE, SECTORS_API_KEY);
   registerCompaniesByIndexTool(server, SECTORS_API_BASE, SECTORS_API_KEY);
   registerCompanyReportTool(server, SECTORS_API_BASE, SECTORS_API_KEY);
-  registerSubsectorReportTool(server, SECTORS_API_BASE, SECTORS_API_KEY);
-  registerSGXCompanyReportTool(server, SECTORS_API_BASE, SECTORS_API_KEY);
+  registerSgxCompaniesBySectorTool(server, SECTORS_API_BASE, SECTORS_API_KEY);
 }
