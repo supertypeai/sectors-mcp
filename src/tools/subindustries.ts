@@ -1,3 +1,4 @@
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { createApiHeaders, handleApiResponse } from "../utils/api.js";
 
 export interface SubindustryResponse {
@@ -19,4 +20,34 @@ export async function fetchSubIndustries(
   });
 
   return handleApiResponse<SubindustryResponse[]>(response);
+}
+
+export function registerSubIndustriesTool(
+  server: McpServer,
+  baseUrl: string,
+  apiKey: string | undefined
+) {
+  server.tool(
+    "fetch-subindustries",
+    "Fetch subindustries from the Sectors API",
+    async () => {
+      try {
+        const subIndustriesData = await fetchSubIndustries(baseUrl, apiKey);
+        return {
+          content: [
+            {
+              type: "text",
+              text: `API URL: ${baseUrl}/subindustries\n\nFetched subindustries:\n\n${JSON.stringify(
+                subIndustriesData,
+                null,
+                2
+              )}`,
+            },
+          ],
+        };
+      } catch (error: any) {
+        return { content: [{ type: "text", text: `Error: ${error.message}` }] };
+      }
+    }
+  );
 }

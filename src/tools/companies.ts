@@ -1,3 +1,5 @@
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { z } from "zod";
 import { createApiHeaders, handleApiResponse } from "../utils/api.js";
 
 export interface CompanyResponse {
@@ -273,4 +275,204 @@ export async function fetchQuarterlyFinancials(
   });
 
   return handleApiResponse<QuarterlyFinancialData[]>(response);
+}
+
+// Registration functions for MCP server
+export function registerCompaniesBySubsectorTool(
+  server: McpServer,
+  baseUrl: string,
+  apiKey: string | undefined
+) {
+  server.tool(
+    "fetch-companies-by-subsector",
+    "Fetch companies by subsector from the Sectors API",
+    {
+      subSector: z.string().describe("The subsector to fetch companies for")
+    },
+    async ({ subSector }) => {
+      try {
+        const companies = await fetchCompaniesBySubsector(baseUrl, apiKey, subSector);
+        return {
+          content: [{
+            type: "text",
+            text: `API URL: ${baseUrl}/companies/subsector/${encodeURIComponent(subSector)}/\n\n${JSON.stringify(companies, null, 2)}`
+          }]
+        };
+      } catch (error: any) {
+        return { content: [{ type: "text", text: `Error: ${error.message}` }] };
+      }
+    }
+  );
+}
+
+export function registerCompaniesBySubindustryTool(
+  server: McpServer,
+  baseUrl: string,
+  apiKey: string | undefined
+) {
+  server.tool(
+    "fetch-companies-by-subindustry",
+    "Fetch companies by subindustry from the Sectors API",
+    {
+      subIndustry: z.string().describe("The subindustry to fetch companies for")
+    },
+    async ({ subIndustry }) => {
+      try {
+        const companies = await fetchCompaniesBySubindustry(baseUrl, apiKey, subIndustry);
+        return {
+          content: [{
+            type: "text",
+            text: `API URL: ${baseUrl}/companies/subindustry/${encodeURIComponent(subIndustry)}/\n\n${JSON.stringify(companies, null, 2)}`
+          }]
+        };
+      } catch (error: any) {
+        return { content: [{ type: "text", text: `Error: ${error.message}` }] };
+      }
+    }
+  );
+}
+
+export function registerCompaniesWithSegmentsTool(
+  server: McpServer,
+  baseUrl: string,
+  apiKey: string | undefined
+) {
+  server.tool(
+    "fetch-companies-with-segments",
+    "Fetch companies with segments from the Sectors API",
+    {},
+    async () => {
+      try {
+        const companies = await fetchCompaniesWithSegments(baseUrl, apiKey);
+        return {
+          content: [{
+            type: "text",
+            text: `API URL: ${baseUrl}/companies/with-segments/\n\n${JSON.stringify(companies, null, 2)}`
+          }]
+        };
+      } catch (error: any) {
+        return { content: [{ type: "text", text: `Error: ${error.message}` }] };
+      }
+    }
+  );
+}
+
+export function registerListingPerformanceTool(
+  server: McpServer,
+  baseUrl: string,
+  apiKey: string | undefined
+) {
+  server.tool(
+    "fetch-listing-performance",
+    "Fetch listing performance for a specific company",
+    {
+      ticker: z.string().describe("The company ticker symbol")
+    },
+    async ({ ticker }) => {
+      try {
+        const performance = await fetchListingPerformance(baseUrl, apiKey, ticker);
+        return {
+          content: [{
+            type: "text",
+            text: `API URL: ${baseUrl}/companies/${ticker}/listing-performance/\n\n${JSON.stringify(performance, null, 2)}`
+          }]
+        };
+      } catch (error: any) {
+        return { content: [{ type: "text", text: `Error: ${error.message}` }] };
+      }
+    }
+  );
+}
+
+export function registerQuarterlyFinancialDatesTool(
+  server: McpServer,
+  baseUrl: string,
+  apiKey: string | undefined
+) {
+  server.tool(
+    "fetch-quarterly-financial-dates",
+    "Fetch quarterly financial dates for a company",
+    {
+      ticker: z.string().describe("The company ticker symbol")
+    },
+    async ({ ticker }) => {
+      try {
+        const dates = await fetchQuarterlyFinancialDates(baseUrl, apiKey, ticker);
+        return {
+          content: [{
+            type: "text",
+            text: `API URL: ${baseUrl}/companies/${ticker}/quarterly-financial-dates/\n\n${JSON.stringify(dates, null, 2)}`
+          }]
+        };
+      } catch (error: any) {
+        return { content: [{ type: "text", text: `Error: ${error.message}` }] };
+      }
+    }
+  );
+}
+
+export function registerQuarterlyFinancialsTool(
+  server: McpServer,
+  baseUrl: string,
+  apiKey: string | undefined
+) {
+  server.tool(
+    "fetch-quarterly-financials",
+    "Fetch quarterly financials for a company",
+    {
+      ticker: z.string().describe("The company ticker symbol"),
+      reportDate: z.string().optional().describe("Specific report date (YYYY-MM-DD)"),
+      approx: z.boolean().optional().describe("Whether to include approximate data"),
+      nQuarters: z.number().optional().describe("Number of quarters to fetch")
+    },
+    async ({ ticker, reportDate, approx, nQuarters }) => {
+      try {
+        const financials = await fetchQuarterlyFinancials(baseUrl, apiKey, {
+          ticker,
+          reportDate,
+          approx,
+          nQuarters
+        });
+        return {
+          content: [{
+            type: "text",
+            text: `API URL: ${baseUrl}/companies/${ticker}/quarterly-financials/\n\n${JSON.stringify(financials, null, 2)}`
+          }]
+        };
+      } catch (error: any) {
+        return { content: [{ type: "text", text: `Error: ${error.message}` }] };
+      }
+    }
+  );
+}
+
+export function registerCompanySegmentsTool(
+  server: McpServer,
+  baseUrl: string,
+  apiKey: string | undefined
+) {
+  server.tool(
+    "fetch-company-segments",
+    "Fetch company segments data",
+    {
+      ticker: z.string().describe("The company ticker symbol"),
+      financialYear: z.number().optional().describe("Financial year (e.g., 2023)")
+    },
+    async ({ ticker, financialYear }) => {
+      try {
+        const segments = await fetchCompanySegments(baseUrl, apiKey, {
+          ticker,
+          financialYear
+        });
+        return {
+          content: [{
+            type: "text",
+            text: `API URL: ${baseUrl}/companies/${ticker}/segments/\n\n${JSON.stringify(segments, null, 2)}`
+          }]
+        };
+      } catch (error: any) {
+        return { content: [{ type: "text", text: `Error: ${error.message}` }] };
+      }
+    }
+  );
 }
