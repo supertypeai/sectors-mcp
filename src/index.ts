@@ -5,7 +5,13 @@ import { getSubsectors } from "./tools/subsectors.js";
 import { getIndustries } from "./tools/industries.js";
 import { fetchSubIndustries } from "./tools/subindustries.js";
 import { fetchIndex } from "./tools/indexData.js";
-import { fetchCompaniesBySubsector } from "./tools/companies.js";
+import { fetchCompaniesByIndex } from "./tools/companiesByIndex.js";
+import {
+  fetchCompaniesBySubsector,
+  fetchCompaniesBySubindustry,
+  fetchCompaniesWithSegments,
+  fetchListingPerformance,
+} from "./tools/companies.js";
 
 const SECTORS_API_BASE = "https://api.sectors.app/v1";
 const SECTORS_API_KEY = process.env.SECTORS_API_KEY;
@@ -120,7 +126,7 @@ server.tool(
 
 // Register fetchCompaniesBySubsector as an MCP tool
 server.tool(
-  "fetch-companies",
+  "fetch-companies-by-subsector",
   "Fetch companies by subsector from the Sectors API",
   {
     subSector: z.string().describe("The subsector to fetch companies for"),
@@ -138,6 +144,134 @@ server.tool(
             type: "text",
             text: `API URL: ${SECTORS_API_BASE}/companies/?sub_sector=${subSector}\n\nFetched companies:\n\n${JSON.stringify(
               companiesData,
+              null,
+              2
+            )}`,
+          },
+        ],
+      };
+    } catch (error: any) {
+      return { content: [{ type: "text", text: `Error: ${error.message}` }] };
+    }
+  }
+);
+
+// Register fetchCompaniesBySubindustry as an MCP tool
+server.tool(
+  "fetch-company-by-subindustry",
+  "Fetch companies by subindustry from the Sectors API",
+  {
+    subIndustry: z.string().describe("The subindustry to fetch companies for"),
+  },
+  async ({ subIndustry }) => {
+    try {
+      const companiesData = await fetchCompaniesBySubindustry(
+        SECTORS_API_BASE,
+        SECTORS_API_KEY,
+        subIndustry
+      );
+      return {
+        content: [
+          {
+            type: "text",
+            text: `API URL: ${SECTORS_API_BASE}/companies/?sub_industry=${subIndustry}\n\nFetched companies:\n\n${JSON.stringify(
+              companiesData,
+              null,
+              2
+            )}`,
+          },
+        ],
+      };
+    } catch (error: any) {
+      return { content: [{ type: "text", text: `Error: ${error.message}` }] };
+    }
+  }
+);
+
+// Register fetchCompaniesByIndex as an MCP tool
+server.tool(
+  "fetch-companies-by-index",
+  "Fetch companies by stock index from the Sectors API",
+  {
+    index: z.string().describe("The index name (e.g., 'lq45', 'idx30', 'kompas100')")
+  },
+  async ({ index }) => {
+    try {
+      const companies = await fetchCompaniesByIndex(
+        SECTORS_API_BASE,
+        SECTORS_API_KEY,
+        index
+      );
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Companies in index ${index}:\n${JSON.stringify(
+              companies,
+              null,
+              2
+            )}`,
+          },
+        ],
+      };
+    } catch (error: any) {
+      return { content: [{ type: "text", text: `Error: ${error.message}` }] };
+    }
+  }
+);
+
+// Register fetchCompaniesWithSegments as an MCP tool
+server.tool(
+  "fetch-companies-with-segments",
+  "Fetch companies with segments from the Sectors API",
+  async () => {
+    try {
+      const companiesData = await fetchCompaniesWithSegments(
+        SECTORS_API_BASE,
+        SECTORS_API_KEY
+      );
+      return {
+        content: [
+          {
+            type: "text",
+            text: `API URL: ${SECTORS_API_BASE}/companies/list_companies_with_segments/\n\nFetched companies with segments:\n\n${JSON.stringify(
+              companiesData,
+              null,
+              2
+            )}`,
+          },
+        ],
+      };
+    } catch (error: any) {
+      return { content: [{ type: "text", text: `Error: ${error.message}` }] };
+    }
+  }
+);
+
+// Register fetchListingPerformance as an MCP tool
+server.tool(
+  "fetch-listing-performance",
+  "Fetch listing performance by ticker from the Sectors API",
+  {
+    ticker: z
+      .string()
+      .describe(
+        "The ticker symbol for the listing performance. Example tickers: BBCA, TLKM, BMRI, ADES, ADRO"
+      ),
+  },
+  async ({ ticker }) => {
+    try {
+      const performanceData = await fetchListingPerformance(
+        SECTORS_API_BASE,
+        SECTORS_API_KEY,
+        ticker
+      );
+      return {
+        content: [
+          {
+            type: "text",
+            text: `API URL: ${SECTORS_API_BASE}/listing-performance/${ticker}/\n\nFetched listing performance:\n\n${JSON.stringify(
+              performanceData,
               null,
               2
             )}`,
