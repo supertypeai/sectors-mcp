@@ -14,6 +14,7 @@ import {
   fetchListingPerformance,
   fetchQuarterlyFinancialDates,
   fetchQuarterlyFinancials,
+  fetchCompanySegments,
 } from "./tools/companies.js";
 
 const SECTORS_API_BASE = "https://api.sectors.app/v1";
@@ -256,6 +257,56 @@ server.tool(
             type: "text",
             text: `Quarterly Financial Dates for ${ticker.toUpperCase()}:\n\n${formattedResponse}\n\n` +
                   `API Endpoint: ${SECTORS_API_BASE}/company/get_quarterly_financial_dates/${ticker}/`
+          },
+        ],
+      };
+    } catch (error: any) {
+      return { content: [{ type: "text", text: `Error: ${error.message}` }] };
+    }
+  }
+);
+
+// Register fetchCompanySegments as an MCP tool
+server.tool(
+  "fetch-company-segments",
+  "Fetch revenue and cost segments for a company from the Sectors API",
+  {
+    ticker: z
+      .string()
+      .min(1, "Ticker is required")
+      .describe("Company ticker (e.g., 'BBRI' or 'BBRI.JK')"),
+    financialYear: z
+      .number()
+      .int()
+      .positive()
+      .optional()
+      .describe("Financial year (e.g., 2023). If not provided, latest data will be returned"),
+  },
+  async ({ ticker, financialYear }) => {
+    try {
+      const segments = await fetchCompanySegments(
+        SECTORS_API_BASE,
+        SECTORS_API_KEY,
+        {
+          ticker,
+          financialYear,
+        }
+      );
+
+      // Format the response for better readability
+      const formattedSegments = segments.revenue_breakdown
+        .map(segment => {
+          return `- ${segment.source} → ${segment.target}: ${formatNumber(segment.value)}`;
+        })
+        .join('\n');
+
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Revenue and Cost Segments for ${segments.symbol} (FY${segments.financial_year}):\n\n` +
+                  `${formattedSegments}\n\n` +
+                  `API Endpoint: ${SECTORS_API_BASE}/company/get-segments/${ticker}/`
           },
         ],
       };

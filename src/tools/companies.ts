@@ -188,6 +188,54 @@ export interface QuarterlyFinancialsParams {
   nQuarters?: number;
 }
 
+export interface RevenueBreakdownData {
+  value: number;
+  source: string;
+  target: string;
+}
+
+export interface CompanySegmentsResponse {
+  symbol: string;
+  financial_year: number;
+  revenue_breakdown: RevenueBreakdownData[];
+}
+
+export interface CompanySegmentsParams {
+  ticker: string;
+  financialYear?: number;
+}
+
+export async function fetchCompanySegments(
+  baseUrl: string,
+  apiKey: string | undefined,
+  params: CompanySegmentsParams
+): Promise<CompanySegmentsResponse> {
+  if (!apiKey) {
+    throw new Error("SECTORS_API_KEY is not defined");
+  }
+
+  // Ensure ticker is in uppercase and remove .JK if present
+  const formattedTicker = params.ticker.toUpperCase().replace(/\.JK$/, '');
+  
+  // Build query parameters
+  const queryParams = new URLSearchParams();
+  
+  if (params.financialYear) {
+    queryParams.append('financial_year', params.financialYear.toString());
+  }
+  
+  const queryString = queryParams.toString();
+  const url = `${baseUrl}/company/get-segments/${formattedTicker}/` + 
+              (queryString ? `?${queryString}` : '');
+  
+  const response = await fetch(url, {
+    method: "GET",
+    headers: createApiHeaders(apiKey),
+  });
+
+  return handleApiResponse<CompanySegmentsResponse>(response);
+}
+
 export async function fetchQuarterlyFinancials(
   baseUrl: string,
   apiKey: string | undefined,
