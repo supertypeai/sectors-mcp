@@ -1,7 +1,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { SERVER_CONFIG } from "./config.js";
-import { registerAllTools } from "./tools/register-tools.js";
+import { registerAllTools } from "./tools/registerTools.js";
 
 // Type definitions for MCP server events
 type McpServerEvents = {
