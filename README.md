@@ -39,11 +39,13 @@ SECTORS_API_KEY=your_api_key
 ## Available Tools
 
 ### Market Indices
+
 - `fetch-index`: Fetch data for a specific market index
 - `fetch-index-daily`: Get daily transaction data for an index
 - `fetch-idx-market-cap`: Retrieve historical market capitalization data
 
 ### Company Data
+
 - `fetch-company-report`: Get detailed company reports
 - `fetch-company-segments`: Access company segment data
 - `fetch-listing-performance`: View listing performance metrics
@@ -52,6 +54,7 @@ SECTORS_API_KEY=your_api_key
 - `fetch-sgx-company-report`: Specialized reports for SGX-listed companies
 
 ### Sector & Industry Analysis
+
 - `get-subsectors`: List all available subsectors
 - `fetch-subindustries`: Get subindustry data
 - `fetch-industries`: Access industry information
@@ -61,6 +64,7 @@ SECTORS_API_KEY=your_api_key
 - `fetch-sgx-companies-by-sector`: Find SGX-listed companies by sector
 
 ### Market Analysis
+
 - `fetch-top-companies`: Get top companies by various metrics
 - `fetch-top-company-movers`: Identify top gaining and losing stocks
 - `fetch-top-growth-companies`: Find companies with highest growth metrics
@@ -82,18 +86,18 @@ The server implements the Model Context Protocol, allowing it to be used with an
 // Example client code
 const client = new McpClient({
   transport: new StdioTransport({
-    command: 'node',
-    args: ['build/index.js']
-  })
+    command: "node",
+    args: ["build/index.js"],
+  }),
 });
 
 // Connect to the server
 await client.connect();
 
 // Use available tools
-const result = await client.callTool('fetch-company-report', {
-  ticker: 'BBCA',
-  sections: 'overview,financials'
+const result = await client.callTool("fetch-company-report", {
+  ticker: "BBCA",
+  sections: "overview,financials",
 });
 ```
 
@@ -123,10 +127,6 @@ const result = await client.callTool('fetch-company-report', {
 - `zod`: Schema validation
 - `typescript`: TypeScript compiler
 - `@types/node`: TypeScript definitions for Node.js
-
-## License
-
-ISC
 
 ## Contributing
 
