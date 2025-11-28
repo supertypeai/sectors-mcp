@@ -40,6 +40,7 @@ import { registerSingaporeCompaniesReportTool } from "./getSingaporeCompaniesRep
 import { registerSingaporeDailyTransactionTool } from "./getSingaporeDailyTransaction.js";
 import { registerSingaporeCompanyDividendTool } from "./getSingaporeCompanyDividend.js";
 import { registerSingaporeTopCompaniesByMetricsTool } from "./getSingaporeTopCompaniesByMetrics.js";
+import { registerSingaporeEarningsYieldTool, registerSingaporeHistoricalVolatilityTool } from "./getSingaporeAdvancedMetrics.js";
 
 export function registerAllTools(server: McpServer, apiKey: string, env?: any) {
   // Register all tools
@@ -79,4 +80,6 @@ export function registerAllTools(server: McpServer, apiKey: string, env?: any) {
   registerSingaporeDailyTransactionTool(server, env);
   registerSingaporeCompanyDividendTool(server, env);
   registerSingaporeTopCompaniesByMetricsTool(server, env);
+  registerSingaporeEarningsYieldTool(server, env);
+  registerSingaporeHistoricalVolatilityTool(server, env);
 }
