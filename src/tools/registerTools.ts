@@ -30,6 +30,8 @@ import { registerTopCompaniesTool } from "./topCompanies.js";
 import { registerIPOCompaniesTool } from "./getIpoCompanies.js";
 import { registerHistoricalFinancialTool } from "./historicalFinancial.js";
 import { registerCompaniesReportTool } from "./getCompaniesReport.js";
+import { registerDailyTransactionTool } from "./getDailyTransaction.js";
+import { registerCompanyDividendTool } from "./getCompanyDividend.js";
 
 export function registerAllTools(server: McpServer, apiKey: string, env?: any) {
   // Register all tools
@@ -59,4 +61,6 @@ export function registerAllTools(server: McpServer, apiKey: string, env?: any) {
   registerIPOCompaniesTool(server, env);
   registerHistoricalFinancialTool(server, env);
   registerCompaniesReportTool(server, env);
+  registerDailyTransactionTool(server, env);
+  registerCompanyDividendTool(server, env);
 }
