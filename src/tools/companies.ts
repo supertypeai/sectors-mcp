@@ -25,11 +25,11 @@ export interface SGXCompanyReport {
     change_ytd: number;
     all_time_price: {
       ytd_low: { date: string; price: number };
-      '52_w_low': { date: string; price: number };
-      '90_d_low': { date: string; price: number };
+      "52_w_low": { date: string; price: number };
+      "90_d_low": { date: string; price: number };
       ytd_high: { date: string; price: number };
-      '52_w_high': { date: string; price: number };
-      '90_d_high': { date: string; price: number };
+      "52_w_high": { date: string; price: number };
+      "90_d_high": { date: string; price: number };
       all_time_low: { date: string; price: number };
       all_time_high: { date: string; price: number };
     };
@@ -224,8 +224,8 @@ export async function fetchListingPerformance(
   }
 
   // Ensure ticker is in uppercase and remove .JK if present
-  const formattedTicker = ticker.toUpperCase().replace(/\.JK$/, '');
-  
+  const formattedTicker = ticker.toUpperCase().replace(/\.JK$/, "");
+
   const response = await fetch(
     `${baseUrl}/listing-performance/${formattedTicker}/`,
     {
@@ -247,8 +247,8 @@ export async function fetchQuarterlyFinancialDates(
   }
 
   // Ensure ticker is in uppercase and remove .JK if present
-  const formattedTicker = ticker.toUpperCase().replace(/\.JK$/, '');
-  
+  const formattedTicker = ticker.toUpperCase().replace(/\.JK$/, "");
+
   const response = await fetch(
     `${baseUrl}/company/get_quarterly_financial_dates/${formattedTicker}/`,
     {
@@ -294,19 +294,20 @@ export async function fetchCompanySegments(
   }
 
   // Ensure ticker is in uppercase and remove .JK if present
-  const formattedTicker = params.ticker.toUpperCase().replace(/\.JK$/, '');
-  
+  const formattedTicker = params.ticker.toUpperCase().replace(/\.JK$/, "");
+
   // Build query parameters
   const queryParams = new URLSearchParams();
-  
+
   if (params.financialYear) {
-    queryParams.append('financial_year', params.financialYear.toString());
+    queryParams.append("financial_year", params.financialYear.toString());
   }
-  
+
   const queryString = queryParams.toString();
-  const url = `${baseUrl}/company/get-segments/${formattedTicker}/` + 
-              (queryString ? `?${queryString}` : '');
-  
+  const url =
+    `${baseUrl}/company/get-segments/${formattedTicker}/` +
+    (queryString ? `?${queryString}` : "");
+
   const response = await fetch(url, {
     method: "GET",
     headers: createApiHeaders(apiKey),
@@ -325,27 +326,28 @@ export async function fetchQuarterlyFinancials(
   }
 
   // Ensure ticker is in uppercase and remove .JK if present
-  const formattedTicker = params.ticker.toUpperCase().replace(/\.JK$/, '');
-  
+  const formattedTicker = params.ticker.toUpperCase().replace(/\.JK$/, "");
+
   // Build query parameters
   const queryParams = new URLSearchParams();
-  
+
   if (params.reportDate) {
-    queryParams.append('report_date', params.reportDate);
+    queryParams.append("report_date", params.reportDate);
   }
-  
+
   if (params.approx !== undefined) {
-    queryParams.append('approx', params.approx.toString());
+    queryParams.append("approx", params.approx.toString());
   }
-  
+
   if (params.nQuarters !== undefined) {
-    queryParams.append('n_quarters', params.nQuarters.toString());
+    queryParams.append("n_quarters", params.nQuarters.toString());
   }
-  
+
   const queryString = queryParams.toString();
-  const url = `${baseUrl}/financials/quarterly/${formattedTicker}/` + 
-              (queryString ? `?${queryString}` : '');
-  
+  const url =
+    `${baseUrl}/financials/quarterly/${formattedTicker}/` +
+    (queryString ? `?${queryString}` : "");
+
   const response = await fetch(url, {
     method: "GET",
     headers: createApiHeaders(apiKey),
@@ -364,16 +366,24 @@ export function registerCompaniesBySubsectorTool(
     "fetch-companies-by-subsector",
     "Fetch companies by subsector from the Sectors API",
     {
-      subSector: z.string().describe("The subsector to fetch companies for")
+      subSector: z.string().describe("The subsector to fetch companies for"),
     },
     async ({ subSector }) => {
       try {
-        const companies = await fetchCompaniesBySubsector(baseUrl, apiKey, subSector);
+        const companies = await fetchCompaniesBySubsector(
+          baseUrl,
+          apiKey,
+          subSector
+        );
         return {
-          content: [{
-            type: "text",
-            text: `API URL: ${baseUrl}/companies/subsector/${encodeURIComponent(subSector)}/\n\n${JSON.stringify(companies, null, 2)}`
-          }]
+          content: [
+            {
+              type: "text",
+              text: `API URL: ${baseUrl}/companies/subsector/${encodeURIComponent(
+                subSector
+              )}/\n\n${JSON.stringify(companies, null, 2)}`,
+            },
+          ],
         };
       } catch (error: any) {
         return { content: [{ type: "text", text: `Error: ${error.message}` }] };
@@ -391,16 +401,26 @@ export function registerCompaniesBySubindustryTool(
     "fetch-companies-by-subindustry",
     "Fetch companies by subindustry from the Sectors API",
     {
-      subIndustry: z.string().describe("The subindustry to fetch companies for")
+      subIndustry: z
+        .string()
+        .describe("The subindustry to fetch companies for"),
     },
     async ({ subIndustry }) => {
       try {
-        const companies = await fetchCompaniesBySubindustry(baseUrl, apiKey, subIndustry);
+        const companies = await fetchCompaniesBySubindustry(
+          baseUrl,
+          apiKey,
+          subIndustry
+        );
         return {
-          content: [{
-            type: "text",
-            text: `API URL: ${baseUrl}/companies/subindustry/${encodeURIComponent(subIndustry)}/\n\n${JSON.stringify(companies, null, 2)}`
-          }]
+          content: [
+            {
+              type: "text",
+              text: `API URL: ${baseUrl}/companies/subindustry/${encodeURIComponent(
+                subIndustry
+              )}/\n\n${JSON.stringify(companies, null, 2)}`,
+            },
+          ],
         };
       } catch (error: any) {
         return { content: [{ type: "text", text: `Error: ${error.message}` }] };
@@ -422,10 +442,16 @@ export function registerCompaniesWithSegmentsTool(
       try {
         const companies = await fetchCompaniesWithSegments(baseUrl, apiKey);
         return {
-          content: [{
-            type: "text",
-            text: `API URL: ${baseUrl}/companies/with-segments/\n\n${JSON.stringify(companies, null, 2)}`
-          }]
+          content: [
+            {
+              type: "text",
+              text: `API URL: ${baseUrl}/companies/with-segments/\n\n${JSON.stringify(
+                companies,
+                null,
+                2
+              )}`,
+            },
+          ],
         };
       } catch (error: any) {
         return { content: [{ type: "text", text: `Error: ${error.message}` }] };
@@ -443,16 +469,26 @@ export function registerListingPerformanceTool(
     "fetch-listing-performance",
     "Fetch listing performance for a specific company",
     {
-      ticker: z.string().describe("The company ticker symbol")
+      ticker: z.string().describe("The company ticker symbol"),
     },
     async ({ ticker }) => {
       try {
-        const performance = await fetchListingPerformance(baseUrl, apiKey, ticker);
+        const performance = await fetchListingPerformance(
+          baseUrl,
+          apiKey,
+          ticker
+        );
         return {
-          content: [{
-            type: "text",
-            text: `API URL: ${baseUrl}/companies/${ticker}/listing-performance/\n\n${JSON.stringify(performance, null, 2)}`
-          }]
+          content: [
+            {
+              type: "text",
+              text: `API URL: ${baseUrl}/companies/${ticker}/listing-performance/\n\n${JSON.stringify(
+                performance,
+                null,
+                2
+              )}`,
+            },
+          ],
         };
       } catch (error: any) {
         return { content: [{ type: "text", text: `Error: ${error.message}` }] };
@@ -470,16 +506,26 @@ export function registerQuarterlyFinancialDatesTool(
     "fetch-quarterly-financial-dates",
     "Fetch quarterly financial dates for a company",
     {
-      ticker: z.string().describe("The company ticker symbol")
+      ticker: z.string().describe("The company ticker symbol"),
     },
     async ({ ticker }) => {
       try {
-        const dates = await fetchQuarterlyFinancialDates(baseUrl, apiKey, ticker);
+        const dates = await fetchQuarterlyFinancialDates(
+          baseUrl,
+          apiKey,
+          ticker
+        );
         return {
-          content: [{
-            type: "text",
-            text: `API URL: ${baseUrl}/companies/${ticker}/quarterly-financial-dates/\n\n${JSON.stringify(dates, null, 2)}`
-          }]
+          content: [
+            {
+              type: "text",
+              text: `API URL: ${baseUrl}/companies/${ticker}/quarterly-financial-dates/\n\n${JSON.stringify(
+                dates,
+                null,
+                2
+              )}`,
+            },
+          ],
         };
       } catch (error: any) {
         return { content: [{ type: "text", text: `Error: ${error.message}` }] };
@@ -498,9 +544,15 @@ export function registerQuarterlyFinancialsTool(
     "Fetch quarterly financials for a company",
     {
       ticker: z.string().describe("The company ticker symbol"),
-      reportDate: z.string().optional().describe("Specific report date (YYYY-MM-DD)"),
-      approx: z.boolean().optional().describe("Whether to include approximate data"),
-      nQuarters: z.number().optional().describe("Number of quarters to fetch")
+      reportDate: z
+        .string()
+        .optional()
+        .describe("Specific report date (YYYY-MM-DD)"),
+      approx: z
+        .boolean()
+        .optional()
+        .describe("Whether to include approximate data"),
+      nQuarters: z.number().optional().describe("Number of quarters to fetch"),
     },
     async ({ ticker, reportDate, approx, nQuarters }) => {
       try {
@@ -508,13 +560,19 @@ export function registerQuarterlyFinancialsTool(
           ticker,
           reportDate,
           approx,
-          nQuarters
+          nQuarters,
         });
         return {
-          content: [{
-            type: "text",
-            text: `API URL: ${baseUrl}/companies/${ticker}/quarterly-financials/\n\n${JSON.stringify(financials, null, 2)}`
-          }]
+          content: [
+            {
+              type: "text",
+              text: `API URL: ${baseUrl}/companies/${ticker}/quarterly-financials/\n\n${JSON.stringify(
+                financials,
+                null,
+                2
+              )}`,
+            },
+          ],
         };
       } catch (error: any) {
         return { content: [{ type: "text", text: `Error: ${error.message}` }] };
@@ -541,22 +599,30 @@ export function registerSGXCompanyReportTool(
   apiKey: string | undefined
 ) {
   server.tool(
-    'fetch-sgx-company-report',
-    'Fetch a comprehensive report for a given SGX-listed company ticker, including overview, valuation, financials, and dividend information.',
+    "fetch-sgx-company-report",
+    "Fetch a comprehensive report for a given SGX-listed company ticker, including overview, valuation, financials, and dividend information.",
     {
-      ticker: z.string().describe('The ticker symbol of the company (e.g., "D05", "U11")')
+      ticker: z
+        .string()
+        .describe('The ticker symbol of the company (e.g., "D05", "U11")'),
     },
     async ({ ticker }) => {
       try {
         const report = await fetchSGXCompanyReport(baseUrl, apiKey, ticker);
         return {
-          content: [{
-            type: 'text',
-            text: `API URL: ${baseUrl}/sgx/company/report/${ticker}/\n\n${JSON.stringify(report, null, 2)}`
-          }]
+          content: [
+            {
+              type: "text",
+              text: `API URL: ${baseUrl}/sgx/company/report/${ticker}/\n\n${JSON.stringify(
+                report,
+                null,
+                2
+              )}`,
+            },
+          ],
         };
       } catch (error: any) {
-        return { content: [{ type: 'text', text: `Error: ${error.message}` }] };
+        return { content: [{ type: "text", text: `Error: ${error.message}` }] };
       }
     }
   );
@@ -577,11 +643,12 @@ export async function fetchSgxCompaniesBySector(
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
     throw new Error(
-      errorData.error || `Failed to fetch SGX companies for sector: ${sector}`
+      (errorData as any).error ||
+        `Failed to fetch SGX companies for sector: ${sector}`
     );
   }
 
-  return response.json();
+  return response.json() as Promise<SgxCompany[]>;
 }
 
 export function registerSgxCompaniesBySectorTool(
@@ -593,16 +660,28 @@ export function registerSgxCompaniesBySectorTool(
     "fetch-sgx-companies-by-sector",
     "Fetch list of companies in SGX Index from a sector",
     {
-      sector: z.string().describe("Sector in kebab-case format (e.g., 'consumer-defensive', 'industrials')")
+      sector: z
+        .string()
+        .describe(
+          "Sector in kebab-case format (e.g., 'consumer-defensive', 'industrials')"
+        ),
     },
     async ({ sector }) => {
       try {
-        const companies = await fetchSgxCompaniesBySector(baseUrl, apiKey, sector);
+        const companies = await fetchSgxCompaniesBySector(
+          baseUrl,
+          apiKey,
+          sector
+        );
         return {
-          content: [{
-            type: "text",
-            text: `API URL: ${baseUrl}/sgx/companies/?sector=${encodeURIComponent(sector)}\n\n${JSON.stringify(companies, null, 2)}`
-          }]
+          content: [
+            {
+              type: "text",
+              text: `API URL: ${baseUrl}/sgx/companies/?sector=${encodeURIComponent(
+                sector
+              )}\n\n${JSON.stringify(companies, null, 2)}`,
+            },
+          ],
         };
       } catch (error: any) {
         return { content: [{ type: "text", text: `Error: ${error.message}` }] };
@@ -621,19 +700,28 @@ export function registerCompanySegmentsTool(
     "Fetch company segments data",
     {
       ticker: z.string().describe("The company ticker symbol"),
-      financialYear: z.number().optional().describe("Financial year (e.g., 2023)")
+      financialYear: z
+        .number()
+        .optional()
+        .describe("Financial year (e.g., 2023)"),
     },
     async ({ ticker, financialYear }) => {
       try {
         const segments = await fetchCompanySegments(baseUrl, apiKey, {
           ticker,
-          financialYear
+          financialYear,
         });
         return {
-          content: [{
-            type: "text",
-            text: `API URL: ${baseUrl}/companies/${ticker}/segments/\n\n${JSON.stringify(segments, null, 2)}`
-          }]
+          content: [
+            {
+              type: "text",
+              text: `API URL: ${baseUrl}/companies/${ticker}/segments/\n\n${JSON.stringify(
+                segments,
+                null,
+                2
+              )}`,
+            },
+          ],
         };
       } catch (error: any) {
         return { content: [{ type: "text", text: `Error: ${error.message}` }] };
