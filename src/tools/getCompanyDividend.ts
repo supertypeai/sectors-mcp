@@ -85,11 +85,7 @@ export function registerCompanyDividendTool(server: McpServer, env: any) {
           content: [
             {
               type: "text",
-              text: `Dividend Data for ${symbol} (${year}):\n\n${JSON.stringify(
-                dividendData,
-                null,
-                2
-              )}`,
+              text: JSON.stringify(dividendData, null, 2),
             },
           ],
         };

@@ -172,11 +172,7 @@ export function registerCompaniesReportTool(server: McpServer, env: any) {
           content: [
             {
               type: "text",
-              text: `Company Reports for ${symbols.join(", ")}:\n\n${JSON.stringify(
-                companies,
-                null,
-                2
-              )}`,
+              text: JSON.stringify(companies, null, 2),
             },
           ],
         };

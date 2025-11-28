@@ -91,9 +91,7 @@ export function registerDailyTransactionTool(server: McpServer, env: any) {
           content: [
             {
               type: "text",
-              text: `Daily Trading Data (${startDate} to ${endDate}) for ${symbols.join(
-                ", "
-              )}:\n\n${JSON.stringify(dailyData, null, 2)}`,
+              text: JSON.stringify(dailyData, null, 2),
             },
           ],
         };

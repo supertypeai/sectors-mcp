@@ -197,15 +197,7 @@ export function registerSubsectorReportTool(server: McpServer, env: any) {
           content: [
             {
               type: "text",
-              text: `Subsector Report for ${subsector}:\n\nAggregates:\n${JSON.stringify(
-                result.aggregates,
-                null,
-                2
-              )}\n\nCompanies (${result.companies.length}):\n${JSON.stringify(
-                result.companies,
-                null,
-                2
-              )}`,
+              text: JSON.stringify(result, null, 2),
             },
           ],
         };

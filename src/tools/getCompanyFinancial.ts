@@ -86,11 +86,7 @@ export function registerCompanyFinancialTool(server: McpServer, env: any) {
           content: [
             {
               type: "text",
-              text: `Financial Data for ${symbol}:\n\n${JSON.stringify(
-                financialData,
-                null,
-                2
-              )}`,
+              text: JSON.stringify(financialData, null, 2),
             },
           ],
         };

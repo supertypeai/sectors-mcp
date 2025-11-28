@@ -112,11 +112,7 @@ export function registerIPOCompaniesTool(
           content: [
             {
               type: "text",
-              text: `IPO Companies (${startDate} to ${endDate}):\n\n${JSON.stringify(
-                companies,
-                null,
-                2
-              )}`,
+              text: JSON.stringify(companies, null, 2),
             },
           ],
         };
