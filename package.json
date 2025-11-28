@@ -12,10 +12,13 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "1.13.1",
+    "@supabase/supabase-js": "^2.86.0",
     "agents": "^0.0.100",
+    "supabase": "^2.63.1",
     "zod": "^3.25.67"
   },
   "devDependencies": {
+    "@types/node": "^24.10.1",
     "typescript": "^5.8.3",
     "wrangler": "^4.24.3"
   }

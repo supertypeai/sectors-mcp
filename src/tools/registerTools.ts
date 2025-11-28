@@ -27,8 +27,10 @@ import { registerTopCompanyMoversTool } from "./topMovers.js";
 import { registerMostTradedTool } from "./mostTraded.js";
 import { registerTopGrowthTool } from "./topGrowth.js";
 import { registerTopCompaniesTool } from "./topCompanies.js";
+import { registerIPOCompaniesTool } from "./getIpoCompanies.js";
+import { registerHistoricalFinancialTool } from "./historicalFinancial.js";
 
-export function registerAllTools(server: McpServer, apiKey: string) {
+export function registerAllTools(server: McpServer, apiKey: string, env?: any) {
   // Register all tools
   registerSubsectorsTool(server, SECTORS_API_BASE, apiKey);
   registerIndustriesTool(server, SECTORS_API_BASE, apiKey);
@@ -53,4 +55,6 @@ export function registerAllTools(server: McpServer, apiKey: string) {
   registerMostTradedTool(server, SECTORS_API_BASE, apiKey);
   registerTopGrowthTool(server, SECTORS_API_BASE, apiKey);
   registerIDXMarketCapTool(server, SECTORS_API_BASE, apiKey);
+  registerIPOCompaniesTool(server, env);
+  registerHistoricalFinancialTool(server, env);
 }

@@ -8,6 +8,8 @@ interface Env {
   // Add any environment variables you need
   SECTORS_API_KEY?: string;
   SECTORS_API_BASE?: string;
+  SUPABASE_URL?: string;
+  SUPABASE_ANON_KEY?: string;
 }
 
 interface ExecutionContext {
@@ -25,7 +27,7 @@ export class MyMCP extends McpAgent {
 
   async init() {
     // Register all the existing sectors tools
-    registerAllTools(this.server, this.props.myToken as string);
+    registerAllTools(this.server, this.props.myToken as string, (this as any).env);
   }
 }
 
@@ -39,6 +41,7 @@ export default {
     }
 
     console.log({ authHeader });
+    console.log({ env });
 
     const token = authHeader.split(/\s+/)[1] ?? "";
 
