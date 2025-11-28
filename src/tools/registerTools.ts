@@ -37,6 +37,8 @@ import { registerSubsectorReportTool } from "./subsectorReport.js";
 import { registerTopCompaniesByMetricsTool } from "./topCompaniesByMetrics.js";
 import { registerSingaporeCompanyHistoricalFinancialTool } from "./getSingaporeCompanyHistoricalFinancial.js";
 import { registerSingaporeCompaniesReportTool } from "./getSingaporeCompaniesReport.js";
+import { registerSingaporeDailyTransactionTool } from "./getSingaporeDailyTransaction.js";
+import { registerSingaporeCompanyDividendTool } from "./getSingaporeCompanyDividend.js";
 
 export function registerAllTools(server: McpServer, apiKey: string, env?: any) {
   // Register all tools
@@ -73,4 +75,6 @@ export function registerAllTools(server: McpServer, apiKey: string, env?: any) {
   registerTopCompaniesByMetricsTool(server, env);
   registerSingaporeCompanyHistoricalFinancialTool(server, env);
   registerSingaporeCompaniesReportTool(server, env);
+  registerSingaporeDailyTransactionTool(server, env);
+  registerSingaporeCompanyDividendTool(server, env);
 }
