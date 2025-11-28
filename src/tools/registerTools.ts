@@ -32,6 +32,7 @@ import { registerHistoricalFinancialTool } from "./historicalFinancial.js";
 import { registerCompaniesReportTool } from "./getCompaniesReport.js";
 import { registerDailyTransactionTool } from "./getDailyTransaction.js";
 import { registerCompanyDividendTool } from "./getCompanyDividend.js";
+import { registerCompanyFinancialTool } from "./getCompanyFinancial.js";
 
 export function registerAllTools(server: McpServer, apiKey: string, env?: any) {
   // Register all tools
@@ -63,4 +64,5 @@ export function registerAllTools(server: McpServer, apiKey: string, env?: any) {
   registerCompaniesReportTool(server, env);
   registerDailyTransactionTool(server, env);
   registerCompanyDividendTool(server, env);
+  registerCompanyFinancialTool(server, env);
 }
