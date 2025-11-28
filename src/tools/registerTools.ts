@@ -29,6 +29,7 @@ import { registerTopGrowthTool } from "./topGrowth.js";
 import { registerTopCompaniesTool } from "./topCompanies.js";
 import { registerIPOCompaniesTool } from "./getIpoCompanies.js";
 import { registerHistoricalFinancialTool } from "./historicalFinancial.js";
+import { registerCompaniesReportTool } from "./getCompaniesReport.js";
 
 export function registerAllTools(server: McpServer, apiKey: string, env?: any) {
   // Register all tools
@@ -57,4 +58,5 @@ export function registerAllTools(server: McpServer, apiKey: string, env?: any) {
   registerIDXMarketCapTool(server, SECTORS_API_BASE, apiKey);
   registerIPOCompaniesTool(server, env);
   registerHistoricalFinancialTool(server, env);
+  registerCompaniesReportTool(server, env);
 }
