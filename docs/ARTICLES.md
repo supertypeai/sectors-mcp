@@ -1,0 +1,90 @@
+# Sectors MCP Server Documentation
+
+Welcome to the official documentation for the **Sectors MCP Server**. This Model Context Protocol (MCP) server connects your AI agents (like Claude Desktop) directly to real-time financial market data, stock analysis, and company reports for the Indonesia Stock Exchange (IDX) and Singapore Exchange (SGX).
+
+## 🚀 Quick Start
+
+**No installation required!** You can connect directly to our cloud-hosted server using Server-Sent Events (SSE).
+
+### Using with Claude Desktop
+
+To add financial data capabilities to Claude, simply edit your configuration file:
+
+1.  Open your Claude Desktop config file:
+    *   **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
+    *   **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
+
+2.  Add the `sectors` server configuration:
+
+```json
+{
+  "mcpServers": {
+    "sectors": {
+      "transport": {
+        "type": "sse",
+        "url": "https://sectors-mcp.aidityasadhakim250.workers.dev/sse",
+        "headers": {
+          "Authorization": "Bearer YOUR_SECTORS_API_KEY"
+        }
+      }
+    }
+  }
+}
+```
+
+> **Note:** You can get your API key at [sectors.app](https://sectors.app).
+
+### Using with Other MCP Clients
+
+For any standard MCP client (TypeScript/Python/Go), use the following connection details:
+
+*   **Transport Type**: `sse`
+*   **URL**: `https://sectors-mcp.aidityasadhakim250.workers.dev/sse`
+*   **Headers**: `Authorization: Bearer <YOUR_API_KEY>`
+
+---
+
+## 📊 Available Data & Tools
+
+Once connected, your AI assistant will have access to the following tools:
+
+### 🇮🇩 Indonesia Stock Exchange (IDX)
+
+#### **Company Analysis**
+*   **Get Company Reports**: Fetch comprehensive reports including overview, financials, and valuation (`fetch-company-report`).
+*   **Revenue Segments**: Breakdown of company revenue sources (`fetch-company-segments`).
+*   **IPO Data**: Information on recent Initial Public Offerings (`fetch-ipo-companies`).
+
+#### **Financials**
+*   **Quarterly Statements**: Access detailed quarterly financial reports (`fetch-quarterly-financials`).
+*   **Dividends**: Get dividend history and payout information (`fetch-company-dividend`).
+*   **Historical Data**: Retrieve long-term financial performance (`fetch-historical-financial`).
+
+#### **Market Movers & Indices**
+*   **Top Movers**: Identify top gainers and losers in the market (`fetch-top-company-movers`).
+*   **Most Traded**: See which stocks have the highest trading volume (`fetch-most-traded-stocks`).
+*   **Indices**: Get data for specific market indices like IHSG (`fetch-index`, `fetch-index-daily`).
+
+#### **Sector Analysis**
+*   **Industry Breakdown**: Analyze specific subsectors and industries (`fetch-subsector-report`, `fetch-industries`).
+*   **NIPE Metrics**: Compare companies using Net Income to Price to Equity ratios (`fetch-companies-nipe`).
+
+### 🇸🇬 Singapore Exchange (SGX)
+
+#### **Company Data**
+*   **SGX Reports**: Specialized reports for Singapore-listed companies (`fetch-sgx-company-report`).
+*   **Financials**: Historical financial data for SGX entities (`fetch-singapore-company-historical-financial`).
+
+#### **Advanced Metrics**
+*   **Earnings Yield**: Rank companies by earnings yield (`fetch-singapore-earnings-yield`).
+*   **Volatility**: Analyze historical price volatility (`fetch-singapore-historical-volatility`).
+*   **Top Performers**: Find top SGX companies by custom metrics (`fetch-sgx-top-companies`).
+
+---
+
+## 🆘 Support
+
+This tool is part of the **Sectors** financial data platform.
+
+*   **Website & API Keys**: [sectors.app](https://sectors.app)
+*   **Documentation**: [Sectors API Docs](https://docs.sectors.app/)
