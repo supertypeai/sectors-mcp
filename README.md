@@ -4,7 +4,11 @@ A Model Context Protocol (MCP) server that provides financial market data and an
 
 ## 🚀 Quick Start - Use Cloud-Hosted Server
 
-**No installation required!** Connect directly to our cloud-hosted MCP server:
+**No installation required!** Connect directly to our cloud-hosted MCP server.
+
+### Option 1: Native SSE Transport
+
+For MCP clients that support SSE transport natively:
 
 ```javascript
 {
@@ -22,7 +26,31 @@ A Model Context Protocol (MCP) server that provides financial market data and an
 }
 ```
 
-Simply add your [Sectors API key](https://sectors.app) as `SECTORS_API_KEY` environment variable and start using all available tools immediately!
+### Option 2: stdio via mcp-remote
+
+For Claude Desktop, Claude Code, or other stdio-based clients, use `mcp-remote` as a bridge:
+
+```json
+{
+  "mcpServers": {
+    "sectors": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote",
+        "https://sectors-mcp.aidityasadhakim250.workers.dev/sse",
+        "--header",
+        "Authorization:${AUTH_TOKEN}"
+      ],
+      "env": {
+        "AUTH_TOKEN": "Bearer YOUR_API_KEY_HERE"
+      }
+    }
+  }
+}
+```
+
+Get your [Sectors API key](https://sectors.app) and start using all available tools immediately!
 
 ## Features
 
@@ -255,25 +283,31 @@ Example client configuration:
 
 ## Usage Examples
 
-### With Claude Desktop
+### With Claude Desktop or Claude Code
 
-Add to your Claude Desktop configuration (`~/Library/Application Support/Claude/claude_desktop_config.json` on macOS):
+Add to your configuration file (`~/Library/Application Support/Claude/claude_desktop_config.json` on macOS, `%APPDATA%\Claude\claude_desktop_config.json` on Windows):
 
 ```json
 {
   "mcpServers": {
     "sectors": {
-      "transport": {
-        "type": "sse",
-        "url": "https://sectors-mcp.aidityasadhakim250.workers.dev/sse",
-        "headers": {
-          "Authorization": "Bearer YOUR_SECTORS_API_KEY"
-        }
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote",
+        "https://sectors-mcp.aidityasadhakim250.workers.dev/sse",
+        "--header",
+        "Authorization:${AUTH_TOKEN}"
+      ],
+      "env": {
+        "AUTH_TOKEN": "Bearer YOUR_API_KEY_HERE"
       }
     }
   }
 }
 ```
+
+This uses `mcp-remote` to bridge the SSE connection into stdio.
 
 ### With MCP Client (TypeScript/JavaScript)
 

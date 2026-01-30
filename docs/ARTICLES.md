@@ -6,11 +6,11 @@ Welcome to the official documentation for the **Sectors MCP Server**. This Model
 
 **No installation required!** You can connect directly to our cloud-hosted server using Server-Sent Events (SSE).
 
-### Using with Claude Desktop
+### Using with Claude Desktop or Claude Code
 
-To add financial data capabilities to Claude, simply edit your configuration file:
+To add financial data capabilities to Claude, edit your configuration file:
 
-1.  Open your Claude Desktop config file:
+1.  Open your config file:
     *   **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
     *   **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
 
@@ -20,21 +20,27 @@ To add financial data capabilities to Claude, simply edit your configuration fil
 {
   "mcpServers": {
     "sectors": {
-      "transport": {
-        "type": "sse",
-        "url": "https://sectors-mcp.aidityasadhakim250.workers.dev/sse",
-        "headers": {
-          "Authorization": "Bearer YOUR_SECTORS_API_KEY"
-        }
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote",
+        "https://sectors-mcp.aidityasadhakim250.workers.dev/sse",
+        "--header",
+        "Authorization:${AUTH_TOKEN}"
+      ],
+      "env": {
+        "AUTH_TOKEN": "Bearer YOUR_API_KEY_HERE"
       }
     }
   }
 }
 ```
 
+This uses `mcp-remote` to bridge the SSE connection into stdio.
+
 > **Note:** You can get your API key at [sectors.app](https://sectors.app).
 
-### Using with Other MCP Clients
+### Using with Other MCP Clients (Programmatic)
 
 For any standard MCP client (TypeScript/Python/Go), use the following connection details:
 
