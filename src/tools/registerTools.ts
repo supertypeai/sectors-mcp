@@ -1,5 +1,5 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { SECTORS_API_BASE } from "../config.js";
+import { SECTORS_API_BASE, SECTORS_API_BASE_V2 } from "../config.js";
 
 // Import tool modules
 import { registerSubsectorsTool } from "./subsectors.js";
@@ -42,6 +42,7 @@ import { registerSingaporeCompanyDividendTool } from "./getSingaporeCompanyDivid
 import { registerSingaporeTopCompaniesByMetricsTool } from "./getSingaporeTopCompaniesByMetrics.js";
 import { registerSingaporeEarningsYieldTool, registerSingaporeHistoricalVolatilityTool } from "./getSingaporeAdvancedMetrics.js";
 import { registerCompaniesNipeTool } from "./getCompaniesNipe.js";
+import { registerFreeFloatTool } from "./freeFloat.js";
 
 export function registerAllTools(server: McpServer, apiKey: string, env?: any) {
   // Register all tools
@@ -84,4 +85,5 @@ export function registerAllTools(server: McpServer, apiKey: string, env?: any) {
   registerSingaporeEarningsYieldTool(server, env);
   registerSingaporeHistoricalVolatilityTool(server, env);
   registerCompaniesNipeTool(server, env);
+  registerFreeFloatTool(server, SECTORS_API_BASE_V2, apiKey);
 }
