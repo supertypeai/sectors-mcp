@@ -35,6 +35,7 @@ export function registerIndexTool(
     {
       index: z.string().describe("The index to fetch data for"),
     },
+    { annotations: { readOnlyHint: true } },
     async ({ index }) => {
       try {
         const indexData = await fetchIndex(baseUrl, apiKey, index);

@@ -164,6 +164,7 @@ export function registerCompaniesReportTool(server: McpServer, env: any) {
         .describe("Array of column names to retrieve from the company report"),
       symbols: z.array(z.string()).describe("Array of company symbols to query"),
     },
+    { annotations: { readOnlyHint: true } },
     async ({ columns, symbols }) => {
       try {
         const companies = await fetchCompaniesReport(env, columns, symbols);

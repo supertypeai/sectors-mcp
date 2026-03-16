@@ -26,19 +26,24 @@ export function registerSubsectorsTool(
   baseUrl: string,
   apiKey: string | undefined
 ) {
-  server.tool("get-subsectors", "Get list of subsectors", async () => {
-    try {
-      const subsectorsText = await getSubsectors(baseUrl, apiKey);
-      return {
-        content: [
-          {
-            type: "text",
-            text: `API URL: ${baseUrl}/subsectors\n\n${subsectorsText}`,
-          },
-        ],
-      };
-    } catch (error: any) {
-      return { content: [{ type: "text", text: `Error: ${error.message}` }] };
+  server.tool(
+    "get-subsectors",
+    "Get list of subsectors",
+    { annotations: { readOnlyHint: true } },
+    async () => {
+      try {
+        const subsectorsText = await getSubsectors(baseUrl, apiKey);
+        return {
+          content: [
+            {
+              type: "text",
+              text: `API URL: ${baseUrl}/subsectors\n\n${subsectorsText}`,
+            },
+          ],
+        };
+      } catch (error: any) {
+        return { content: [{ type: "text", text: `Error: ${error.message}` }] };
+      }
     }
-  });
+  );
 }

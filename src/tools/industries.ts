@@ -32,6 +32,7 @@ export function registerIndustriesTool(
   server.tool(
     "fetch-industries",
     "Fetch industries from the Sectors API",
+    { annotations: { readOnlyHint: true } },
     async () => {
       try {
         const industriesText = await getIndustries(baseUrl, apiKey);

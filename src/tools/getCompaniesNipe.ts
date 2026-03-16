@@ -88,6 +88,7 @@ export function registerCompaniesNipeTool(server: McpServer, env: any) {
         .array(z.string())
         .describe("Array of company symbols to calculate NIPE for"),
     },
+    { annotations: { readOnlyHint: true } },
     async ({ symbols }) => {
       try {
         const companies = await fetchCompaniesNipe(env, symbols);

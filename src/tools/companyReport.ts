@@ -79,6 +79,7 @@ export function registerCompanyReportTool(
           "Comma-separated list of sections to retrieve. Available sections: overview, valuation, future, peers, financials, dividend, management, ownership. Defaults to 'all'."
         ),
     },
+    { annotations: { readOnlyHint: true } },
     async (args: { ticker: string; sections: string }, extra: any) => {
       try {
         const report = await fetchCompanyReport(

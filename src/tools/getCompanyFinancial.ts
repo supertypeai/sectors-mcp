@@ -78,6 +78,7 @@ export function registerCompanyFinancialTool(server: McpServer, env: any) {
         .regex(/\.JK$/, "Symbol must end with .JK")
         .describe("Company symbol with .JK suffix (e.g., 'BBCA.JK')"),
     },
+    { annotations: { readOnlyHint: true } },
     async ({ symbol }) => {
       try {
         const financialData = await fetchCompanyFinancial(env, symbol);

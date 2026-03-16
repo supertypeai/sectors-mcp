@@ -49,6 +49,7 @@ export function registerIDXMarketCapTool(
         .optional()
         .describe("End date in YYYY-MM-DD format. Defaults to today."),
     },
+    { annotations: { readOnlyHint: true } },
     async ({ startDate, endDate }) => {
       try {
         const marketCapData = await fetchIDXMarketCap(

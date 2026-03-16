@@ -54,6 +54,7 @@ export function registerDailyTransactionTool(
         .optional()
         .describe('End date in YYYY-MM-DD format (optional, defaults to today)'),
     },
+    { annotations: { readOnlyHint: true } },
     async ({ ticker, startDate, endDate }) => {
       try {
         if (!ticker) {

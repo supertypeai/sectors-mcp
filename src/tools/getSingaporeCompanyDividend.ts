@@ -125,6 +125,7 @@ export function registerSingaporeCompanyDividendTool(
         .max(2100)
         .describe("The year to get dividend information for"),
     },
+    { annotations: { readOnlyHint: true } },
     async ({ symbol, year }) => {
       try {
         const dividendData = await fetchSingaporeCompanyDividend(

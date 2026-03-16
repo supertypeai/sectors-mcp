@@ -2,7 +2,7 @@ export const createApiHeaders = (apiKey: string | undefined) => {
   if (!apiKey) throw new Error("API key is not defined");
   console.log("Creating API headers with key:", apiKey);
   return {
-    Authorization: apiKey,
+    Authorization: `Bearer ${apiKey}`,
   };
 };
 

@@ -75,6 +75,7 @@ export function registerSgxTopCompaniesTool(
         .default(1000)
         .describe("Minimum market cap in million SGD. Defaults to 1000."),
     },
+    { annotations: { readOnlyHint: true } },
     async ({ sector, classifications, minMarketCapMillion }) => {
       try {
         const result = await fetchTopCompanies(

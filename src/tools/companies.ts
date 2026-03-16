@@ -368,6 +368,7 @@ export function registerCompaniesBySubsectorTool(
     {
       subSector: z.string().describe("The subsector to fetch companies for"),
     },
+    { annotations: { readOnlyHint: true } },
     async ({ subSector }) => {
       try {
         const companies = await fetchCompaniesBySubsector(
@@ -405,6 +406,7 @@ export function registerCompaniesBySubindustryTool(
         .string()
         .describe("The subindustry to fetch companies for"),
     },
+    { annotations: { readOnlyHint: true } },
     async ({ subIndustry }) => {
       try {
         const companies = await fetchCompaniesBySubindustry(
@@ -438,6 +440,7 @@ export function registerCompaniesWithSegmentsTool(
     "fetch-companies-with-segments",
     "Fetch companies with segments from the Sectors API",
     {},
+    { annotations: { readOnlyHint: true } },
     async () => {
       try {
         const companies = await fetchCompaniesWithSegments(baseUrl, apiKey);
@@ -471,6 +474,7 @@ export function registerListingPerformanceTool(
     {
       ticker: z.string().describe("The company ticker symbol"),
     },
+    { annotations: { readOnlyHint: true } },
     async ({ ticker }) => {
       try {
         const performance = await fetchListingPerformance(
@@ -508,6 +512,7 @@ export function registerQuarterlyFinancialDatesTool(
     {
       ticker: z.string().describe("The company ticker symbol"),
     },
+    { annotations: { readOnlyHint: true } },
     async ({ ticker }) => {
       try {
         const dates = await fetchQuarterlyFinancialDates(
@@ -554,6 +559,7 @@ export function registerQuarterlyFinancialsTool(
         .describe("Whether to include approximate data"),
       nQuarters: z.number().optional().describe("Number of quarters to fetch"),
     },
+    { annotations: { readOnlyHint: true } },
     async ({ ticker, reportDate, approx, nQuarters }) => {
       try {
         const financials = await fetchQuarterlyFinancials(baseUrl, apiKey, {
@@ -606,6 +612,7 @@ export function registerSGXCompanyReportTool(
         .string()
         .describe('The ticker symbol of the company (e.g., "D05", "U11")'),
     },
+    { annotations: { readOnlyHint: true } },
     async ({ ticker }) => {
       try {
         const report = await fetchSGXCompanyReport(baseUrl, apiKey, ticker);
@@ -666,6 +673,7 @@ export function registerSgxCompaniesBySectorTool(
           "Sector in kebab-case format (e.g., 'consumer-defensive', 'industrials')"
         ),
     },
+    { annotations: { readOnlyHint: true } },
     async ({ sector }) => {
       try {
         const companies = await fetchSgxCompaniesBySector(
@@ -705,6 +713,7 @@ export function registerCompanySegmentsTool(
         .optional()
         .describe("Financial year (e.g., 2023)"),
     },
+    { annotations: { readOnlyHint: true } },
     async ({ ticker, financialYear }) => {
       try {
         const segments = await fetchCompanySegments(baseUrl, apiKey, {

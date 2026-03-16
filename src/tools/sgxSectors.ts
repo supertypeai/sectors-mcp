@@ -38,6 +38,7 @@ export function registerSgxSectorsTool(
   server.tool(
     "fetch-sgx-sectors",
     "Fetch list of all available sectors in SGX Index",
+    { annotations: { readOnlyHint: true } },
     async () => {
       try {
         const sectors = await fetchSgxSectors(baseUrl, apiKey);

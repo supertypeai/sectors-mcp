@@ -142,6 +142,7 @@ export function registerSingaporeCompaniesReportTool(
         .array(z.string())
         .describe("Array of Singapore company symbols to query"),
     },
+    { annotations: { readOnlyHint: true } },
     async ({ columns, symbols }) => {
       try {
         const companies = await fetchSingaporeCompaniesReport(
