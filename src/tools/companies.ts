@@ -1,6 +1,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { createApiHeaders, handleApiResponse } from "../utils/api.js";
+import { normalizeIdxTicker } from "../utils/tickers.js";
 
 export interface SgxCompany {
   symbol: string;
@@ -223,8 +224,7 @@ export async function fetchListingPerformance(
     throw new Error("SECTORS_API_KEY is not defined");
   }
 
-  // Ensure ticker is in uppercase and remove .JK if present
-  const formattedTicker = ticker.toUpperCase().replace(/\.JK$/, "");
+  const formattedTicker = normalizeIdxTicker(ticker, "withoutSuffix");
 
   const response = await fetch(
     `${baseUrl}/listing-performance/${formattedTicker}/`,
@@ -246,8 +246,7 @@ export async function fetchQuarterlyFinancialDates(
     throw new Error("SECTORS_API_KEY is not defined");
   }
 
-  // Ensure ticker is in uppercase and remove .JK if present
-  const formattedTicker = ticker.toUpperCase().replace(/\.JK$/, "");
+  const formattedTicker = normalizeIdxTicker(ticker, "withoutSuffix");
 
   const response = await fetch(
     `${baseUrl}/company/get_quarterly_financial_dates/${formattedTicker}/`,
@@ -293,8 +292,7 @@ export async function fetchCompanySegments(
     throw new Error("SECTORS_API_KEY is not defined");
   }
 
-  // Ensure ticker is in uppercase and remove .JK if present
-  const formattedTicker = params.ticker.toUpperCase().replace(/\.JK$/, "");
+  const formattedTicker = normalizeIdxTicker(params.ticker, "withoutSuffix");
 
   // Build query parameters
   const queryParams = new URLSearchParams();
@@ -325,8 +323,7 @@ export async function fetchQuarterlyFinancials(
     throw new Error("SECTORS_API_KEY is not defined");
   }
 
-  // Ensure ticker is in uppercase and remove .JK if present
-  const formattedTicker = params.ticker.toUpperCase().replace(/\.JK$/, "");
+  const formattedTicker = normalizeIdxTicker(params.ticker, "withoutSuffix");
 
   // Build query parameters
   const queryParams = new URLSearchParams();
@@ -469,10 +466,14 @@ export function registerListingPerformanceTool(
     "fetch-listing-performance",
     "Fetch listing performance for a specific company",
     {
-      ticker: z.string().describe("The company ticker symbol"),
+      ticker: z
+        .string()
+        .min(1)
+        .describe("The IDX company ticker symbol (e.g., 'BBCA' or 'BBCA.JK')"),
     },
     async ({ ticker }) => {
       try {
+        const normalizedTicker = normalizeIdxTicker(ticker, "withoutSuffix");
         const performance = await fetchListingPerformance(
           baseUrl,
           apiKey,
@@ -482,7 +483,7 @@ export function registerListingPerformanceTool(
           content: [
             {
               type: "text",
-              text: `API URL: ${baseUrl}/companies/${ticker}/listing-performance/\n\n${JSON.stringify(
+              text: `API URL: ${baseUrl}/listing-performance/${normalizedTicker}/\n\n${JSON.stringify(
                 performance,
                 null,
                 2
@@ -506,10 +507,14 @@ export function registerQuarterlyFinancialDatesTool(
     "fetch-quarterly-financial-dates",
     "Fetch quarterly financial dates for a company",
     {
-      ticker: z.string().describe("The company ticker symbol"),
+      ticker: z
+        .string()
+        .min(1)
+        .describe("The IDX company ticker symbol (e.g., 'BBCA' or 'BBCA.JK')"),
     },
     async ({ ticker }) => {
       try {
+        const normalizedTicker = normalizeIdxTicker(ticker, "withoutSuffix");
         const dates = await fetchQuarterlyFinancialDates(
           baseUrl,
           apiKey,
@@ -519,7 +524,7 @@ export function registerQuarterlyFinancialDatesTool(
           content: [
             {
               type: "text",
-              text: `API URL: ${baseUrl}/companies/${ticker}/quarterly-financial-dates/\n\n${JSON.stringify(
+              text: `API URL: ${baseUrl}/company/get_quarterly_financial_dates/${normalizedTicker}/\n\n${JSON.stringify(
                 dates,
                 null,
                 2
@@ -543,7 +548,10 @@ export function registerQuarterlyFinancialsTool(
     "fetch-quarterly-financials",
     "Fetch quarterly financials for a company",
     {
-      ticker: z.string().describe("The company ticker symbol"),
+      ticker: z
+        .string()
+        .min(1)
+        .describe("The IDX company ticker symbol (e.g., 'BBCA' or 'BBCA.JK')"),
       reportDate: z
         .string()
         .optional()
@@ -556,6 +564,21 @@ export function registerQuarterlyFinancialsTool(
     },
     async ({ ticker, reportDate, approx, nQuarters }) => {
       try {
+        const normalizedTicker = normalizeIdxTicker(ticker, "withoutSuffix");
+        const url = new URL(`${baseUrl}/financials/quarterly/${normalizedTicker}/`);
+
+        if (reportDate) {
+          url.searchParams.append("report_date", reportDate);
+        }
+
+        if (approx !== undefined) {
+          url.searchParams.append("approx", approx.toString());
+        }
+
+        if (nQuarters !== undefined) {
+          url.searchParams.append("n_quarters", nQuarters.toString());
+        }
+
         const financials = await fetchQuarterlyFinancials(baseUrl, apiKey, {
           ticker,
           reportDate,
@@ -566,7 +589,7 @@ export function registerQuarterlyFinancialsTool(
           content: [
             {
               type: "text",
-              text: `API URL: ${baseUrl}/companies/${ticker}/quarterly-financials/\n\n${JSON.stringify(
+              text: `API URL: ${url.toString()}\n\n${JSON.stringify(
                 financials,
                 null,
                 2
@@ -699,7 +722,10 @@ export function registerCompanySegmentsTool(
     "fetch-company-segments",
     "Fetch company segments data",
     {
-      ticker: z.string().describe("The company ticker symbol"),
+      ticker: z
+        .string()
+        .min(1)
+        .describe("The IDX company ticker symbol (e.g., 'BBCA' or 'BBCA.JK')"),
       financialYear: z
         .number()
         .optional()
@@ -707,6 +733,13 @@ export function registerCompanySegmentsTool(
     },
     async ({ ticker, financialYear }) => {
       try {
+        const normalizedTicker = normalizeIdxTicker(ticker, "withoutSuffix");
+        const url = new URL(`${baseUrl}/company/get-segments/${normalizedTicker}/`);
+
+        if (financialYear) {
+          url.searchParams.append("financial_year", financialYear.toString());
+        }
+
         const segments = await fetchCompanySegments(baseUrl, apiKey, {
           ticker,
           financialYear,
@@ -715,7 +748,7 @@ export function registerCompanySegmentsTool(
           content: [
             {
               type: "text",
-              text: `API URL: ${baseUrl}/companies/${ticker}/segments/\n\n${JSON.stringify(
+              text: `API URL: ${url.toString()}\n\n${JSON.stringify(
                 segments,
                 null,
                 2

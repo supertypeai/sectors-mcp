@@ -1,6 +1,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { createApiHeaders, handleApiResponse } from "../utils/api.js";
+import { normalizeIdxTicker } from "../utils/tickers.js";
 
 export interface DailyTransactionData {
   symbol: string;
@@ -17,7 +18,8 @@ export async function fetchDailyTransactionData(
   startDate?: string,
   endDate?: string
 ): Promise<DailyTransactionData[]> {
-  const url = new URL(`${baseUrl}/daily/${ticker}`);
+  const normalizedTicker = normalizeIdxTicker(ticker, "withSuffix");
+  const url = new URL(`${baseUrl}/daily/${normalizedTicker}`);
   
   // Add query parameters if provided
   if (startDate) url.searchParams.append('start', startDate);
@@ -40,11 +42,10 @@ export function registerDailyTransactionTool(
     "fetch-daily-transaction",
     "Fetch daily transaction data for a given ticker within a date range",
     {
-      ticker: z.string()
-        .min(4, 'Ticker must be at least 4 characters')
-        .regex(/^[A-Za-z]+\.?[Jj][Kk]?$/, 'Ticker must be 4+ letters, optionally followed by .JK')
-        .transform(s => s.toUpperCase())
-        .describe('Stock ticker symbol (e.g., BBCA.JK)'),
+      ticker: z
+        .string()
+        .min(1, "Ticker is required")
+        .describe("IDX stock ticker symbol (e.g., 'BBCA' or 'BBCA.JK')"),
       startDate: z.string()
         .regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format')
         .optional()
@@ -56,12 +57,11 @@ export function registerDailyTransactionTool(
     },
     async ({ ticker, startDate, endDate }) => {
       try {
-        if (!ticker) {
-          throw new Error('Ticker parameter is required');
-        }
-        
-        // Normalize ticker format to always include .JK if not present
-        const normalizedTicker = ticker.includes('.') ? ticker : `${ticker}.JK`;
+        const normalizedTicker = normalizeIdxTicker(ticker, "withSuffix");
+        const url = new URL(`${baseUrl}/daily/${normalizedTicker}`);
+
+        if (startDate) url.searchParams.append("start", startDate);
+        if (endDate) url.searchParams.append("end", endDate);
         
         const data = await fetchDailyTransactionData(
           baseUrl,
@@ -86,10 +86,7 @@ export function registerDailyTransactionTool(
           content: [
             {
               type: "text",
-              text: `API URL: ${baseUrl}/daily/${normalizedTicker}?${new URLSearchParams({
-                ...(startDate ? { start: startDate } : {}),
-                ...(endDate ? { end: endDate } : {})
-              }).toString()}\n\nFetched daily transaction data for ${normalizedTicker}:\n\n${JSON.stringify(
+              text: `API URL: ${url.toString()}\n\nFetched daily transaction data for ${normalizedTicker}:\n\n${JSON.stringify(
                 data,
                 null,
                 2

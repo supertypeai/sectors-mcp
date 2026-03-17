@@ -1,6 +1,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { createSupabaseClient } from "../lib/supabaseClient.js";
+import { normalizeIdxTicker } from "../utils/tickers.js";
 
 export interface CompanyFinancialInfo {
   pb_mrq?: number;
@@ -27,12 +28,13 @@ export async function fetchCompanyFinancial(
   symbol: string
 ): Promise<CompanyFinancialInfo> {
   const supabase = createSupabaseClient(env);
+  const normalizedSymbol = normalizeIdxTicker(symbol, "withSuffix");
 
   // Query Supabase for company financial data
   const { data, error } = await supabase
     .from("idx_company_report")
     .select("self_financial_info")
-    .eq("symbol", symbol)
+    .eq("symbol", normalizedSymbol)
     .single();
 
   if (error) {
@@ -42,7 +44,7 @@ export async function fetchCompanyFinancial(
   }
 
   if (!data || !data.self_financial_info) {
-    throw new Error(`No financial data found for company: ${symbol}`);
+    throw new Error(`No financial data found for company: ${normalizedSymbol}`);
   }
 
   return data.self_financial_info as CompanyFinancialInfo;
@@ -71,12 +73,12 @@ export function registerCompanyFinancialTool(server: McpServer, env: any) {
     - total_liabilities: Total Liabilities
     - financials_latest_date: Latest Financial Data Date
     
-    Note: The company symbol must include the .JK suffix (e.g., "BBCA.JK")`,
+    Accepts IDX tickers with or without the .JK suffix (e.g., "BBCA" or "BBCA.JK")`,
     {
       symbol: z
         .string()
-        .regex(/\.JK$/, "Symbol must end with .JK")
-        .describe("Company symbol with .JK suffix (e.g., 'BBCA.JK')"),
+        .min(1)
+        .describe("IDX company symbol (e.g., 'BBCA' or 'BBCA.JK')"),
     },
     async ({ symbol }) => {
       try {

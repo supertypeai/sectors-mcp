@@ -1,6 +1,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { createSupabaseClient } from "../lib/supabaseClient.js";
+import { normalizeIdxTicker } from "../utils/tickers.js";
 
 interface DividendBreakdown {
   date: string;
@@ -21,12 +22,13 @@ export async function fetchCompanyDividend(
   year: number
 ): Promise<YearlyDividend> {
   const supabase = createSupabaseClient(env);
+  const normalizedSymbol = normalizeIdxTicker(symbol, "withSuffix");
 
   // Query Supabase for company dividend data
   const { data, error } = await supabase
     .from("idx_company_report")
     .select("historical_dividends")
-    .eq("symbol", symbol)
+    .eq("symbol", normalizedSymbol)
     .single();
 
   if (error) {
@@ -36,7 +38,7 @@ export async function fetchCompanyDividend(
   }
 
   if (!data?.historical_dividends) {
-    throw new Error(`No dividend data found for company: ${symbol}`);
+    throw new Error(`No dividend data found for company: ${normalizedSymbol}`);
   }
 
   // Find the dividend data for the specified year
@@ -45,7 +47,7 @@ export async function fetchCompanyDividend(
   );
 
   if (!yearData) {
-    throw new Error(`No dividend data found for ${symbol} in year ${year}`);
+    throw new Error(`No dividend data found for ${normalizedSymbol} in year ${year}`);
   }
 
   return yearData;
@@ -65,12 +67,12 @@ export function registerCompanyDividendTool(server: McpServer, env: any) {
     - total_yield: Total yield for the year
     - total_dividend: Total dividend amount for the year
     
-    Note: The company symbol must include the .JK suffix (e.g., "BBCA.JK")`,
+    Accepts IDX tickers with or without the .JK suffix (e.g., "BBCA" or "BBCA.JK")`,
     {
       symbol: z
         .string()
-        .regex(/\.JK$/, "Symbol must end with .JK")
-        .describe("Company symbol with .JK suffix (e.g., 'BBCA.JK')"),
+        .min(1)
+        .describe("IDX company symbol (e.g., 'BBCA' or 'BBCA.JK')"),
       year: z
         .number()
         .min(1900)

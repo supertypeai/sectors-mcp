@@ -1,6 +1,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { createSupabaseClient } from "../lib/supabaseClient.js";
+import { normalizeIdxTickers } from "../utils/tickers.js";
 
 // Define the DailyData interface based on the table structure
 export interface DailyData {
@@ -18,19 +19,20 @@ export async function fetchDailyTransaction(
   endDate: string
 ): Promise<DailyData[]> {
   const supabase = createSupabaseClient(env);
+  const normalizedSymbols = normalizeIdxTickers(symbols, "withSuffix");
 
   // Query Supabase for daily data
   const { data, error } = await supabase
     .from("idx_daily_data")
     .select("close, date, market_cap, symbol, volume")
-    .in("symbol", symbols)
+    .in("symbol", normalizedSymbols)
     .gte("date", startDate)
     .lte("date", endDate)
     .order("date", { ascending: true });
 
   if (error) {
     throw new Error(
-      `Failed to fetch daily data for symbols: ${symbols.join(", ")} - ${
+      `Failed to fetch daily data for symbols: ${normalizedSymbols.join(", ")} - ${
         error.message
       }`
     );
@@ -58,7 +60,7 @@ export function registerDailyTransactionTool(server: McpServer, env: any) {
     {
       symbols: z
         .array(z.string())
-        .describe("Array of stock symbols to retrieve data for"),
+        .describe("Array of IDX stock symbols to retrieve data for (e.g., 'BBCA' or 'BBCA.JK')"),
       startDate: z
         .string()
         .optional()

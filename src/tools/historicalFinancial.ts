@@ -1,6 +1,7 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { createSupabaseClient } from "../lib/supabaseClient";
+import { normalizeIdxTicker } from "../utils/tickers.js";
 
 export interface YearlyFinancialData {
   symbol: string;
@@ -153,18 +154,19 @@ export async function fetchHistoricalFinancialData(
   requestedFields?: string[]
 ): Promise<YearlyFinancialData[] | Array<Record<string, any>>> {
   const supabase = createSupabaseClient(env);
+  const normalizedSymbol = normalizeIdxTicker(symbol, "withSuffix");
   const { data, error } = await supabase
     .from("idx_company_report")
     .select("historical_financials")
-    .eq("symbol", symbol)
+    .eq("symbol", normalizedSymbol)
     .single();
 
   if (error) {
-    throw new Error(`Failed to fetch historical financial data for company: ${symbol}. Error: ${error.message}`);
+    throw new Error(`Failed to fetch historical financial data for company: ${normalizedSymbol}. Error: ${error.message}`);
   }
 
   if (!data?.historical_financials || !Array.isArray(data.historical_financials)) {
-    throw new Error(`No historical financial data found for company: ${symbol}`);
+    throw new Error(`No historical financial data found for company: ${normalizedSymbol}`);
   }
 
   // Cast to array of records with any fields
@@ -175,7 +177,7 @@ export async function fetchHistoricalFinancialData(
     // Always include symbol and year
     const filteredData = typedData.map((yearData) => {
       const result: Record<string, any> = {
-        symbol: symbol,
+        symbol: normalizedSymbol,
         year: yearData.year,
       };
 
@@ -194,7 +196,7 @@ export async function fetchHistoricalFinancialData(
 
   // Otherwise, return all available financial fields
   const filteredData: YearlyFinancialData[] = typedData.map((yearData) => ({
-    symbol: symbol,
+    symbol: normalizedSymbol,
     year: yearData.year,
 
     // Income Statement
@@ -340,9 +342,12 @@ export function registerHistoricalFinancialTool(server: McpServer, env: any) {
     - 'symbol' and 'year' are always included in the response
     
     Data is provided on a yearly basis with historical records.
-    Note: The company symbol must include the .JK suffix (e.g., 'BBCA.JK')`,
+    Accepts IDX tickers with or without the .JK suffix (e.g., 'BBCA' or 'BBCA.JK')`,
     {
-      symbol: z.string().regex(/\.JK$/, "Symbol must end with .JK"),
+      symbol: z
+        .string()
+        .min(1)
+        .describe("IDX company symbol (e.g., 'BBCA' or 'BBCA.JK')"),
       fields: z.array(z.string()).optional().describe(
         `Optional array of field names to retrieve. Available fields: ${AVAILABLE_FINANCIAL_FIELDS.filter(f => f !== 'symbol' && f !== 'year').join(', ')}. If not specified, all fields will be returned.`
       ),

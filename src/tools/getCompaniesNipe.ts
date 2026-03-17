@@ -1,6 +1,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { createSupabaseClient } from "../lib/supabaseClient.js";
+import { normalizeIdxTickers } from "../utils/tickers.js";
 
 export interface CompanyNipeData {
   symbol: string;
@@ -16,16 +17,17 @@ export async function fetchCompaniesNipe(
   symbols: string[]
 ): Promise<CompanyNipeData[]> {
   const supabase = createSupabaseClient(env);
+  const normalizedSymbols = normalizeIdxTickers(symbols, "withSuffix");
 
   // Query Supabase for company data
   const { data, error } = await supabase
     .from("idx_company_report")
     .select("symbol, company_name, self_financial_info, employee_num")
-    .in("symbol", symbols);
+    .in("symbol", normalizedSymbols);
 
   if (error) {
     throw new Error(
-      `Failed to fetch NIPE data for symbols: ${symbols.join(", ")} - ${
+      `Failed to fetch NIPE data for symbols: ${normalizedSymbols.join(", ")} - ${
         error.message
       }`
     );
@@ -86,7 +88,7 @@ export function registerCompaniesNipeTool(server: McpServer, env: any) {
     {
       symbols: z
         .array(z.string())
-        .describe("Array of company symbols to calculate NIPE for"),
+        .describe("Array of IDX company symbols to calculate NIPE for (e.g., 'BBCA' or 'BBCA.JK')"),
     },
     async ({ symbols }) => {
       try {

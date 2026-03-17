@@ -1,6 +1,7 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { createApiHeaders, handleApiResponse } from "../utils/api.js";
+import { normalizeIdxTicker } from "../utils/tickers.js";
 
 export interface CompanyReport {
   symbol: string;
@@ -48,7 +49,8 @@ export async function fetchCompanyReport(
     throw new Error("SECTORS_API_KEY is not defined");
   }
 
-  const url = new URL(`${baseUrl}/company/report/${ticker}/`);
+  const normalizedTicker = normalizeIdxTicker(ticker, "withoutSuffix");
+  const url = new URL(`${baseUrl}/company/report/${normalizedTicker}/`);
   if (sections && sections !== "all") {
     url.searchParams.append("sections", sections);
   }
@@ -70,7 +72,10 @@ export function registerCompanyReportTool(
     "fetch-company-report",
     "Fetch detailed company report including overview, financials, and other key metrics",
     {
-      ticker: z.string().describe("The company ticker symbol"),
+      ticker: z
+        .string()
+        .min(1)
+        .describe("The IDX company ticker symbol (e.g., 'BBCA' or 'BBCA.JK')"),
       sections: z
         .string()
         .optional()

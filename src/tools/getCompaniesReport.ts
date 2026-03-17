@@ -1,6 +1,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { createSupabaseClient } from "../lib/supabaseClient.js";
+import { normalizeIdxTickers } from "../utils/tickers.js";
 
 export type HistoricalEps = Record<
   string,
@@ -67,6 +68,7 @@ export async function fetchCompaniesReport(
   symbols: string[]
 ): Promise<CompanyData[]> {
   const supabase = createSupabaseClient(env);
+  const normalizedSymbols = normalizeIdxTickers(symbols, "withSuffix");
 
   // Always include these required columns
   const requiredColumns = ["symbol", "company_name"];
@@ -87,12 +89,12 @@ export async function fetchCompaniesReport(
   const { data, error } = await supabase
     .from("idx_company_report")
     .select(uniqueColumns.join(","))
-    .in("symbol", symbols)
+    .in("symbol", normalizedSymbols)
     .limit(10);
 
   if (error) {
     throw new Error(
-      `Failed to fetch company reports for symbols: ${symbols.join(", ")} - ${
+      `Failed to fetch company reports for symbols: ${normalizedSymbols.join(", ")} - ${
         error.message
       }`
     );
@@ -162,7 +164,9 @@ export function registerCompaniesReportTool(server: McpServer, env: any) {
       columns: z
         .array(z.string())
         .describe("Array of column names to retrieve from the company report"),
-      symbols: z.array(z.string()).describe("Array of company symbols to query"),
+      symbols: z
+        .array(z.string())
+        .describe("Array of IDX company symbols to query (e.g., 'BBCA' or 'BBCA.JK')"),
     },
     async ({ columns, symbols }) => {
       try {
