@@ -51,7 +51,7 @@ export function registerTopGrowthTool(
   baseUrl: string,
   apiKey: string | undefined
 ) {
-  server.tool(
+server.tool(
     "fetch-top-growth-companies",
     "Fetch top companies by growth metrics (earnings/revenue growth gainers/losers)",
     {
@@ -81,6 +81,7 @@ export function registerTopGrowthTool(
         .default("all")
         .describe("Filter by subsector (e.g., 'banks', 'insurance')"),
     },
+    { annotations: { readOnlyHint: true } },
     async ({ classifications, n_stock, min_mcap_billion, sub_sector }) => {
       try {
         const result = await fetchTopGrowth(baseUrl, apiKey, {
@@ -94,7 +95,8 @@ export function registerTopGrowthTool(
           content: [
             {
               type: "text",
-              text: `Top Growth Companies (${sub_sector !== "all" ? `Subsector: ${sub_sector}` : 'All Subsectors'})\n              \n${formatGrowthResults(result)}`,
+              text: `Top Growth Companies (${sub_sector !== "all" ? `Subsector: ${sub_sector}` : 'All Subsectors'})\n              
+${formatGrowthResults(result)}`,
             },
           ],
         };

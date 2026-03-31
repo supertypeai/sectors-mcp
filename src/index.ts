@@ -1,21 +1,61 @@
 import { McpAgent } from "agents/mcp";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { SERVER_CONFIG } from "./config.js";
+import { SERVER_CONFIG, OAUTH_CONFIG } from "./config.js";
 import { registerAllTools } from "./tools/registerTools.js";
+import { handleOAuthRoute, OAUTH_CORS_HEADERS } from "./auth/handlers.js";
 
-// Cloudflare Worker types
-interface Env {
-  // Add any environment variables you need
+// Extended environment with OAuth KV bindings
+interface ExtendedEnv {
   SECTORS_API_KEY?: string;
   SECTORS_API_BASE?: string;
   SUPABASE_URL?: string;
   SUPABASE_ANON_KEY?: string;
+  SECTORS_OAUTH_CLIENT_ID: string;
+  SECTORS_OAUTH_CLIENT_SECRET?: string;
+  OAUTH_KV: KVNamespace;
+  MCP_OBJECT: DurableObjectNamespace;
 }
 
 interface ExecutionContext {
   waitUntil(promise: Promise<any>): void;
   passThroughOnException(): void;
-  props: Record<string, any>; // This can hold any properties you want to pass through
+  props: Record<string, any>;
+}
+
+// CORS headers for OAuth endpoints
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization, X-API-Key",
+};
+
+/**
+ * Create CORS preflight response
+ */
+function corsResponse(): Response {
+  return new Response(null, {
+    status: 204,
+    headers: corsHeaders,
+  });
+}
+
+/**
+ * Create 401 Unauthorized response with WWW-Authenticate header
+ */
+function unauthorizedResponse(): Response {
+  return new Response(
+    JSON.stringify({
+      error: "unauthorized",
+      error_description: "Authentication required. Provide either an Authorization: Bearer <token> header or an X-API-Key: <key> header.",
+    }),
+    {
+      status: 401,
+      headers: {
+        "Content-Type": "application/json",
+        "WWW-Authenticate": `Bearer realm="Sectors MCP", resource_metadata="${OAUTH_CONFIG.issuer}.well-known/oauth-protected-resource"`,
+      },
+    }
+  );
 }
 
 // Define our MCP agent with all the sectors tools
@@ -32,27 +72,55 @@ export class MyMCP extends McpAgent {
 }
 
 export default {
-  fetch(request: Request, env: Env, ctx: ExecutionContext) {
+  async fetch(
+    request: Request,
+    env: ExtendedEnv,
+    ctx: ExecutionContext
+  ): Promise<Response> {
     const url = new URL(request.url);
-    const authHeader = request.headers.get("authorization");
 
-    if (!authHeader?.startsWith("Bearer ")) {
-      return new Response("Forbidden", { status: 403 });
+    // 1. Handle CORS preflight requests
+    if (request.method === "OPTIONS") {
+      return corsResponse();
     }
 
-    console.log({ authHeader });
-    console.log({ env });
-
-    const token = authHeader.split(/\s+/)[1] ?? "";
-
-    ctx.props.myToken = token;
-
-    if (url.pathname === "/sse" || url.pathname === "/sse/message") {
-      return MyMCP.serveSSE("/sse").fetch(request, env, ctx);
+    // 2. Handle HEAD requests (Claude requirement)
+    if (request.method === "HEAD") {
+      return new Response(null, { status: 200 });
     }
 
-    if (url.pathname === "/mcp") {
-      return MyMCP.serve("/mcp").fetch(request, env, ctx);
+    // 3. Handle OAuth endpoints (unauthenticated)
+    const oauthResponse = await handleOAuthRoute(request, env);
+    if (oauthResponse) {
+      return oauthResponse;
+    }
+
+    // 4. Handle MCP endpoints (authenticated)
+    if (url.pathname === "/mcp" || url.pathname.startsWith("/sse")) {
+      const authHeader = request.headers.get("authorization");
+      const apiKeyHeader = request.headers.get("x-api-key");
+
+      let token: string | undefined;
+
+      if (authHeader?.startsWith("Bearer ")) {
+        token = authHeader.split(/\s+/)[1] ?? "";
+      } else if (apiKeyHeader) {
+        token = apiKeyHeader;
+      }
+
+      if (!token) {
+        return unauthorizedResponse();
+      }
+
+      ctx.props.myToken = token;
+
+      if (url.pathname === "/sse" || url.pathname === "/sse/message") {
+        return MyMCP.serveSSE("/sse").fetch(request, env, ctx);
+      }
+
+      if (url.pathname === "/mcp") {
+        return MyMCP.serve("/mcp").fetch(request, env, ctx);
+      }
     }
 
     return new Response("Not found", { status: 404 });

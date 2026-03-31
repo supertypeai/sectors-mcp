@@ -111,6 +111,7 @@ export function registerTopCompaniesTool(
         .optional()
         .describe("Year for the data (defaults to current year)"),
     },
+    { annotations: { readOnlyHint: true } },
     async ({
       classifications = "all",
       filters,

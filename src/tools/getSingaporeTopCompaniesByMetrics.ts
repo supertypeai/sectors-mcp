@@ -128,6 +128,7 @@ export function registerSingaporeTopCompaniesByMetricsTool(
         .optional()
         .describe("Optional subsector filter to narrow results"),
     },
+    { annotations: { readOnlyHint: true } },
     async ({ metric, limit, subsector }) => {
       try {
         const companies = await fetchSingaporeTopCompaniesByMetrics(

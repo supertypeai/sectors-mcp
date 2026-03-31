@@ -64,6 +64,7 @@ export function registerFreeFloatTool(
         .optional()
         .describe("Filter by sub-industry in kebab-case (e.g., conventional-banks, sharia-banks)"),
     },
+    { annotations: { readOnlyHint: true } },
     async ({ sector, sub_sector, industry, sub_industry }) => {
       try {
         const result = await fetchFreeFloat(baseUrl, apiKey, {

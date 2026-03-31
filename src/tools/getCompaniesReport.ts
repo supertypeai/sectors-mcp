@@ -168,6 +168,7 @@ export function registerCompaniesReportTool(server: McpServer, env: any) {
         .array(z.string())
         .describe("Array of IDX company symbols to query (e.g., 'BBCA' or 'BBCA.JK')"),
     },
+    { annotations: { readOnlyHint: true } },
     async ({ columns, symbols }) => {
       try {
         const companies = await fetchCompaniesReport(env, columns, symbols);

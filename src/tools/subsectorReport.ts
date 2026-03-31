@@ -189,6 +189,7 @@ export function registerSubsectorReportTool(server: McpServer, env: any) {
         .string()
         .describe("The name of the subsector for which to retrieve data"),
     },
+    { annotations: { readOnlyHint: true } },
     async ({ columns, subsector }) => {
       try {
         const result = await fetchSubsectorReport(env, columns, subsector);

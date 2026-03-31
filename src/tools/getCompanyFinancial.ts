@@ -80,6 +80,7 @@ export function registerCompanyFinancialTool(server: McpServer, env: any) {
         .min(1)
         .describe("IDX company symbol (e.g., 'BBCA' or 'BBCA.JK')"),
     },
+    { annotations: { readOnlyHint: true } },
     async ({ symbol }) => {
       try {
         const financialData = await fetchCompanyFinancial(env, symbol);

@@ -20,7 +20,7 @@ export async function fetchDailyTransactionData(
 ): Promise<DailyTransactionData[]> {
   const normalizedTicker = normalizeIdxTicker(ticker, "withSuffix");
   const url = new URL(`${baseUrl}/daily/${normalizedTicker}`);
-  
+
   // Add query parameters if provided
   if (startDate) url.searchParams.append('start', startDate);
   if (endDate) url.searchParams.append('end', endDate);
@@ -55,6 +55,7 @@ export function registerDailyTransactionTool(
         .optional()
         .describe('End date in YYYY-MM-DD format (optional, defaults to today)'),
     },
+    { annotations: { readOnlyHint: true } },
     async ({ ticker, startDate, endDate }) => {
       try {
         const normalizedTicker = normalizeIdxTicker(ticker, "withSuffix");
@@ -62,7 +63,7 @@ export function registerDailyTransactionTool(
 
         if (startDate) url.searchParams.append("start", startDate);
         if (endDate) url.searchParams.append("end", endDate);
-        
+
         const data = await fetchDailyTransactionData(
           baseUrl,
           apiKey,
@@ -70,7 +71,7 @@ export function registerDailyTransactionTool(
           startDate,
           endDate
         );
-        
+
         if (!data || data.length === 0) {
           return {
             content: [
@@ -81,7 +82,7 @@ export function registerDailyTransactionTool(
             ],
           };
         }
-        
+
         return {
           content: [
             {
@@ -96,7 +97,7 @@ export function registerDailyTransactionTool(
         };
       } catch (error: any) {
         let errorMessage = 'An unknown error occurred while fetching transaction data';
-        
+
         if (error instanceof Error) {
           if (error.message.includes('API error')) {
             errorMessage = `Failed to fetch transaction data: ${error.message}. Please check if the ticker symbol is correct and try again.`;
@@ -104,11 +105,11 @@ export function registerDailyTransactionTool(
             errorMessage = `Error fetching transaction data: ${error.message}`;
           }
         }
-        
-        return { 
-          content: [{ 
-            type: "text", 
-            text: errorMessage 
+
+        return {
+          content: [{
+            type: "text",
+            text: errorMessage
           }],
           isError: true
         };

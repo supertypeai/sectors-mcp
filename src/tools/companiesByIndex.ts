@@ -55,6 +55,7 @@ export function registerCompaniesByIndexTool(
         .string()
         .describe("The index name (e.g., 'lq45', 'idx30', 'kompas100')"),
     },
+    { annotations: { readOnlyHint: true } },
     async ({ index }) => {
       try {
         const companies = await fetchCompaniesByIndex(baseUrl, apiKey, index);
