@@ -26,7 +26,7 @@ interface ExecutionContext {
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization, X-API-Key",
 };
 
 /**
@@ -46,7 +46,7 @@ function unauthorizedResponse(): Response {
   return new Response(
     JSON.stringify({
       error: "unauthorized",
-      error_description: "Valid Bearer token required",
+      error_description: "Authentication required. Provide either an Authorization: Bearer <token> header or an X-API-Key: <key> header.",
     }),
     {
       status: 401,
@@ -98,12 +98,20 @@ export default {
     // 4. Handle MCP endpoints (authenticated)
     if (url.pathname === "/mcp" || url.pathname.startsWith("/sse")) {
       const authHeader = request.headers.get("authorization");
+      const apiKeyHeader = request.headers.get("x-api-key");
 
-      if (!authHeader?.startsWith("Bearer ")) {
+      let token: string | undefined;
+
+      if (authHeader?.startsWith("Bearer ")) {
+        token = authHeader.split(/\s+/)[1] ?? "";
+      } else if (apiKeyHeader) {
+        token = apiKeyHeader;
+      }
+
+      if (!token) {
         return unauthorizedResponse();
       }
 
-      const token = authHeader.split(/\s+/)[1] ?? "";
       ctx.props.myToken = token;
 
       if (url.pathname === "/sse" || url.pathname === "/sse/message") {

@@ -38,7 +38,7 @@ const ALLOWED_REDIRECT_URIS = [
 export const OAUTH_CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization, X-API-Key",
 };
 
 /**
@@ -71,10 +71,12 @@ function oauthError(
  * Handle OAuth Protected Resource Metadata (RFC 8414)
  * GET /.well-known/oauth-protected-resource
  */
-export function handleResourceMetadata(): Response {
+export function handleResourceMetadata(request: Request): Response {
+  const url = new URL(request.url);
+  const baseUrl = `${url.protocol}//${url.host}/`;
   const metadata: OAuthProtectedResourceMetadata = {
-    resource: ISSUER,
-    authorization_servers: [ISSUER],
+    resource: baseUrl,
+    authorization_servers: [baseUrl],
     scopes_supported: ["read"],
     resource_name: "Sectors MCP Server",
   };
@@ -85,14 +87,16 @@ export function handleResourceMetadata(): Response {
  * Handle OAuth Authorization Server Metadata (RFC 8414)
  * GET /.well-known/oauth-authorization-server
  */
-export function handleAuthServerMetadata(): Response {
+export function handleAuthServerMetadata(request: Request): Response {
+  const url = new URL(request.url);
+  const baseUrl = `${url.protocol}//${url.host}/`;
   const metadata: OAuthAuthorizationServerMetadata = {
-    issuer: ISSUER,
-    authorization_endpoint: `${ISSUER}authorize`,
-    token_endpoint: `${ISSUER}token`,
-    registration_endpoint: `${ISSUER}register`,
-    revocation_endpoint: `${ISSUER}revoke`,
-    introspection_endpoint: `${ISSUER}introspect`,
+    issuer: baseUrl,
+    authorization_endpoint: `${baseUrl}authorize`,
+    token_endpoint: `${baseUrl}token`,
+    registration_endpoint: `${baseUrl}register`,
+    revocation_endpoint: `${baseUrl}revoke`,
+    introspection_endpoint: `${baseUrl}introspect`,
     response_types_supported: ["code"],
     grant_types_supported: ["authorization_code", "refresh_token"],
     token_endpoint_auth_methods_supported: ["none"],
@@ -419,11 +423,11 @@ export async function handleOAuthRoute(
 
   // Discovery endpoints
   if (path === "/.well-known/oauth-protected-resource" && method === "GET") {
-    return handleResourceMetadata();
+    return handleResourceMetadata(request);
   }
 
   if (path === "/.well-known/oauth-authorization-server" && method === "GET") {
-    return handleAuthServerMetadata();
+    return handleAuthServerMetadata(request);
   }
 
   // OAuth endpoints
