@@ -78,8 +78,7 @@ export async function fetchSGXCompanyReport(
   apiKey: string | undefined,
   ticker: string
 ): Promise<SGXCompanyReport> {
-  const url = new URL(`/sgx/company/report/${ticker}`, baseUrl);
-  const response = await fetch(url.toString(), {
+  const response = await fetch(`${baseUrl}/sgx/company/report/${ticker}/`, {
     headers: createApiHeaders(apiKey),
   });
   return handleApiResponse<SGXCompanyReport>(response);
