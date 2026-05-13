@@ -41,8 +41,14 @@ export async function fetchCompanyDividend(
     throw new Error(`No dividend data found for company: ${normalizedSymbol}`);
   }
 
+  if (!Array.isArray(data.historical_dividends)) {
+    throw new Error(
+      `Dividend data for ${normalizedSymbol} is malformed (expected array, got ${typeof data.historical_dividends})`
+    );
+  }
+
   // Find the dividend data for the specified year
-  const yearData = (data.historical_dividends as any as YearlyDividend[]).find(
+  const yearData = (data.historical_dividends as YearlyDividend[]).find(
     (item) => item.year === year
   );
 
