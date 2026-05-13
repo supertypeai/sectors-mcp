@@ -50,6 +50,10 @@ export async function fetchTopCompaniesByMetrics(
     .not(metricColumn, "is", null);
 
   // Add subsector filter if provided
+  // NOTE: idx_company_report.sub_sector stores display strings (e.g. "Banks").
+  // User input here must already match the column form — see
+  // docs/plans/2026-05-13-001-fix-v2-migration-breakage-plan.md Unit 4 for
+  // the latent kebab-vs-display issue this tool inherits.
   if (subsector) {
     query = query.eq("sub_sector", subsector);
   }
