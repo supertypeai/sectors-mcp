@@ -16,6 +16,15 @@ interface YearlyDividend {
   total_dividend: number;
 }
 
+// Shape stored in idx_company_report.historical_dividends: an object keyed
+// by year string ("2020", "2021", ...), each value containing the year's
+// breakdown/total_yield/total_dividend. The 'year' field itself is the key,
+// so it is synthesized from the key when returning a YearlyDividend.
+type HistoricalDividendsMap = Record<
+  string,
+  Omit<YearlyDividend, "year"> | null | undefined
+>;
+
 export async function fetchCompanyDividend(
   env: any,
   symbol: string,
@@ -41,22 +50,27 @@ export async function fetchCompanyDividend(
     throw new Error(`No dividend data found for company: ${normalizedSymbol}`);
   }
 
-  if (!Array.isArray(data.historical_dividends)) {
+  const dividends = data.historical_dividends as unknown;
+  if (
+    typeof dividends !== "object" ||
+    dividends === null ||
+    Array.isArray(dividends)
+  ) {
     throw new Error(
-      `Dividend data for ${normalizedSymbol} is malformed (expected array, got ${typeof data.historical_dividends})`
+      `Dividend data for ${normalizedSymbol} is malformed (expected year-keyed object)`
     );
   }
 
-  // Find the dividend data for the specified year
-  const yearData = (data.historical_dividends as YearlyDividend[]).find(
-    (item) => item.year === year
-  );
+  const yearKey = String(year);
+  const yearEntry = (dividends as HistoricalDividendsMap)[yearKey];
 
-  if (!yearData) {
-    throw new Error(`No dividend data found for ${normalizedSymbol} in year ${year}`);
+  if (!yearEntry) {
+    throw new Error(
+      `No dividend data found for ${normalizedSymbol} in year ${year}`
+    );
   }
 
-  return yearData;
+  return { year, ...yearEntry };
 }
 
 export function registerCompanyDividendTool(server: McpServer, env: any) {
