@@ -16,15 +16,29 @@ interface CompanyReport {
   [key: string]: unknown;
 }
 
+// Each entry is a one-key {date: price} map, e.g. {"2026-05-12": 59.099998}.
+type DatedPrice = Record<string, number>;
+
 interface PriceRangeData {
-  ytd_low: { date: string; price: number };
-  "52_w_low": { date: string; price: number };
-  "90_d_low": { date: string; price: number };
-  ytd_high: { date: string; price: number };
-  "52_w_high": { date: string; price: number };
-  "90_d_high": { date: string; price: number };
-  all_time_low: { date: string; price: number };
-  all_time_high: { date: string; price: number };
+  ytd_low: DatedPrice;
+  "52_w_low": DatedPrice;
+  "90_d_low": DatedPrice;
+  ytd_high: DatedPrice;
+  "52_w_high": DatedPrice;
+  "90_d_high": DatedPrice;
+  all_time_low: DatedPrice;
+  all_time_high: DatedPrice;
+}
+
+function extractPrice(entry: DatedPrice | undefined, label: string): number {
+  if (!entry) {
+    throw new Error(`Missing price range entry: ${label}`);
+  }
+  const [, price] = Object.entries(entry)[0] ?? [];
+  if (typeof price !== "number" || !Number.isFinite(price) || price <= 0) {
+    throw new Error(`Invalid price for ${label}`);
+  }
+  return price;
 }
 
 export interface EarningsYieldResult {
@@ -113,38 +127,30 @@ export async function fetchHistoricalVolatility(
     throw new Error("No price range data available for this company");
   }
 
-  const {
-    "90_d_high": ninetyDayHigh,
-    "90_d_low": ninetyDayLow,
-    "52_w_high": fiftyTwoWeekHigh,
-    "52_w_low": fiftyTwoWeekLow,
-    all_time_high,
-    all_time_low,
-  } = priceData.all_time_price;
+  const range = priceData.all_time_price;
+  let high: number;
+  let low: number;
+  let days: number;
 
-  let high, low, days;
-
-  // Select the appropriate high/low based on the timeframe
+  // Select the appropriate high/low based on the timeframe.
+  // Each price-range entry is a one-key {date: price} map, so pull the value
+  // out via Object.entries rather than a .price field that does not exist.
   switch (useTimeframe) {
     case "90d":
-      high = ninetyDayHigh.price;
-      low = ninetyDayLow.price;
+      high = extractPrice(range["90_d_high"], "90_d_high");
+      low = extractPrice(range["90_d_low"], "90_d_low");
       days = 90;
       break;
     case "52w":
-      high = fiftyTwoWeekHigh.price;
-      low = fiftyTwoWeekLow.price;
+      high = extractPrice(range["52_w_high"], "52_w_high");
+      low = extractPrice(range["52_w_low"], "52_w_low");
       days = 252; // Approximate trading days in a year
       break;
     case "all_time":
-      high = all_time_high.price;
-      low = all_time_low.price;
+      high = extractPrice(range.all_time_high, "all_time_high");
+      low = extractPrice(range.all_time_low, "all_time_low");
       days = 5 * 252; // Approximate trading days in 5 years
       break;
-  }
-
-  if (!high || !low || high <= 0 || low <= 0) {
-    throw new Error("Could not calculate volatility with available price data");
   }
 
   // Calculate the price range as a percentage of the average price

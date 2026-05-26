@@ -44,7 +44,11 @@ export async function fetchIPOCompanies(
     .gte("listing_date", startDate)
     .lte("listing_date", endDate);
 
-  // Add optional filters
+  // Add optional filters.
+  // NOTE: idx_company_report stores sector/sub_sector/sub_industry as display
+  // strings (e.g. "Banks", "Food & Beverage"). User input must already match
+  // that form — see docs/plans/2026-05-13-001-fix-v2-migration-breakage-plan.md
+  // Unit 4 for the latent kebab-vs-display issue this tool inherits.
   if (sector) {
     query = query.eq("sector", sector);
   }

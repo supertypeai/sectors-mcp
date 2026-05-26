@@ -85,6 +85,36 @@ export interface CompanyResponse {
   [key: string]: any;
 }
 
+export interface CompanyScreenerPagination {
+  total_count: number;
+  showing: number;
+  limit: number;
+  offset: number;
+  has_next: boolean;
+  has_previous: boolean;
+  next_offset: number | null;
+  previous_offset: number | null;
+}
+
+export interface CompanyScreenerResponse {
+  results: CompanyResponse[];
+  pagination: CompanyScreenerPagination;
+}
+
+const SCREENER_DEFAULT_LIMIT = 200;
+
+function buildScreenerUrl(
+  baseUrl: string,
+  whereClause: string,
+  limit: number = SCREENER_DEFAULT_LIMIT
+): string {
+  const params = new URLSearchParams({
+    where: whereClause,
+    limit: String(limit),
+  });
+  return `${baseUrl}/companies/?${params.toString()}`;
+}
+
 export interface ListingPerformance {
   symbol: string;
   chg_7d: number;
@@ -160,40 +190,36 @@ export async function fetchCompaniesBySubsector(
   baseUrl: string,
   apiKey: string | undefined,
   subSector: string
-) {
+): Promise<CompanyScreenerResponse> {
   if (!apiKey) {
     throw new Error("SECTORS_API_KEY is not defined");
   }
 
-  const response = await fetch(
-    `${baseUrl}/companies/?sub_sector=${subSector}`,
-    {
-      method: "GET",
-      headers: createApiHeaders(apiKey),
-    }
-  );
+  const url = buildScreenerUrl(baseUrl, `sub_sector='${subSector}'`);
+  const response = await fetch(url, {
+    method: "GET",
+    headers: createApiHeaders(apiKey),
+  });
 
-  return handleApiResponse<CompanyResponse[]>(response);
+  return handleApiResponse<CompanyScreenerResponse>(response);
 }
 
 export async function fetchCompaniesBySubindustry(
   baseUrl: string,
   apiKey: string | undefined,
   subIndustry: string
-) {
+): Promise<CompanyScreenerResponse> {
   if (!apiKey) {
     throw new Error("SECTORS_API_KEY is not defined");
   }
 
-  const response = await fetch(
-    `${baseUrl}/companies/?sub_industry=${subIndustry}`,
-    {
-      method: "GET",
-      headers: createApiHeaders(apiKey),
-    }
-  );
+  const url = buildScreenerUrl(baseUrl, `sub_industry='${subIndustry}'`);
+  const response = await fetch(url, {
+    method: "GET",
+    headers: createApiHeaders(apiKey),
+  });
 
-  return handleApiResponse<CompanyResponse[]>(response);
+  return handleApiResponse<CompanyScreenerResponse>(response);
 }
 
 export async function fetchCompaniesWithSegments(
@@ -361,9 +387,15 @@ export function registerCompaniesBySubsectorTool(
 ) {
   server.tool(
     "fetch-companies-by-subsector",
-    "Fetch companies by subsector from the Sectors API",
+    `Fetch companies by subsector from the Sectors API v2 screener.
+Returns { results, pagination } — up to ${SCREENER_DEFAULT_LIMIT} companies per call.
+Subsector slug must be kebab-case (e.g. 'banks', 'food-beverage').`,
     {
-      subSector: z.string().describe("The subsector to fetch companies for"),
+      subSector: z
+        .string()
+        .describe(
+          "Subsector slug in kebab-case (e.g. 'banks', 'food-beverage')"
+        ),
     },
     { annotations: { readOnlyHint: true } },
     async ({ subSector }) => {
@@ -373,13 +405,12 @@ export function registerCompaniesBySubsectorTool(
           apiKey,
           subSector
         );
+        const apiUrl = buildScreenerUrl(baseUrl, `sub_sector='${subSector}'`);
         return {
           content: [
             {
               type: "text",
-              text: `API URL: ${baseUrl}/companies/subsector/${encodeURIComponent(
-                subSector
-              )}/\n\n${JSON.stringify(companies, null, 2)}`,
+              text: `API URL: ${apiUrl}\n\n${JSON.stringify(companies, null, 2)}`,
             },
           ],
         };
@@ -397,11 +428,16 @@ export function registerCompaniesBySubindustryTool(
 ) {
   server.tool(
     "fetch-companies-by-subindustry",
-    "Fetch companies by subindustry from the Sectors API",
+    `Fetch companies by subindustry from the Sectors API v2 screener.
+Returns { results, pagination } — up to ${SCREENER_DEFAULT_LIMIT} companies per call.
+Subindustry slug must be kebab-case (e.g. 'banks', 'electric-utilities').
+Use fetch-subindustries to discover valid slugs.`,
     {
       subIndustry: z
         .string()
-        .describe("The subindustry to fetch companies for"),
+        .describe(
+          "Subindustry slug in kebab-case (e.g. 'banks', 'electric-utilities')"
+        ),
     },
     { annotations: { readOnlyHint: true } },
     async ({ subIndustry }) => {
@@ -411,13 +447,15 @@ export function registerCompaniesBySubindustryTool(
           apiKey,
           subIndustry
         );
+        const apiUrl = buildScreenerUrl(
+          baseUrl,
+          `sub_industry='${subIndustry}'`
+        );
         return {
           content: [
             {
               type: "text",
-              text: `API URL: ${baseUrl}/companies/subindustry/${encodeURIComponent(
-                subIndustry
-              )}/\n\n${JSON.stringify(companies, null, 2)}`,
+              text: `API URL: ${apiUrl}\n\n${JSON.stringify(companies, null, 2)}`,
             },
           ],
         };
@@ -615,10 +653,9 @@ export async function fetchSGXCompanyReport(
   apiKey: string | undefined,
   ticker: string
 ): Promise<SGXCompanyReport> {
-  const url = new URL(`/sgx/company/report/${ticker}`, baseUrl);
-  const headers = createApiHeaders(apiKey);
-
-  const response = await fetch(url.toString(), { headers });
+  const response = await fetch(`${baseUrl}/sgx/company/report/${ticker}/`, {
+    headers: createApiHeaders(apiKey),
+  });
   return handleApiResponse<SGXCompanyReport>(response);
 }
 

@@ -1,6 +1,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { createSupabaseClient } from "../lib/supabaseClient.js";
+import { normalizeSubsectorSlug } from "../utils/subsectors.js";
 import { extractLatestEps, type HistoricalEps } from "./getCompaniesReport.js";
 
 export interface CompanyData {
@@ -64,6 +65,7 @@ export async function fetchSubsectorReport(
   subsector: string
 ): Promise<SubsectorReportResult> {
   const supabase = createSupabaseClient(env);
+  const subsectorName = normalizeSubsectorSlug(subsector);
 
   // Always include these required columns
   const requiredColumns = ["symbol", "company_name", "sub_industry"];
@@ -84,7 +86,7 @@ export async function fetchSubsectorReport(
   const { data, error } = await supabase
     .from("idx_company_report")
     .select(uniqueColumns.join(","))
-    .eq("sub_sector", subsector);
+    .eq("sub_sector", subsectorName);
 
   if (error) {
     throw new Error(
@@ -93,7 +95,9 @@ export async function fetchSubsectorReport(
   }
 
   if (!data || data.length === 0) {
-    throw new Error(`No companies found in subsector: ${subsector}`);
+    throw new Error(
+      `No companies found in subsector: ${subsector} (mapped to '${subsectorName}')`
+    );
   }
 
   // Calculate subsector aggregates
@@ -187,7 +191,9 @@ export function registerSubsectorReportTool(server: McpServer, env: any) {
         .describe("Array of column names to retrieve from the company report"),
       subsector: z
         .string()
-        .describe("The name of the subsector for which to retrieve data"),
+        .describe(
+          "Subsector slug in kebab-case (e.g. 'banks', 'food-beverage'). Use get-subsectors for the canonical list."
+        ),
     },
     { annotations: { readOnlyHint: true } },
     async ({ columns, subsector }) => {
