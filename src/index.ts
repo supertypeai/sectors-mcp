@@ -104,6 +104,8 @@ export default {
 
       if (authHeader?.startsWith("Bearer ")) {
         token = authHeader.split(/\s+/)[1] ?? "";
+      } else if (authHeader) {
+        token = authHeader;
       } else if (apiKeyHeader) {
         token = apiKeyHeader;
       }
