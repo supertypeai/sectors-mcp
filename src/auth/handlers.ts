@@ -26,13 +26,23 @@ import {
 // Domain configuration
 const ISSUER = "https://sectors-mcp.supertype.ai/";
 
-// Claude allowlisted redirect URIs
+// Exact-match allowlisted redirect URIs
 const ALLOWED_REDIRECT_URIS = [
   "https://claude.ai/api/mcp/auth_callback",
   "https://claude.com/api/mcp/auth_callback",
   "http://localhost:6274/oauth/callback",
   "http://localhost:6274/oauth/callback/debug",
 ];
+
+// Prefix-match allowlist (for clients with dynamic per-connector redirect URIs)
+const ALLOWED_REDIRECT_URI_PREFIXES = [
+  "https://chatgpt.com/connector/oauth/",
+];
+
+function isAllowedRedirectUri(uri: string): boolean {
+  if (ALLOWED_REDIRECT_URIS.includes(uri)) return true;
+  return ALLOWED_REDIRECT_URI_PREFIXES.some((prefix) => uri.startsWith(prefix));
+}
 
 // CORS headers for OAuth endpoints
 export const OAUTH_CORS_HEADERS = {
@@ -124,7 +134,7 @@ export async function handleRegister(
 
     // Validate redirect URIs against allowlist
     for (const uri of body.redirect_uris) {
-      if (!ALLOWED_REDIRECT_URIS.includes(uri)) {
+      if (!isAllowedRedirectUri(uri)) {
         return oauthError(
           "invalid_request",
           `redirect_uri not allowed: ${uri}`
