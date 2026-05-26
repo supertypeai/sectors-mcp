@@ -158,7 +158,9 @@ export class SectorsOAuthProvider {
       );
 
       if (!tokenResponse.ok) {
-        const errorData = await tokenResponse.json().catch(() => ({}));
+        const errorData = (await tokenResponse
+          .json()
+          .catch(() => ({}))) as { error_description?: string };
         return {
           success: false,
           error: "server_error",
@@ -280,7 +282,9 @@ export class SectorsOAuthProvider {
     });
 
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
+      const errorData = (await response.json().catch(() => ({}))) as {
+        error_description?: string;
+      };
       throw new Error(
         errorData.error_description || "Failed to refresh token"
       );
@@ -316,7 +320,12 @@ export class SectorsOAuthProvider {
       );
 
       if (response.ok) {
-        const introspection = await response.json();
+        const introspection = (await response.json()) as {
+          active?: boolean;
+          client_id?: string;
+          scope?: string;
+          exp?: number;
+        };
         return {
           valid: introspection.active === true,
           clientId: introspection.client_id,
