@@ -45,6 +45,12 @@ import { registerTagsTool } from "./tags.js";
 import { registerFilingsTool } from "./filings.js";
 import { registerNewsTool } from "./news.js";
 import { registerSubsectorReportRestTool } from "./subsectorReportRest.js";
+import {
+  registerKlseSectorsTool,
+  registerKlseCompaniesBySectorTool,
+  registerKlseTopCompaniesTool,
+  registerKlseCompanyReportTool,
+} from "./klse.js";
 
 export function registerAllTools(server: McpServer, apiKey: string, env?: any) {
   // Register all tools
@@ -90,4 +96,8 @@ export function registerAllTools(server: McpServer, apiKey: string, env?: any) {
   registerFilingsTool(server, SECTORS_API_BASE, apiKey);
   registerNewsTool(server, SECTORS_API_BASE, apiKey);
   registerSubsectorReportRestTool(server, SECTORS_API_BASE, apiKey);
+  registerKlseSectorsTool(server, SECTORS_API_BASE, apiKey);
+  registerKlseCompaniesBySectorTool(server, SECTORS_API_BASE, apiKey);
+  registerKlseTopCompaniesTool(server, SECTORS_API_BASE, apiKey);
+  registerKlseCompanyReportTool(server, SECTORS_API_BASE, apiKey);
 }
