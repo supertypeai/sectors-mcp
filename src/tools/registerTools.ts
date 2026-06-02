@@ -44,6 +44,7 @@ import { registerFreeFloatTool } from "./freeFloat.js";
 import { registerTagsTool } from "./tags.js";
 import { registerFilingsTool } from "./filings.js";
 import { registerNewsTool } from "./news.js";
+import { registerSubsectorReportRestTool } from "./subsectorReportRest.js";
 
 export function registerAllTools(server: McpServer, apiKey: string, env?: any) {
   // Register all tools
@@ -88,4 +89,5 @@ export function registerAllTools(server: McpServer, apiKey: string, env?: any) {
   registerTagsTool(server, SECTORS_API_BASE, apiKey);
   registerFilingsTool(server, SECTORS_API_BASE, apiKey);
   registerNewsTool(server, SECTORS_API_BASE, apiKey);
+  registerSubsectorReportRestTool(server, SECTORS_API_BASE, apiKey);
 }
