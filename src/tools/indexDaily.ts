@@ -8,6 +8,27 @@ export interface IndexDailyTransactionData {
   price: number;
 }
 
+// Valid IDX index codes (from the v2 docs prose; not enumerated in schema.json).
+export const IDX_INDEX_CODES = [
+  "ftse",
+  "idx30",
+  "idxbumn20",
+  "idxesgl",
+  "idxg30",
+  "idxhidiv20",
+  "idxq30",
+  "idxv30",
+  "ihsg",
+  "jii70",
+  "kompas100",
+  "lq45",
+  "sminfra18",
+  "srikehati",
+  "sti",
+  "economic30",
+  "idxvesta28",
+] as const;
+
 export async function fetchIndexDaily(
   baseUrl: string,
   apiKey: string | undefined,
@@ -42,8 +63,10 @@ export function registerIndexDailyTool(
     "Fetch daily transaction data for a given index code",
     {
       index_code: z
-        .string()
-        .describe("Code of the index (e.g., 'ihsg', 'lq45', 'idx30')"),
+        .enum(IDX_INDEX_CODES)
+        .describe(
+          "Code of the index (e.g., 'ihsg', 'lq45', 'idx30'). Must be one of the supported IDX index codes."
+        ),
       start_date: z
         .string()
         .optional()

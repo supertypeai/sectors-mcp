@@ -40,7 +40,7 @@ export function registerIndustriesTool(
           content: [
             {
               type: "text",
-              text: `API URL: ${baseUrl}/industries\n\n${industriesText}`,
+              text: `API URL: ${baseUrl}/industries/\n\n${industriesText}`,
             },
           ],
         };

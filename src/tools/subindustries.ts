@@ -38,7 +38,7 @@ export function registerSubIndustriesTool(
           content: [
             {
               type: "text",
-              text: `API URL: ${baseUrl}/subindustries\n\nFetched subindustries:\n\n${JSON.stringify(
+              text: `API URL: ${baseUrl}/subindustries/\n\nFetched subindustries:\n\n${JSON.stringify(
                 subIndustriesData,
                 null,
                 2

@@ -19,7 +19,7 @@ export async function fetchDailyTransactionData(
   endDate?: string
 ): Promise<DailyTransactionData[]> {
   const normalizedTicker = normalizeIdxTicker(ticker, "withSuffix");
-  const url = new URL(`${baseUrl}/daily/${normalizedTicker}`);
+  const url = new URL(`${baseUrl}/daily/${normalizedTicker}/`);
 
   // Add query parameters if provided
   if (startDate) url.searchParams.append('start', startDate);
@@ -59,7 +59,7 @@ export function registerDailyTransactionTool(
     async ({ ticker, startDate, endDate }) => {
       try {
         const normalizedTicker = normalizeIdxTicker(ticker, "withSuffix");
-        const url = new URL(`${baseUrl}/daily/${normalizedTicker}`);
+        const url = new URL(`${baseUrl}/daily/${normalizedTicker}/`);
 
         if (startDate) url.searchParams.append("start", startDate);
         if (endDate) url.searchParams.append("end", endDate);

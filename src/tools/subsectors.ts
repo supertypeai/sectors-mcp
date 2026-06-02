@@ -37,7 +37,7 @@ export function registerSubsectorsTool(
           content: [
             {
               type: "text",
-              text: `API URL: ${baseUrl}/subsectors\n\n${subsectorsText}`,
+              text: `API URL: ${baseUrl}/subsectors/\n\n${subsectorsText}`,
             },
           ],
         };

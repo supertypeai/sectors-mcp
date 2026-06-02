@@ -483,7 +483,7 @@ export function registerCompaniesWithSegmentsTool(
           content: [
             {
               type: "text",
-              text: `API URL: ${baseUrl}/companies/with-segments/\n\n${JSON.stringify(
+              text: `API URL: ${baseUrl}/companies/list_companies_with_segments/\n\n${JSON.stringify(
                 companies,
                 null,
                 2
