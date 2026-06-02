@@ -58,6 +58,13 @@ import {
   registerMiningGlobalCommodityTool,
   registerMiningContractsTool,
 } from "./miningCommodities.js";
+import {
+  registerMiningCompaniesTool,
+  registerMiningCompanyDetailTool,
+  registerMiningCompanyFinancialsTool,
+  registerMiningCompanyOwnershipTool,
+  registerMiningCompanyPerformanceTool,
+} from "./miningCompanies.js";
 
 export function registerAllTools(server: McpServer, apiKey: string, env?: any) {
   // Register all tools
@@ -112,4 +119,9 @@ export function registerAllTools(server: McpServer, apiKey: string, env?: any) {
   registerMiningExportsTool(server, SECTORS_API_BASE, apiKey);
   registerMiningGlobalCommodityTool(server, SECTORS_API_BASE, apiKey);
   registerMiningContractsTool(server, SECTORS_API_BASE, apiKey);
+  registerMiningCompaniesTool(server, SECTORS_API_BASE, apiKey);
+  registerMiningCompanyDetailTool(server, SECTORS_API_BASE, apiKey);
+  registerMiningCompanyFinancialsTool(server, SECTORS_API_BASE, apiKey);
+  registerMiningCompanyOwnershipTool(server, SECTORS_API_BASE, apiKey);
+  registerMiningCompanyPerformanceTool(server, SECTORS_API_BASE, apiKey);
 }
