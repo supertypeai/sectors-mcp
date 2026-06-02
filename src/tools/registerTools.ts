@@ -51,6 +51,13 @@ import {
   registerKlseTopCompaniesTool,
   registerKlseCompanyReportTool,
 } from "./klse.js";
+import {
+  registerMiningCommoditiesTool,
+  registerMiningCommodityPriceTool,
+  registerMiningExportsTool,
+  registerMiningGlobalCommodityTool,
+  registerMiningContractsTool,
+} from "./miningCommodities.js";
 
 export function registerAllTools(server: McpServer, apiKey: string, env?: any) {
   // Register all tools
@@ -100,4 +107,9 @@ export function registerAllTools(server: McpServer, apiKey: string, env?: any) {
   registerKlseCompaniesBySectorTool(server, SECTORS_API_BASE, apiKey);
   registerKlseTopCompaniesTool(server, SECTORS_API_BASE, apiKey);
   registerKlseCompanyReportTool(server, SECTORS_API_BASE, apiKey);
+  registerMiningCommoditiesTool(server, SECTORS_API_BASE, apiKey);
+  registerMiningCommodityPriceTool(server, SECTORS_API_BASE, apiKey);
+  registerMiningExportsTool(server, SECTORS_API_BASE, apiKey);
+  registerMiningGlobalCommodityTool(server, SECTORS_API_BASE, apiKey);
+  registerMiningContractsTool(server, SECTORS_API_BASE, apiKey);
 }
