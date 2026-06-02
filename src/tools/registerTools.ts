@@ -5,7 +5,6 @@ import { SECTORS_API_BASE } from "../config.js";
 import { registerSubsectorsTool } from "./subsectors.js";
 import { registerIndustriesTool } from "./industries.js";
 import { registerSubIndustriesTool } from "./subindustries.js";
-import { registerIndexTool } from "./indexData.js";
 import {
   registerCompaniesBySubsectorTool,
   registerCompaniesBySubindustryTool,
@@ -16,7 +15,6 @@ import {
   registerCompanySegmentsTool,
   registerSgxCompaniesBySectorTool,
 } from "./companies.js";
-import { registerCompaniesByIndexTool } from "./companiesByIndex.js";
 import { registerCompanyReportTool } from "./companyReport.js";
 import { registerSgxSectorsTool } from "./sgxSectors.js";
 import { registerSGXCompanyReportTool } from "./sgxCompanyReport.js";
@@ -49,7 +47,6 @@ export function registerAllTools(server: McpServer, apiKey: string, env?: any) {
   registerSubsectorsTool(server, SECTORS_API_BASE, apiKey);
   registerIndustriesTool(server, SECTORS_API_BASE, apiKey);
   registerSubIndustriesTool(server, SECTORS_API_BASE, apiKey);
-  registerIndexTool(server, SECTORS_API_BASE, apiKey);
   registerCompaniesBySubsectorTool(server, SECTORS_API_BASE, apiKey);
   registerCompaniesBySubindustryTool(server, SECTORS_API_BASE, apiKey);
   registerCompaniesWithSegmentsTool(server, SECTORS_API_BASE, apiKey);
@@ -57,7 +54,6 @@ export function registerAllTools(server: McpServer, apiKey: string, env?: any) {
   registerQuarterlyFinancialDatesTool(server, SECTORS_API_BASE, apiKey);
   registerQuarterlyFinancialsTool(server, SECTORS_API_BASE, apiKey);
   registerCompanySegmentsTool(server, SECTORS_API_BASE, apiKey);
-  registerCompaniesByIndexTool(server, SECTORS_API_BASE, apiKey);
   registerCompanyReportTool(server, SECTORS_API_BASE, apiKey);
   registerSgxSectorsTool(server, SECTORS_API_BASE, apiKey);
   registerSGXCompanyReportTool(server, SECTORS_API_BASE, apiKey);
