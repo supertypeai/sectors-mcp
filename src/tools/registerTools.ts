@@ -65,6 +65,19 @@ import {
   registerMiningCompanyOwnershipTool,
   registerMiningCompanyPerformanceTool,
 } from "./miningCompanies.js";
+import {
+  registerMiningLicensesTool,
+  registerMiningLicenseAuctionsTool,
+  registerMiningLicenseAuctionDetailTool,
+  registerMiningSalesDestinationTool,
+} from "./miningLicenses.js";
+import {
+  registerMiningSitesTool,
+  registerMiningSiteDetailTool,
+  registerMiningTotalProductionTool,
+  registerMiningResourcesReservesTool,
+  registerMiningResourcesReservesDetailTool,
+} from "./miningSites.js";
 
 export function registerAllTools(server: McpServer, apiKey: string, env?: any) {
   // Register all tools
@@ -124,4 +137,13 @@ export function registerAllTools(server: McpServer, apiKey: string, env?: any) {
   registerMiningCompanyFinancialsTool(server, SECTORS_API_BASE, apiKey);
   registerMiningCompanyOwnershipTool(server, SECTORS_API_BASE, apiKey);
   registerMiningCompanyPerformanceTool(server, SECTORS_API_BASE, apiKey);
+  registerMiningLicensesTool(server, SECTORS_API_BASE, apiKey);
+  registerMiningLicenseAuctionsTool(server, SECTORS_API_BASE, apiKey);
+  registerMiningLicenseAuctionDetailTool(server, SECTORS_API_BASE, apiKey);
+  registerMiningSalesDestinationTool(server, SECTORS_API_BASE, apiKey);
+  registerMiningSitesTool(server, SECTORS_API_BASE, apiKey);
+  registerMiningSiteDetailTool(server, SECTORS_API_BASE, apiKey);
+  registerMiningTotalProductionTool(server, SECTORS_API_BASE, apiKey);
+  registerMiningResourcesReservesTool(server, SECTORS_API_BASE, apiKey);
+  registerMiningResourcesReservesDetailTool(server, SECTORS_API_BASE, apiKey);
 }
