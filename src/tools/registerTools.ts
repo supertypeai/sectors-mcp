@@ -80,7 +80,12 @@ import {
 } from "./miningSites.js";
 
 export function registerAllTools(server: McpServer, apiKey: string, env?: any) {
-  // Register all tools
+  // Two backends:
+  //   - REST tools: (server, SECTORS_API_BASE, apiKey) -> api.sectors.app/v2
+  //   - Supabase tools: (server, env) -> Supabase-backed queries (out of v2-parity scope)
+  // Keep them distinct; never route a Supabase tool through the REST base or vice versa.
+
+  // --- REST tools (api.sectors.app/v2) ---
   registerSubsectorsTool(server, SECTORS_API_BASE, apiKey);
   registerIndustriesTool(server, SECTORS_API_BASE, apiKey);
   registerSubIndustriesTool(server, SECTORS_API_BASE, apiKey);
@@ -102,6 +107,8 @@ export function registerAllTools(server: McpServer, apiKey: string, env?: any) {
   registerMostTradedTool(server, SECTORS_API_BASE, apiKey);
   registerTopGrowthTool(server, SECTORS_API_BASE, apiKey);
   registerIDXMarketCapTool(server, SECTORS_API_BASE, apiKey);
+
+  // --- Supabase-backed tools (out of scope for v2 REST parity; do not migrate) ---
   registerIPOCompaniesTool(server, env);
   registerHistoricalFinancialTool(server, env);
   registerCompaniesReportTool(server, env);
@@ -118,6 +125,8 @@ export function registerAllTools(server: McpServer, apiKey: string, env?: any) {
   registerSingaporeEarningsYieldTool(server, env);
   registerSingaporeHistoricalVolatilityTool(server, env);
   registerCompaniesNipeTool(server, env);
+
+  // --- REST tools added/updated for v2 parity (api.sectors.app/v2) ---
   registerFreeFloatTool(server, SECTORS_API_BASE, apiKey);
   registerTagsTool(server, SECTORS_API_BASE, apiKey);
   registerFilingsTool(server, SECTORS_API_BASE, apiKey);
