@@ -78,6 +78,28 @@ import {
   registerMiningResourcesReservesTool,
   registerMiningResourcesReservesDetailTool,
 } from "./miningSites.js";
+import {
+  registerBrokersTool,
+  registerTopBrokersTool,
+  registerBrokerActivityTool,
+  registerBrokerActivityTopTool,
+  registerBrokerSummaryTool,
+  registerBrokerSummaryTopTool,
+} from "./brokers.js";
+import {
+  registerCorporateActionsTool,
+  registerShareholdersCompositionTool,
+  registerForeignFlowTool,
+  registerSuspensionsTool,
+} from "./companyMarketData.js";
+import {
+  registerSgxBuybacksTool,
+  registerSgxDailyTool,
+  registerSgxFilingsTool,
+  registerSgxNewsTool,
+  registerSgxShortSellTool,
+  registerSgxTagsTool,
+} from "./sgxMarketData.js";
 
 export function registerAllTools(server: McpServer, apiKey: string, env?: any) {
   // Two backends:
@@ -155,4 +177,26 @@ export function registerAllTools(server: McpServer, apiKey: string, env?: any) {
   registerMiningTotalProductionTool(server, SECTORS_API_BASE, apiKey);
   registerMiningResourcesReservesTool(server, SECTORS_API_BASE, apiKey);
   registerMiningResourcesReservesDetailTool(server, SECTORS_API_BASE, apiKey);
+
+  // --- REST tools: IDX broker activity (api.sectors.app/v2) ---
+  registerBrokersTool(server, SECTORS_API_BASE, apiKey);
+  registerTopBrokersTool(server, SECTORS_API_BASE, apiKey);
+  registerBrokerActivityTool(server, SECTORS_API_BASE, apiKey);
+  registerBrokerActivityTopTool(server, SECTORS_API_BASE, apiKey);
+  registerBrokerSummaryTool(server, SECTORS_API_BASE, apiKey);
+  registerBrokerSummaryTopTool(server, SECTORS_API_BASE, apiKey);
+
+  // --- REST tools: IDX company market data (api.sectors.app/v2) ---
+  registerCorporateActionsTool(server, SECTORS_API_BASE, apiKey);
+  registerShareholdersCompositionTool(server, SECTORS_API_BASE, apiKey);
+  registerForeignFlowTool(server, SECTORS_API_BASE, apiKey);
+  registerSuspensionsTool(server, SECTORS_API_BASE, apiKey);
+
+  // --- REST tools: SGX market data (api.sectors.app/v2) ---
+  registerSgxBuybacksTool(server, SECTORS_API_BASE, apiKey);
+  registerSgxDailyTool(server, SECTORS_API_BASE, apiKey);
+  registerSgxFilingsTool(server, SECTORS_API_BASE, apiKey);
+  registerSgxNewsTool(server, SECTORS_API_BASE, apiKey);
+  registerSgxShortSellTool(server, SECTORS_API_BASE, apiKey);
+  registerSgxTagsTool(server, SECTORS_API_BASE, apiKey);
 }
