@@ -31,7 +31,7 @@ interface ExecutionContext {
 // Replace the two placeholders, then redeploy. (No trailing newline.)
 const OPENAI_DOMAIN_VERIFICATION = {
   path: "/.well-known/openai-apps-challenge",
-  token: "J7VC6LHi1NtFFktESmSG7pxd4x8AFj5gNI2H0Ze4Co",
+  token: "_J7VC6LHi1NtFFktESmSG7pxd4x8AFj5gNI2H0Ze4Co",
 };
 
 // CORS headers for OAuth endpoints
