@@ -22,6 +22,18 @@ interface ExecutionContext {
   props: Record<string, any>;
 }
 
+// OpenAI MCP domain verification.
+// The verification file must be served from the ORIGIN ROOT
+// (https://sectors-mcp.supertype.ai/.well-known/...), NOT under /mcp.
+// Both values below come from the OpenAI "verify domain" page:
+//   - path:  the exact well-known filename it tells you to host
+//   - token: the verification string, served as the plain-text body
+// Replace the two placeholders, then redeploy. (No trailing newline.)
+const OPENAI_DOMAIN_VERIFICATION = {
+  path: "/.well-known/openai-apps-challenge",
+  token: "J7VC6LHi1NtFFktESmSG7pxd4x8AFj5gNI2H0Ze4Co",
+};
+
 // CORS headers for OAuth endpoints
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -89,13 +101,23 @@ export default {
       return new Response(null, { status: 200 });
     }
 
-    // 3. Handle OAuth endpoints (unauthenticated)
+    // 3. Serve the OpenAI domain-verification file at the origin root
+    //    (unauthenticated, no redirect). Must come before the MCP/OAuth
+    //    routing so it is reachable without a token.
+    if (url.pathname === OPENAI_DOMAIN_VERIFICATION.path) {
+      return new Response(OPENAI_DOMAIN_VERIFICATION.token, {
+        status: 200,
+        headers: { "Content-Type": "text/plain; charset=utf-8" },
+      });
+    }
+
+    // 4. Handle OAuth endpoints (unauthenticated)
     const oauthResponse = await handleOAuthRoute(request, env);
     if (oauthResponse) {
       return oauthResponse;
     }
 
-    // 4. Handle MCP endpoints (authenticated)
+    // 5. Handle MCP endpoints (authenticated)
     if (url.pathname === "/mcp" || url.pathname.startsWith("/sse")) {
       const authHeader = request.headers.get("authorization");
       const apiKeyHeader = request.headers.get("x-api-key");
