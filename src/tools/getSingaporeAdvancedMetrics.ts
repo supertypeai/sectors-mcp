@@ -193,7 +193,7 @@ export function registerSingaporeEarningsYieldTool(
         .string()
         .describe("The stock symbol of the Singapore company"),
     },
-    { annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false } },
+    { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     async ({ symbol }) => {
       try {
         const result = await fetchEarningsYield(env, symbol);
@@ -248,7 +248,7 @@ export function registerSingaporeHistoricalVolatilityTool(
         .default("90d")
         .describe("Timeframe to use for volatility calculation"),
     },
-    { annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false } },
+    { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     async ({ symbol, useTimeframe }) => {
       try {
         const result = await fetchHistoricalVolatility(

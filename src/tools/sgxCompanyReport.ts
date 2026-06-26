@@ -95,7 +95,7 @@ export function registerSGXCompanyReportTool(
     {
       ticker: z.string().describe("The ticker symbol of the company (e.g., 'D05', 'U11', 'D05.SI')")
     },
-    { annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false } },
+    { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     async (args) => {
       const { ticker } = args;
       try {

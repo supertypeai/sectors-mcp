@@ -195,7 +195,7 @@ export function registerSubsectorReportTool(server: McpServer, env: any) {
           "Subsector slug in kebab-case (e.g. 'banks', 'food-beverage'). Use get-subsectors for the canonical list."
         ),
     },
-    { annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false } },
+    { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     async ({ columns, subsector }) => {
       try {
         const result = await fetchSubsectorReport(env, columns, subsector);

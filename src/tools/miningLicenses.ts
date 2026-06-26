@@ -67,7 +67,7 @@ export function registerMiningLicensesTool(
       limit: z.number().int().max(30).optional().describe("Per page (default 20, max 30)"),
       offset: z.number().int().optional().describe("Pagination offset (default 0)"),
     },
-    { annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false } },
+    { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     async (params) => {
       try {
         const search = new URLSearchParams();
@@ -124,7 +124,7 @@ export function registerMiningLicenseAuctionsTool(
       limit: z.number().int().max(30).optional().describe("Per page (default 20, max 30)"),
       offset: z.number().int().optional().describe("Pagination offset (default 0)"),
     },
-    { annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false } },
+    { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     async (params) => {
       try {
         const search = new URLSearchParams();
@@ -163,7 +163,7 @@ export function registerMiningLicenseAuctionDetailTool(
         .min(1)
         .describe("Auction WIUP code (see fetch-mining-license-auctions)"),
     },
-    { annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false } },
+    { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     async ({ wiup_code }) => {
       try {
         const path = `/mining/license-auctions/${encodeURIComponent(wiup_code)}/`;
@@ -195,7 +195,7 @@ export function registerMiningSalesDestinationTool(
         .optional()
         .describe("Year (defaults to latest available)"),
     },
-    { annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false } },
+    { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     async ({ slug, year }) => {
       try {
         const search = new URLSearchParams();

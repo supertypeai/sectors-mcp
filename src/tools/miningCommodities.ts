@@ -50,7 +50,7 @@ export function registerMiningCommoditiesTool(
   server.tool(
     "fetch-mining-commodities",
     "List available mining commodities with their data coverage (data points, earliest/latest date).",
-    { annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false } },
+    { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     async () => {
       try {
         const data = await getJson(baseUrl, apiKey, "/mining/commodities/");
@@ -89,7 +89,7 @@ export function registerMiningCommodityPriceTool(
         .optional()
         .describe("End year (defaults to current year)"),
     },
-    { annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false } },
+    { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     async ({ commodity_name, start_year, end_year }) => {
       try {
         const search = new URLSearchParams();
@@ -129,7 +129,7 @@ export function registerMiningExportsTool(
         .optional()
         .describe("Number of destinations to return (default 20, max 30)"),
     },
-    { annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false } },
+    { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     async ({ commodity_type, year, limit }) => {
       try {
         const search = new URLSearchParams({
@@ -173,7 +173,7 @@ export function registerMiningGlobalCommodityTool(
         .optional()
         .describe("Number of rows to return (default 20, max 30)"),
     },
-    { annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false } },
+    { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     async ({ commodity_type, country, limit }) => {
       try {
         const search = new URLSearchParams();
@@ -215,7 +215,7 @@ export function registerMiningContractsTool(
         .optional()
         .describe("Filter by contractor slug"),
     },
-    { annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false } },
+    { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     async ({ mine_owner, contractor }) => {
       try {
         const search = new URLSearchParams();

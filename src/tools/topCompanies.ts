@@ -229,7 +229,7 @@ fetch-company-report on the ticker.`,
           "DEPRECATED in v2 — ignored. The v2 screener ranks on TTM/latest values."
         ),
     },
-    { annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false } },
+    { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     async ({
       classifications = "all",
       filters,

@@ -76,7 +76,7 @@ export function registerMostTradedTool(
         .default("all")
         .describe("Subsector to filter by. Use 'all' for all subsectors. Get available subsectors from the subsectors endpoint.")
     },
-    { annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false } },
+    { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     async ({
       startDate,
       endDate,

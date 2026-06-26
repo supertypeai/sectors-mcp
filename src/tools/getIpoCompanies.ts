@@ -101,7 +101,7 @@ export function registerIPOCompaniesTool(
       subSector: z.string().optional().describe("Filter by sub-sector"),
       subIndustry: z.string().optional().describe("Filter by sub-industry"),
     },
-    { annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false } },
+    { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     async ({ startDate, endDate, sector, subSector, subIndustry }) => {
       try {
         const companies = await fetchIPOCompanies(

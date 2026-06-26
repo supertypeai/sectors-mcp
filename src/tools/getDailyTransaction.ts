@@ -80,7 +80,7 @@ export function registerDailyTransactionTool(server: McpServer, env: any) {
           "End date for the data range in YYYY-MM-DD format. Defaults to today."
         ),
     },
-    { annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false } },
+    { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     async ({ symbols, startDate, endDate }) => {
       try {
         const dailyData = await fetchDailyTransaction(

@@ -52,7 +52,7 @@ export function registerKlseSectorsTool(
   server.tool(
     "fetch-klse-sectors",
     "Fetch the list of available KLSE (Malaysia) sector slugs.",
-    { annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false } },
+    { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     async () => {
       try {
         const sectors = await fetchKlseSectors(baseUrl, apiKey);
@@ -109,7 +109,7 @@ export function registerKlseCompaniesBySectorTool(
         .min(1)
         .describe("KLSE sector slug in kebab-case (e.g. 'finance', 'energy')"),
     },
-    { annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false } },
+    { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     async ({ sector }) => {
       try {
         const companies = await fetchKlseCompaniesBySector(
@@ -202,7 +202,7 @@ export function registerKlseTopCompaniesTool(
         .default(1000)
         .describe("Minimum market cap in million MYR. Defaults to 1000."),
     },
-    { annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false } },
+    { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     async ({ sector, classifications, n_stock, min_mcap_million }) => {
       try {
         const result = await fetchKlseTopCompanies(baseUrl, apiKey, {
@@ -270,7 +270,7 @@ export function registerKlseCompanyReportTool(
           "Comma-separated sections: overview, valuation, financials, dividend. Defaults to 'all'."
         ),
     },
-    { annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false } },
+    { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     async ({ symbol, sections }) => {
       try {
         const report = await fetchKlseCompanyReport(

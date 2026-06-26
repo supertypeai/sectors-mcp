@@ -185,7 +185,7 @@ fetch-company-report on the ticker.`,
           "Subsector slug in kebab-case (e.g. 'banks', 'food-beverage'). Use 'all' to skip filtering."
         ),
     },
-    { annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false } },
+    { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     async ({ classifications, n_stock, min_mcap_billion, sub_sector }) => {
       try {
         const result = await fetchTopGrowth(baseUrl, apiKey, {

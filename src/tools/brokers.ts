@@ -62,7 +62,7 @@ export function registerBrokersTool(
         .optional()
         .describe("Filter brokers by origin"),
     },
-    { annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false } },
+    { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     async (params) => {
       try {
         const search = new URLSearchParams();
@@ -114,7 +114,7 @@ export function registerTopBrokersTool(
         .optional()
         .describe("Number of brokers to return"),
     },
-    { annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false } },
+    { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     async (params) => {
       try {
         const search = new URLSearchParams();
@@ -161,7 +161,7 @@ export function registerBrokerActivityTool(
         .optional()
         .describe("End date (YYYY-MM-DD)"),
     },
-    { annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false } },
+    { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     async ({ broker_code, ...rest }) => {
       try {
         const search = new URLSearchParams();
@@ -208,7 +208,7 @@ export function registerBrokerActivityTopTool(
         .optional()
         .describe("Number of top stocks to return"),
     },
-    { annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false } },
+    { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     async ({ broker_code, ...rest }) => {
       try {
         const search = new URLSearchParams();
@@ -254,7 +254,7 @@ export function registerBrokerSummaryTool(
         .optional()
         .describe("End date (YYYY-MM-DD)"),
     },
-    { annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false } },
+    { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     async ({ symbol, ...rest }) => {
       try {
         const search = new URLSearchParams();
@@ -309,7 +309,7 @@ export function registerBrokerSummaryTopTool(
         .optional()
         .describe("Filter by broker origin (default all)"),
     },
-    { annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false } },
+    { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     async ({ symbol, ...rest }) => {
       try {
         const search = new URLSearchParams();

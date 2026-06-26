@@ -110,7 +110,7 @@ export function registerSingaporeCompanyHistoricalFinancialTool(
         .string()
         .describe("Singapore company symbol (e.g., 'D05', 'O39')"),
     },
-    { annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false } },
+    { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     async ({ symbol }) => {
       try {
         const financialData = await fetchSingaporeCompanyHistoricalFinancial(

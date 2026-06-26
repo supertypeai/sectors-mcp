@@ -140,7 +140,7 @@ export function registerTopCompaniesByMetricsTool(server: McpServer, env: any) {
         .optional()
         .describe("Optional subsector filter to narrow results"),
     },
-    { annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false } },
+    { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     async ({ metric, limit, subsector }) => {
       try {
         const companies = await fetchTopCompaniesByMetrics(
