@@ -65,7 +65,7 @@ export function registerMiningSitesTool(
       limit: z.number().int().max(30).optional().describe("Per page (default 20, max 30)"),
       offset: z.number().int().optional().describe("Pagination offset (default 0)"),
     },
-    { annotations: { readOnlyHint: true } },
+    { annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false } },
     async (params) => {
       try {
         const search = new URLSearchParams();
@@ -101,7 +101,7 @@ export function registerMiningSiteDetailTool(
     {
       slug: z.string().min(1).describe("Mining site slug (see fetch-mining-sites)"),
     },
-    { annotations: { readOnlyHint: true } },
+    { annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false } },
     async ({ slug }) => {
       try {
         const path = `/mining/sites/${encodeURIComponent(slug)}/`;
@@ -131,7 +131,7 @@ export function registerMiningTotalProductionTool(
         .min(1)
         .describe("Commodity type (e.g. 'coal', 'nickel')"),
     },
-    { annotations: { readOnlyHint: true } },
+    { annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false } },
     async ({ commodity_type }) => {
       try {
         const search = new URLSearchParams({ commodity_type });
@@ -160,7 +160,7 @@ export function registerMiningResourcesReservesTool(
   server.tool(
     "fetch-mining-resources-reserves",
     "Fetch national resources & reserves overview, keyed by province with available commodities/years.",
-    { annotations: { readOnlyHint: true } },
+    { annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false } },
     async () => {
       try {
         const data = await getJson<Record<string, unknown>>(
@@ -192,7 +192,7 @@ export function registerMiningResourcesReservesDetailTool(
       commodity_type: z.string().optional().describe("Filter by commodity type"),
       year: z.number().int().optional().describe("Filter by year"),
     },
-    { annotations: { readOnlyHint: true } },
+    { annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false } },
     async ({ province, commodity_type, year }) => {
       try {
         const search = new URLSearchParams();

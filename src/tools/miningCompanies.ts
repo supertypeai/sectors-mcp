@@ -108,7 +108,7 @@ export function registerMiningCompaniesTool(
         .optional()
         .describe("Pagination offset (default 0)"),
     },
-    { annotations: { readOnlyHint: true } },
+    { annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false } },
     async ({ keyword, commodity_type, company_type, has_financials, limit, offset }) => {
       try {
         const search = new URLSearchParams();
@@ -148,7 +148,7 @@ export function registerMiningCompanyDetailTool(
     {
       slug: z.string().min(1).describe("Mining company slug (see fetch-mining-companies)"),
     },
-    { annotations: { readOnlyHint: true } },
+    { annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false } },
     async ({ slug }) => {
       try {
         const path = `/mining/companies/${encodeURIComponent(slug)}/`;
@@ -180,7 +180,7 @@ export function registerMiningCompanyFinancialsTool(
         .optional()
         .describe("Financial year (defaults to latest); see available_years in response"),
     },
-    { annotations: { readOnlyHint: true } },
+    { annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false } },
     async ({ slug, year }) => {
       try {
         const search = new URLSearchParams();
@@ -215,7 +215,7 @@ export function registerMiningCompanyOwnershipTool(
     {
       slug: z.string().min(1).describe("Mining company slug"),
     },
-    { annotations: { readOnlyHint: true } },
+    { annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false } },
     async ({ slug }) => {
       try {
         const path = `/mining/companies/ownership/${encodeURIComponent(slug)}/`;
@@ -251,7 +251,7 @@ export function registerMiningCompanyPerformanceTool(
         .optional()
         .describe("Year (defaults to latest); see available_years in response"),
     },
-    { annotations: { readOnlyHint: true } },
+    { annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false } },
     async ({ slug, commodity_type, year }) => {
       try {
         const search = new URLSearchParams();

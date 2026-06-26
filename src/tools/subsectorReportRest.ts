@@ -55,7 +55,7 @@ statistics, market cap, stability, valuation, growth, and constituent companies.
           "Comma-separated sections to retrieve. Available: statistics, market_cap, stability, valuation, growth, companies. Defaults to 'all'."
         ),
     },
-    { annotations: { readOnlyHint: true } },
+    { annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false } },
     async ({ sub_sector, sections }) => {
       try {
         const report = await fetchSubsectorReport(

@@ -76,7 +76,7 @@ export function registerIndexDailyTool(
         .optional()
         .describe("End date in YYYY-MM-DD format (default: today)")
     },
-    { annotations: { readOnlyHint: true } },
+    { annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false } },
     async ({ index_code, start_date, end_date }) => {
       try {
         const data = await fetchIndexDaily(

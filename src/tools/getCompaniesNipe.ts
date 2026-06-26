@@ -90,7 +90,7 @@ export function registerCompaniesNipeTool(server: McpServer, env: any) {
         .array(z.string())
         .describe("Array of IDX company symbols to calculate NIPE for (e.g., 'BBCA' or 'BBCA.JK')"),
     },
-    { annotations: { readOnlyHint: true } },
+    { annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false } },
     async ({ symbols }) => {
       try {
         const companies = await fetchCompaniesNipe(env, symbols);

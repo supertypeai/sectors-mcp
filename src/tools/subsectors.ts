@@ -29,7 +29,7 @@ export function registerSubsectorsTool(
   server.tool(
     "get-subsectors",
     "Get list of subsectors",
-    { annotations: { readOnlyHint: true } },
+    { annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false } },
     async () => {
       try {
         const subsectorsText = await getSubsectors(baseUrl, apiKey);

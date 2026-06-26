@@ -78,7 +78,7 @@ export function registerSgxBuybacksTool(
         .optional()
         .describe("Pagination offset (default 0)"),
     },
-    { annotations: { readOnlyHint: true } },
+    { annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false } },
     async (params) => {
       try {
         const search = new URLSearchParams();
@@ -119,7 +119,7 @@ export function registerSgxDailyTool(
         .optional()
         .describe("End date (YYYY-MM-DD)"),
     },
-    { annotations: { readOnlyHint: true } },
+    { annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false } },
     async ({ symbol, ...rest }) => {
       try {
         const search = new URLSearchParams();
@@ -182,7 +182,7 @@ export function registerSgxFilingsTool(
         .optional()
         .describe("Pagination offset (default 0)"),
     },
-    { annotations: { readOnlyHint: true } },
+    { annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false } },
     async (params) => {
       try {
         const search = new URLSearchParams();
@@ -248,7 +248,7 @@ export function registerSgxNewsTool(
         .optional()
         .describe("Pagination offset (default 0)"),
     },
-    { annotations: { readOnlyHint: true } },
+    { annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false } },
     async (params) => {
       try {
         const search = new URLSearchParams();
@@ -302,7 +302,7 @@ export function registerSgxShortSellTool(
         .optional()
         .describe("Pagination offset (default 0)"),
     },
-    { annotations: { readOnlyHint: true } },
+    { annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false } },
     async (params) => {
       try {
         const search = new URLSearchParams();
@@ -331,7 +331,7 @@ export function registerSgxTagsTool(
     "fetch-sgx-tags",
     "List available SGX news tags (no parameters). Use returned slugs to filter fetch-sgx-news.",
     {},
-    { annotations: { readOnlyHint: true } },
+    { annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false } },
     async () => {
       try {
         const data = await getJson<unknown>(baseUrl, apiKey, "/sgx/tags/");

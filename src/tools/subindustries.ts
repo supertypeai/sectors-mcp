@@ -30,7 +30,7 @@ export function registerSubIndustriesTool(
   server.tool(
     "fetch-subindustries",
     "Fetch subindustries from the Sectors API",
-    { annotations: { readOnlyHint: true } },
+    { annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false } },
     async () => {
       try {
         const subIndustriesData = await fetchSubIndustries(baseUrl, apiKey);

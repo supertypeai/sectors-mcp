@@ -153,7 +153,7 @@ filters: keyword, commodity_type.`,
         .optional()
         .describe("Pagination offset (default 0)"),
     },
-    { annotations: { readOnlyHint: true } },
+    { annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false } },
     async (params) => {
       try {
         const news = await fetchNews(baseUrl, apiKey, params);

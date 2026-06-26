@@ -55,7 +55,7 @@ export function registerDailyTransactionTool(
         .optional()
         .describe('End date in YYYY-MM-DD format (optional, defaults to today)'),
     },
-    { annotations: { readOnlyHint: true } },
+    { annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false } },
     async ({ ticker, startDate, endDate }) => {
       try {
         const normalizedTicker = normalizeIdxTicker(ticker, "withSuffix");

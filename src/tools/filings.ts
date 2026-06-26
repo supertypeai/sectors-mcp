@@ -135,7 +135,7 @@ All filters are optional; combine to narrow results.`,
         .optional()
         .describe("Pagination offset (default 0)"),
     },
-    { annotations: { readOnlyHint: true } },
+    { annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false } },
     async (params) => {
       try {
         const filings = await fetchFilings(baseUrl, apiKey, params);

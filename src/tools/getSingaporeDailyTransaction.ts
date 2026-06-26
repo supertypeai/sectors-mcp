@@ -104,7 +104,7 @@ export function registerSingaporeDailyTransactionTool(
           "End date for the data range in YYYY-MM-DD format. Defaults to today."
         ),
     },
-    { annotations: { readOnlyHint: true } },
+    { annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false } },
     async ({ symbols, startDate, endDate }) => {
       try {
         const dailyData = await fetchSingaporeDailyTransaction(

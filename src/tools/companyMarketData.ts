@@ -55,7 +55,7 @@ export function registerCorporateActionsTool(
     {
       symbol: z.string().describe("Ticker symbol (e.g. 'BBCA.JK')"),
     },
-    { annotations: { readOnlyHint: true } },
+    { annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false } },
     async ({ symbol }) => {
       try {
         const path = `/company/corporate-actions/${encodeURIComponent(symbol)}/`;
@@ -87,7 +87,7 @@ export function registerShareholdersCompositionTool(
         .optional()
         .describe("Year (e.g. 2024). Defaults to the latest available."),
     },
-    { annotations: { readOnlyHint: true } },
+    { annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false } },
     async ({ symbol, year }) => {
       try {
         const search = new URLSearchParams();
@@ -127,7 +127,7 @@ export function registerForeignFlowTool(
         .optional()
         .describe("End date (YYYY-MM-DD)"),
     },
-    { annotations: { readOnlyHint: true } },
+    { annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false } },
     async ({ symbol, ...rest }) => {
       try {
         const search = new URLSearchParams();
@@ -182,7 +182,7 @@ export function registerSuspensionsTool(
         .optional()
         .describe("Pagination offset (default 0)"),
     },
-    { annotations: { readOnlyHint: true } },
+    { annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false } },
     async (params) => {
       try {
         const search = new URLSearchParams();

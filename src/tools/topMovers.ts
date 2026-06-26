@@ -104,7 +104,7 @@ export function registerTopCompanyMoversTool(
         .default("all")
         .describe("Subsector to filter by (in kebab-case)"),
     },
-    { annotations: { readOnlyHint: true } },
+    { annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false } },
     async ({
       classifications = "all",
       n_stock = 5,

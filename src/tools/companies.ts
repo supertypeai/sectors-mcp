@@ -325,7 +325,7 @@ Subsector slug must be kebab-case (e.g. 'banks', 'food-beverage').`,
           "Subsector slug in kebab-case (e.g. 'banks', 'food-beverage')"
         ),
     },
-    { annotations: { readOnlyHint: true } },
+    { annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false } },
     async ({ subSector }) => {
       try {
         const companies = await fetchCompaniesBySubsector(
@@ -367,7 +367,7 @@ Use fetch-subindustries to discover valid slugs.`,
           "Subindustry slug in kebab-case (e.g. 'banks', 'electric-utilities')"
         ),
     },
-    { annotations: { readOnlyHint: true } },
+    { annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false } },
     async ({ subIndustry }) => {
       try {
         const companies = await fetchCompaniesBySubindustry(
@@ -403,7 +403,7 @@ export function registerCompaniesWithSegmentsTool(
     "fetch-companies-with-segments",
     "Fetch companies with segments from the Sectors API",
     {},
-    { annotations: { readOnlyHint: true } },
+    { annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false } },
     async () => {
       try {
         const companies = await fetchCompaniesWithSegments(baseUrl, apiKey);
@@ -440,7 +440,7 @@ export function registerListingPerformanceTool(
         .min(1)
         .describe("The IDX company ticker symbol (e.g., 'BBCA' or 'BBCA.JK')"),
     },
-    { annotations: { readOnlyHint: true } },
+    { annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false } },
     async ({ ticker }) => {
       try {
         const normalizedTicker = normalizeIdxTicker(ticker, "withoutSuffix");
@@ -482,7 +482,7 @@ export function registerQuarterlyFinancialDatesTool(
         .min(1)
         .describe("The IDX company ticker symbol (e.g., 'BBCA' or 'BBCA.JK')"),
     },
-    { annotations: { readOnlyHint: true } },
+    { annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false } },
     async ({ ticker }) => {
       try {
         const normalizedTicker = normalizeIdxTicker(ticker, "withoutSuffix");
@@ -533,7 +533,7 @@ export function registerQuarterlyFinancialsTool(
         .describe("Whether to include approximate data"),
       nQuarters: z.number().optional().describe("Number of quarters to fetch"),
     },
-    { annotations: { readOnlyHint: true } },
+    { annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false } },
     async ({ ticker, reportDate, approx, nQuarters }) => {
       try {
         const normalizedTicker = normalizeIdxTicker(ticker, "withoutSuffix");
@@ -614,7 +614,7 @@ export function registerSgxCompaniesBySectorTool(
           "Sector in kebab-case format (e.g., 'consumer-defensive', 'industrials')"
         ),
     },
-    { annotations: { readOnlyHint: true } },
+    { annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false } },
     async ({ sector }) => {
       try {
         const companies = await fetchSgxCompaniesBySector(
@@ -657,7 +657,7 @@ export function registerCompanySegmentsTool(
         .optional()
         .describe("Financial year (e.g., 2023)"),
     },
-    { annotations: { readOnlyHint: true } },
+    { annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false } },
     async ({ ticker, financialYear }) => {
       try {
         const normalizedTicker = normalizeIdxTicker(ticker, "withoutSuffix");

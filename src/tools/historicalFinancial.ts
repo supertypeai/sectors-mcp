@@ -352,7 +352,7 @@ export function registerHistoricalFinancialTool(server: McpServer, env: any) {
         `Optional array of field names to retrieve. Available fields: ${AVAILABLE_FINANCIAL_FIELDS.filter(f => f !== 'symbol' && f !== 'year').join(', ')}. If not specified, all fields will be returned.`
       ),
     },
-    { annotations: { readOnlyHint: true } },
+    { annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false } },
     async (args: { symbol: string; fields?: string[] }) => {
       try {
         const data = await fetchHistoricalFinancialData(args.symbol, env, args.fields);

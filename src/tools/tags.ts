@@ -25,7 +25,7 @@ export function registerTagsTool(
   server.tool(
     "fetch-tags",
     "Fetch the list of available news tags (kebab-case) used to filter news and filings.",
-    { annotations: { readOnlyHint: true } },
+    { annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false } },
     async () => {
       try {
         const tags = await fetchTags(baseUrl, apiKey);

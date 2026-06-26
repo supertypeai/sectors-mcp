@@ -99,7 +99,7 @@ export function registerCompanyDividendTool(server: McpServer, env: any) {
         .max(2100)
         .describe("The year to get dividend information for"),
     },
-    { annotations: { readOnlyHint: true } },
+    { annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false } },
     async ({ symbol, year }) => {
       try {
         const dividendData = await fetchCompanyDividend(env, symbol, year);
