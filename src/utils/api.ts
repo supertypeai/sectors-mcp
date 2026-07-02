@@ -11,6 +11,7 @@ export const createApiHeaders = (apiKey: string | undefined) => {
   if (!apiKey) throw new Error("API key is not defined");
   return {
     Authorization: isSectorsApiKey(apiKey) ? apiKey : `Bearer ${apiKey}`,
+    "X-Client-Source": "MCP",
   };
 };
 
