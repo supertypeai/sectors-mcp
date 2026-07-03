@@ -1,0 +1,55 @@
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { z } from "zod";
+import { createApiHeaders, handleApiResponse } from "../../utils/api.js";
+
+export async function fetchKlseCompanyReport(
+  baseUrl: string,
+  apiKey: string | undefined,
+  params: {
+  symbol: string;
+  sections?: string;
+}
+): Promise<any> {
+  if (!apiKey) throw new Error("SECTORS_API_KEY not found");
+
+  const url = new URL(`${baseUrl}/klse/company/report/`);
+  if (params.sections !== undefined) {
+    url.searchParams.append("sections", String(params.sections));
+  }
+
+  const response = await fetch(url.toString(), {
+    method: "GET",
+    headers: createApiHeaders(apiKey),
+  });
+
+  return handleApiResponse(response);
+}
+
+export function registerFetchKlseCompanyReportTool(
+  server: McpServer,
+  baseUrl: string,
+  apiKey: string | undefined
+) {
+  server.tool(
+    "fetch-klse-company-report",
+    "<Note>KLSE symbol: 4-digit numeric code. E.g. `1155`, `4197`, `5225`.</Note>\n\nReturns a comprehensive company report organized into distinct sections. Use `sections` to fetch only the data you need and reduce response size.\n\n<Accordion title=\"Available sections\">\n- **overview**: Market cap, volume, sector, sub-sector, price changes (1d/7d)\n- **valuation**: PE, PB, PS, PCF ratios (TTM and historical)\n- **financials**: Historical revenue and earnings by year, EPS, margins, ratios\n- **dividend**: Dividend history and yield\n</Accordion>\n\n<Info>Costs 1 API credit per requested section. Default behavior (all 4 sections) consumes 4 credits.</Info>",
+    {
+      symbol: z.string()
+        .describe("KLSE symbol symbol (4-digit numeric code). E.g. `1155`, `4197`."),
+      sections: z.string()
+        .describe("Comma-separated sections to include. Options: `overview`, `valuation`, `financials`, `dividend`. Default: all sections.").optional(),
+    },
+    { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
+    async (params) => {
+      const result = await fetchKlseCompanyReport(baseUrl, apiKey, params);
+      return {
+        content: [
+          {
+            type: "text",
+            text: JSON.stringify(result, null, 2),
+          },
+        ],
+      };
+    }
+  );
+}
