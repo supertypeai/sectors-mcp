@@ -12,7 +12,7 @@ export async function fetchKlseCompanyReport(
 ): Promise<any> {
   if (!apiKey) throw new Error("SECTORS_API_KEY not found");
 
-  const url = new URL(`${baseUrl}/klse/company/report/`);
+  const url = new URL(`${baseUrl}/klse/company/report/${params.symbol}/`);
   if (params.sections !== undefined) {
     url.searchParams.append("sections", String(params.sections));
   }

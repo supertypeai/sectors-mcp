@@ -235,6 +235,18 @@ async function main() {
   for (const [pathStr, methods] of Object.entries(schema.paths)) {
     for (const [method, spec] of Object.entries(methods)) {
       if (!spec.operationId) continue;
+
+      // Skip endpoints where a path parameter has no template placeholder in the URL.
+      // The schema may define params as `in=path` on paths without `{param}` (e.g.
+      // `/v2/company/report/` with `symbol: in=path`). These are superseded by a `_2`
+      // variant that has the param properly embedded in the URL template, so skip the
+      // broken one to let the correct version generate.
+      const pathParams = spec.parameters?.filter((p) => p.in === "path") || [];
+      const missingTemplate = pathParams.some((p) => !pathStr.includes(`{${p.name}}`));
+      if (missingTemplate) {
+        console.log(`⏭️  Skipping ${spec.operationId} (in=path params missing URL template)`);
+        continue;
+      }
       
       const toolName = OPERATION_ID_TO_TOOL_NAME[spec.operationId];
       if (!toolName) {
