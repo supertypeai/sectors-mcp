@@ -37,7 +37,7 @@ export function registerFetchCompanyReportTool(
       symbol: z.string()
         .describe("IDX symbol symbol. E.g. `BREN`, `BBCA`."),
       sections: z.string()
-        .describe("Comma-separated list of sections to include. Default: all. Options: `overview`, `valuation`, `future`, `peers`, `financials`, `dividend`, `management`, `ownership`.").optional(),
+        .describe("Comma-separated list of sections to include. Default to all.").optional(),
     },
     { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     async (params) => {

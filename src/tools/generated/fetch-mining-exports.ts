@@ -6,7 +6,7 @@ export async function fetchMiningExports(
   baseUrl: string,
   apiKey: string | undefined,
   params: {
-  commodity_type: string;
+  commodity_type: "Coal" | "Copper" | "Gold";
   year: number;
   limit?: number;
 }
@@ -37,7 +37,7 @@ export function registerFetchMiningExportsTool(
     "fetch-mining-exports",
     "Ranks countries by total export value for a given year and commodity, showing the top destinations for Indonesian commodity exports.\n\n<Note>Available `commodity_type` values: `Gold`, `Copper`, `Coal`.</Note>\n\n`export_usd` is in base USD. Volume unit is specified per row in `volume_unit` (typically `Mt`). Two volume sources are provided: **BPS** (Badan Pusat Statistik) and **ESDM** (Energi Sumber Daya Mineral) — values may differ due to methodology.\n\n<Info>Costs 1 API credit.</Info>",
     {
-      commodity_type: z.string()
+      commodity_type: z.enum(["Coal", "Copper", "Gold"])
         .describe("The commodity to analyze (e.g., `Gold`, `Coal`)."),
       year: z.number()
         .describe("The year to analyze export data for (e.g., `2024`)."),

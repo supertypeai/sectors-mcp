@@ -4,7 +4,6 @@ import { SECTORS_API_BASE } from "../config.js";
 
 // Import auto-generated REST tools (64 tools from schema.json)
 import * as GeneratedTools from "./generated/index.js";
-import { fetchCompaniesTopChanges } from "./generated/index.js";
 
 // Import Supabase-backed tools (out of scope for v2 REST parity)
 import { registerIPOCompaniesTool } from "./getIpoCompanies.js";
@@ -36,25 +35,6 @@ export function registerAllTools(server: McpServer, apiKey: string, env?: any) {
       (fn as any)(server, SECTORS_API_BASE, apiKey);
     }
   });
-
-  // --- Legacy alias: fetch-top-company-movers → fetch-companies-top-changes ---
-  // Old manual tool removed in refactor; delegates to generated equivalent.
-  server.tool(
-    "fetch-top-company-movers",
-    "[Deprecated alias] Use fetch-companies-top-changes instead.",
-    {
-      classifications: z.string().optional().describe("Comma-separated: top_gainers, top_losers. Default: both."),
-      n_stock: z.number().optional().describe("Number per period. Max 10. Default: 5."),
-      min_mcap_billion: z.number().optional().describe("Min market cap in billion IDR. Default: 5000."),
-      periods: z.string().optional().describe("Comma-separated: 1d, 7d, 14d, 30d, 365d. Default: all."),
-      sub_sector: z.string().optional().describe("Filter by kebab-case subsector slug."),
-    },
-    { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
-    async (params) => {
-      const result = await fetchCompaniesTopChanges(SECTORS_API_BASE, apiKey, params);
-      return { content: [{ type: "text" as const, text: JSON.stringify(result, null, 2) }] };
-    }
-  );
 
   // --- Supabase-backed tools (out of scope for v2 REST parity; do not migrate) ---
   registerIPOCompaniesTool(server, env);

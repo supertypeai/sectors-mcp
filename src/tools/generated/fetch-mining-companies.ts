@@ -6,11 +6,11 @@ export async function fetchMiningCompanies(
   baseUrl: string,
   apiKey: string | undefined,
   params: {
-  commodity_type?: string;
+  commodity_type?: "Aluminium" | "Coal" | "Copper" | "Gold" | "Nickel" | "Silver" | "Zinc and Lead";
   limit?: number;
   offset?: number;
   keyword?: string;
-  company_type?: string;
+  company_type?: "Consultant" | "Contractor" | "Holding" | "Manufacturer" | "Mine Owner" | "Trader";
   has_financials?: boolean;
 }
 ): Promise<any> {
@@ -53,7 +53,7 @@ export function registerFetchMiningCompaniesTool(
     "fetch-mining-companies",
     "Searches for Indonesian mining companies by name, symbol, slug, or key operation. Supports filtering by commodity type and company type.\n\n<Info>Costs 1 API credit.</Info>",
     {
-      commodity_type: z.string()
+      commodity_type: z.enum(["Aluminium", "Coal", "Copper", "Gold", "Nickel", "Silver", "Zinc and Lead"])
         .describe("Filter by commodity. E.g. `Coal`, `Nickel`, `Gold`.").optional(),
       limit: z.number()
         .describe("Results per page. Default 20.").optional(),
@@ -61,8 +61,8 @@ export function registerFetchMiningCompaniesTool(
         .describe("Items to skip for pagination.").optional(),
       keyword: z.string()
         .describe("Search across company name, IDX symbol, slug, and key operations (case-insensitive).").optional(),
-      company_type: z.string()
-        .describe("Filter by company type. E.g. `Holding`, `Subsidiary`.").optional(),
+      company_type: z.enum(["Consultant", "Contractor", "Holding", "Manufacturer", "Mine Owner", "Trader"])
+        .describe("Filter by company type.").optional(),
       has_financials: z.boolean()
         .describe("If `true`, return only companies with financial data available.").optional(),
     },

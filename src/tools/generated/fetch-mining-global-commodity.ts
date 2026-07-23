@@ -6,7 +6,7 @@ export async function fetchMiningGlobalCommodity(
   baseUrl: string,
   apiKey: string | undefined,
   params: {
-  commodity_type?: string;
+  commodity_type?: "Bauxite" | "Coal" | "Copper" | "Gold" | "Nickel";
   country?: string;
   limit?: number;
 }
@@ -39,9 +39,9 @@ export function registerFetchMiningGlobalCommodityTool(
 ) {
   server.tool(
     "fetch-mining-global-commodity",
-    "Retrieves global commodity data including production, reserves, and trade information. At least one of `commodity_type` or `country` must be provided.\n\n<Note>Available `commodity_type` values: `Coal`, `Gold`, `Nickel`, `Copper`, `Bauxite`.</Note>\n\n`export_import_usd` is a JSON object keyed by year: `{\"2023\": {\"export\": ..., \"import\": ...}}`.\n`production_volume` and `production_share` are dicts keyed by year.\n\n<Info>Costs 1 API credit.</Info>",
+    "Retrieves global commodity data including production, reserves, and trade information. At least one of `commodity_type` or `country` must be provided.\n\n<Note>Available `commodity_type` values: `Coal`, `Gold`, `Nickel`, `Copper`, `Bauxite`.</Note>\n\n<Info>Costs 1 API credit.</Info>",
     {
-      commodity_type: z.string()
+      commodity_type: z.enum(["Bauxite", "Coal", "Copper", "Gold", "Nickel"])
         .describe("Filter by commodity type. Required if `country` not provided.").optional(),
       country: z.string()
         .describe("Filter by country (exact match, e.g., `Australia`). Required if `commodity_type` not provided.").optional(),

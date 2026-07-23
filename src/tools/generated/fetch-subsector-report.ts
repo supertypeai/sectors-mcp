@@ -37,7 +37,7 @@ export function registerFetchSubsectorReportTool(
       sub_sector: z.string()
         .describe("Kebab-case subsector slug. E.g. `banks`, `utilities`. Get valid values from the [Subsectors](./helper-list/subsectors) endpoint."),
       sections: z.string()
-        .describe("Comma-separated sections to include. Default: all. Options: `statistics`, `market_cap`, `stability`, `valuation`, `growth`, `companies`.").optional(),
+        .describe("Comma-separated sections to include. Default to all.").optional(),
     },
     { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     async (params) => {

@@ -6,15 +6,15 @@ export async function fetchMiningLicenses(
   baseUrl: string,
   apiKey: string | undefined,
   params: {
-  province?: string;
-  commodity_type?: string;
+  province?: "Aceh" | "Bali" | "Banten" | "Bengkulu" | "Gorontalo" | "Jambi" | "Jawa Barat" | "Jawa Tengah" | "Jawa Timur" | "Kalimantan Barat" | "Kalimantan Selatan" | "Kalimantan Tengah" | "Kalimantan Tengah, Kalimantan Timur" | "Kalimantan Timur" | "Kalimantan Utara" | "Kepulauan Bangka Belitung" | "Kepulauan Riau" | "Lampung" | "Maluku" | "Maluku Utara" | "Nusa Tenggara Barat" | "Nusa Tenggara Timur" | "Papua" | "Papua Barat" | "Papua Barat Daya" | "Papua Tengah" | "Riau" | "Sulawesi Barat" | "Sulawesi Selatan" | "Sulawesi Tengah" | "Sulawesi Tengah, Gorontalo, Sulawesi Utara" | "Sulawesi Tenggara" | "Sulawesi Utara" | "Sumatera Barat" | "Sumatera Selatan" | "Sumatera Utara" | "Yogyakarta";
+  commodity_type?: "Bauxite" | "Clay" | "Coal" | "Copper" | "Gold" | "Granite" | "Iron" | "Limestone" | "Nickel" | "Non-Metallic Mineral" | "Others" | "Sand" | "Sand, Stone, Gravel" | "Tin";
   company?: string;
   order_by?: "-commodity_type" | "-license_effective_date" | "-license_expiry_date" | "-licensed_area_ha" | "commodity_type" | "license_effective_date" | "license_expiry_date" | "licensed_area_ha";
   limit?: number;
   offset?: number;
   expiring_soon?: boolean;
-  license_type?: string;
-  activity?: string;
+  license_type?: "IPR" | "IUP" | "IUPK" | "KK" | "PKP2B" | "SIPB";
+  activity?: "Eksplorasi" | "Operasi Produksi";
   cnc?: boolean;
 }
 ): Promise<any> {
@@ -69,9 +69,9 @@ export function registerFetchMiningLicensesTool(
     "fetch-mining-licenses",
     "Lists mining licenses (IUP/IUPK) from the ESDM Minerba portal with filters for status, commodity, location, and expiry date.\n\n<Note>Top `commodity_type` values: `Coal`, `Nickel`, `Non-Metallic Mineral`, `Sand/Stone/Gravel`, `Limestone`, `Gold`, `Tin`, `Iron`, `Bauxite`, `Clay`, `Copper`.</Note>\n\nPrefix `order_by` with `-` for descending order. Default sort: `license_expiry_date` (soonest expiring first).\n\n<Info>Costs 1 API credit.</Info>",
     {
-      province: z.string()
+      province: z.enum(["Aceh", "Bali", "Banten", "Bengkulu", "Gorontalo", "Jambi", "Jawa Barat", "Jawa Tengah", "Jawa Timur", "Kalimantan Barat", "Kalimantan Selatan", "Kalimantan Tengah", "Kalimantan Tengah, Kalimantan Timur", "Kalimantan Timur", "Kalimantan Utara", "Kepulauan Bangka Belitung", "Kepulauan Riau", "Lampung", "Maluku", "Maluku Utara", "Nusa Tenggara Barat", "Nusa Tenggara Timur", "Papua", "Papua Barat", "Papua Barat Daya", "Papua Tengah", "Riau", "Sulawesi Barat", "Sulawesi Selatan", "Sulawesi Tengah", "Sulawesi Tengah, Gorontalo, Sulawesi Utara", "Sulawesi Tenggara", "Sulawesi Utara", "Sumatera Barat", "Sumatera Selatan", "Sumatera Utara", "Yogyakarta"])
         .describe("Filter by province. Exact match.").optional(),
-      commodity_type: z.string()
+      commodity_type: z.enum(["Bauxite", "Clay", "Coal", "Copper", "Gold", "Granite", "Iron", "Limestone", "Nickel", "Non-Metallic Mineral", "Others", "Sand", "Sand, Stone, Gravel", "Tin"])
         .describe("Filter by commodity. Case-insensitive.").optional(),
       company: z.string()
         .describe("Filter by company slug.").optional(),
@@ -83,9 +83,9 @@ export function registerFetchMiningLicensesTool(
         .describe("Number of results to skip.").optional(),
       expiring_soon: z.boolean()
         .describe("Set to `true` to find licenses expiring within the next 365 days.").optional(),
-      license_type: z.string()
+      license_type: z.enum(["IPR", "IUP", "IUPK", "KK", "PKP2B", "SIPB"])
         .describe("Filter by license type (e.g., `IUP`, `IUPK`). Case-insensitive.").optional(),
-      activity: z.string()
+      activity: z.enum(["Eksplorasi", "Operasi Produksi"])
         .describe("Filter by activity stage (e.g., `Eksplorasi`, `Operasi Produksi`). Case-insensitive.").optional(),
       cnc: z.boolean()
         .describe("Filter by Clear & Clean status. Case-insensitive.").optional(),

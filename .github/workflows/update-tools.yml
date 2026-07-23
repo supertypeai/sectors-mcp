@@ -1,0 +1,72 @@
+name: Sync Schema and Regenerate Tools
+
+on:
+  workflow_dispatch:
+    inputs:
+      schema_url:
+        description: 'schema.json URL'
+        default: 'https://raw.githubusercontent.com/supertypeai/sectors_api/staging/schema.json'
+  repository_dispatch:
+    types: [schema-updated]
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install GitHub CLI if needed
+        run: which gh || { sudo apt-get update && sudo apt-get install gh -y; }
+
+      - name: Fetch schema.json
+        env:
+          GH_TOKEN: ${{ secrets.MCP_UPDATE_PAT || secrets.GITHUB_TOKEN }}
+        run: |
+          curl -fsSL \
+            -H "Authorization: token $GH_TOKEN" \
+            "${{ github.event.inputs.schema_url || github.event.client_payload.schema_url }}" \
+            -o schema.json
+
+      - name: Generate tools from schema
+        run: npx tsx scripts/generateTools.ts
+
+      - name: Type check generated tools
+        run: npx tsc --noEmit -p tsconfig.generated.json
+
+      - name: Commit and push changes
+        env:
+          GH_TOKEN: ${{ secrets.MCP_UPDATE_PAT || secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git remote set-url origin https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git
+          git checkout -B auto-update-tools
+          git add schema.json src/tools/generated/
+          git diff --cached --quiet && echo "No changes detected" && exit 0
+          git commit -m "chore: sync schema and regenerate tools (${{ github.event.client_payload.ref || 'manual' }})"
+          git push origin auto-update-tools --force
+
+      - name: Create PR if not exists
+        env:
+          GH_TOKEN: ${{ secrets.MCP_UPDATE_PAT || secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          gh auth setup-git --hostname github.com
+          gh pr create \
+            --repo "$REPO" \
+            --head auto-update-tools \
+            --base main \
+            --title "chore: sync schema and regenerate tools (${{ github.event.client_payload.ref || 'manual' }})" \
+            --body "Auto-generated from sectors_api push to ${{ github.event.client_payload.ref || 'manual' }}. Updates schema.json and regenerates all 64 MCP tools from OpenAPI spec." \
+            2>/dev/null || echo "PR already exists"

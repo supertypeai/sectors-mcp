@@ -53,6 +53,22 @@ function toPascalCase(toolName: string): string {
   return camel.charAt(0).toUpperCase() + camel.slice(1);
 }
 
+// Auto-derive a tool name for an unmapped operationId.
+// Strips common verb suffixes (_retrieve, _list, _2, etc.) and converts
+// snake_case to kebab-case, e.g.:
+//   "news_retrieve"            -> "fetch-news"
+//   "company_financials_list"  -> "fetch-company-financials"
+//   "klse_daily_2_retrieve"    -> "fetch-klse-daily"
+function autoDeriveToolName(operationId: string): string {
+  const stripped = operationId
+    .replace(/_retrieve$/, "")
+    .replace(/_list$/, "")
+    .replace(/_\d+$/, "")
+    .replace(/_+$/, "");
+  const kebab = stripped.replace(/_/g, "-");
+  return `fetch-${kebab}`;
+}
+
 function getZodType(param: Parameter): string {
   const { type, enum: enumValues } = param.schema;
   
@@ -230,29 +246,33 @@ async function main() {
   const generatedTools: any[] = [];
   const toolNameToFile = new Map<string, string>();  // tool name -> file name
   const toolNameToOpId = new Map<string, string>();  // tool name -> operationId (for registration)
-  let unmapped = 0;
   
   for (const [pathStr, methods] of Object.entries(schema.paths)) {
     for (const [method, spec] of Object.entries(methods)) {
       if (!spec.operationId) continue;
 
       // Skip endpoints where a path parameter has no template placeholder in the URL.
-      // The schema may define params as `in=path` on paths without `{param}` (e.g.
-      // `/v2/company/report/` with `symbol: in=path`). These are superseded by a `_2`
-      // variant that has the param properly embedded in the URL template, so skip the
-      // broken one to let the correct version generate.
+      // The schema may define params as in=path on paths without {param} (e.g.
+      // /v2/company/report/ with symbol: in=path). These are superseded by a _2
+      // variant that has the param properly embedded in the URL template, and both
+      // opIds are collapsed to the same tool by the mapping, so skip the broken one
+      // to let the correct version generate.
       const pathParams = spec.parameters?.filter((p) => p.in === "path") || [];
       const missingTemplate = pathParams.some((p) => !pathStr.includes(`{${p.name}}`));
       if (missingTemplate) {
         console.log(`⏭️  Skipping ${spec.operationId} (in=path params missing URL template)`);
         continue;
       }
-      
-      const toolName = OPERATION_ID_TO_TOOL_NAME[spec.operationId];
-      if (!toolName) {
-        console.log(`⚠️  No mapping for ${spec.operationId} (path: ${pathStr})`);
-        unmapped++;
-        continue;
+
+      const mappedName = OPERATION_ID_TO_TOOL_NAME[spec.operationId];
+      // No explicit mapping? Auto-derive from operationId: strip _retrieve/_list/_2 suffix,
+      // convert snake_case → kebab-case, prefix with fetch-.
+      // The mapping table is only needed for the 64 current tools that require
+      // disambiguation (collapsing report pairs, renaming for clarity). New
+      // endpoints added upstream get auto-generated without manual entry.
+      const toolName = mappedName ?? autoDeriveToolName(spec.operationId);
+      if (!mappedName) {
+        console.log(`✨ Auto-derived ${toolName} from ${spec.operationId} (no mapping entry)`);
       }
       
       // Check if this tool name is already generated (e.g., for _retrieve_2)
@@ -282,7 +302,6 @@ async function main() {
   }
   
   console.log(`\n📊 Summary:`);
-  console.log(`   - Unmapped endpoints: ${unmapped}`);
   console.log(`   - Generated tools: ${generatedTools.length}`);
   console.log(`   - Unique tool names: ${toolNameToFile.size}`);
   

@@ -8,7 +8,7 @@ export async function fetchNews(
   params: {
   sector?: string;
   sub_sector?: string;
-  commodity_type?: string;
+  commodity_type?: "Bauxite" | "Coal" | "Copper" | "Gold" | "Iron" | "Nickel" | "Non-Metallic Mineral" | "Sand, Stone, Gravel" | "Tin";
   start?: string;
   end?: string;
   limit?: number;
@@ -77,7 +77,7 @@ export function registerFetchNewsTool(
         .describe("**IDX only.** Comma-separated sector slugs (kebab-case).").optional(),
       sub_sector: z.string()
         .describe("**IDX only.** Comma-separated subsector slugs (kebab-case).").optional(),
-      commodity_type: z.string()
+      commodity_type: z.enum(["Bauxite", "Coal", "Copper", "Gold", "Iron", "Nickel", "Non-Metallic Mineral", "Sand, Stone, Gravel", "Tin"])
         .describe("**Mining only.** Filter by commodity type. E.g. `Coal`, `Nickel`.").optional(),
       start: z.string()
         .describe("Start date in `YYYY-MM-DD` format. Optional; if omitted, no lower bound is applied. Filters on `timestamp`.").optional(),

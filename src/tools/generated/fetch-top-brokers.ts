@@ -56,7 +56,7 @@ export function registerFetchTopBrokersTool(
       metric: z.enum(["gross", "net"])
         .describe("`gross` ranks by total buy + sell value; `net` ranks by absolute net flow. Default `gross`.").optional(),
       n_brokers: z.number()
-        .describe("How many brokers to return. Default: all matching (typically ~80). Max 200.").optional(),
+        .describe("How many brokers to return. Default: all matching (~88 total). Max 90.").optional(),
       origin: z.enum(["all", "domestic", "foreign"])
         .describe("Filter by broker origin. Default `all`.").optional(),
     },

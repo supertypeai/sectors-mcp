@@ -49,7 +49,7 @@ export function registerFetchBrokerActivityTopTool(
       end: z.string()
         .describe("End date (YYYY-MM-DD). Default: today.").optional(),
       n_brokers: z.number()
-        .describe("How many accumulations and distributions to return each (default 10, max 100).").optional(),
+        .describe("How many accumulations and distributions to return each (default 10, max 90).").optional(),
     },
     { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     async (params) => {

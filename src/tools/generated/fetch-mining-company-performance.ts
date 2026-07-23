@@ -7,7 +7,7 @@ export async function fetchMiningCompanyPerformance(
   apiKey: string | undefined,
   params: {
   slug: string;
-  commodity_type?: string;
+  commodity_type?: "Coal" | "Copper" | "Gold" | "Nickel" | "Silver";
   year?: number;
 }
 ): Promise<any> {
@@ -40,7 +40,7 @@ export function registerFetchMiningCompanyPerformanceTool(
     {
       slug: z.string()
         .describe("Company slug."),
-      commodity_type: z.string()
+      commodity_type: z.enum(["Coal", "Copper", "Gold", "Nickel", "Silver"])
         .describe("Filter by commodity. E.g. `Coal`, `Nickel`. Case-insensitive.").optional(),
       year: z.number()
         .describe("Year to retrieve. Defaults to the latest available year.").optional(),

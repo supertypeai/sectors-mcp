@@ -59,7 +59,7 @@ export function registerFetchBrokerSummaryTopTool(
       cohort: z.enum(["all", "institutional", "mixed", "retail", "unknown"])
         .describe("Filter brokers by cohort (case-insensitive). Default `all`.").optional(),
       n_brokers: z.number()
-        .describe("How many buyers and sellers to return each (default 10, max 100).").optional(),
+        .describe("How many buyers and sellers to return each (default 10, max 90).").optional(),
       origin: z.enum(["all", "domestic", "foreign"])
         .describe("Filter brokers by origin. Default `all`.").optional(),
     },

@@ -6,8 +6,8 @@ export async function fetchMiningSites(
   baseUrl: string,
   apiKey: string | undefined,
   params: {
-  province?: string;
-  commodity_type?: string;
+  province?: "Aceh" | "Banten" | "Gorontalo" | "Jambi" | "Jawa Timur" | "Kalimantan Selatan" | "Kalimantan Tengah" | "Kalimantan Timur" | "Kalimantan Utara" | "Maluku" | "Maluku Utara" | "Nusa Tenggara Barat" | "Papua" | "Papua Barat" | "Sulawesi Barat" | "Sulawesi Selatan" | "Sulawesi Tengah" | "Sulawesi Tenggara" | "Sulawesi Utara" | "Sumatera Barat" | "Sumatera Selatan" | "Sumatera Utara";
+  commodity_type?: "Coal" | "Copper" | "Gold" | "Nickel";
   company?: string;
   year?: number;
   order_by?: "-production_volume" | "-strip_ratio" | "-year" | "production_volume" | "strip_ratio" | "year";
@@ -61,9 +61,9 @@ export function registerFetchMiningSitesTool(
     "fetch-mining-sites",
     "Lists mining sites with advanced filtering for location, commodity type, and production volume, plus sorting capabilities and detailed site information.\n\n<Note>Available `commodity_type` values: `Coal`, `Gold`, `Nickel`, `Copper`.</Note>\n\nPrefix `order_by` with `-` for descending order (e.g. `-production_volume`).\n\n<Info>Costs 1 API credit.</Info>",
     {
-      province: z.string()
+      province: z.enum(["Aceh", "Banten", "Gorontalo", "Jambi", "Jawa Timur", "Kalimantan Selatan", "Kalimantan Tengah", "Kalimantan Timur", "Kalimantan Utara", "Maluku", "Maluku Utara", "Nusa Tenggara Barat", "Papua", "Papua Barat", "Sulawesi Barat", "Sulawesi Selatan", "Sulawesi Tengah", "Sulawesi Tenggara", "Sulawesi Utara", "Sumatera Barat", "Sumatera Selatan", "Sumatera Utara"])
         .describe("Filter by exact province name (e.g., `Kalimantan Timur`).").optional(),
-      commodity_type: z.string()
+      commodity_type: z.enum(["Coal", "Copper", "Gold", "Nickel"])
         .describe("Filter by commodity type. Case-insensitive.").optional(),
       company: z.string()
         .describe("Filter by company slug.").optional(),

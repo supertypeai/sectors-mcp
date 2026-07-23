@@ -6,12 +6,12 @@ export async function fetchMiningLicenseAuctions(
   baseUrl: string,
   apiKey: string | undefined,
   params: {
-  province?: string;
-  commodity_type?: string;
+  province?: "Bengkulu" | "Gorontalo" | "Kalimantan Tengah" | "Maluku Utara" | "Nusa Tenggara Barat" | "Sulawesi Selatan" | "Sulawesi Utara" | "Sumatera Selatan";
+  commodity_type?: "Coal" | "Copper" | "Gold" | "Nickel";
   order_by?: "-commodity_type" | "-licensed_area_ha" | "-participant_count" | "-winner_date" | "commodity_type" | "licensed_area_ha" | "participant_count" | "winner_date";
   limit?: number;
   offset?: number;
-  area_type?: string;
+  area_type?: "WIUP" | "WIUPK";
   status?: string;
   participant?: string;
   qualified?: boolean;
@@ -69,9 +69,9 @@ export function registerFetchMiningLicenseAuctionsTool(
     "fetch-mining-license-auctions",
     "Lists mining license auctions scraped from the ESDM Minerba portal. Phases and participants are omitted from list results — use the detail endpoint for the full auction record.\n\n<Note>Available `commodity_type` values: `Nickel`, `Coal`, `Gold`, `Copper`.</Note>\n\nUse `participant` + `qualified=true` to find auctions where a specific company passed pre-qualification.\n\n<Info>Costs 1 API credit.</Info>",
     {
-      province: z.string()
+      province: z.enum(["Bengkulu", "Gorontalo", "Kalimantan Tengah", "Maluku Utara", "Nusa Tenggara Barat", "Sulawesi Selatan", "Sulawesi Utara", "Sumatera Selatan"])
         .describe("Filter by province (e.g., `Sulawesi Selatan`). Case-insensitive.").optional(),
-      commodity_type: z.string()
+      commodity_type: z.enum(["Coal", "Copper", "Gold", "Nickel"])
         .describe("Filter by commodity (e.g., `Nickel`, `Coal`). Case-insensitive.").optional(),
       order_by: z.enum(["-commodity_type", "-licensed_area_ha", "-participant_count", "-winner_date", "commodity_type", "licensed_area_ha", "participant_count", "winner_date"])
         .describe("Sort field. Prefix with `-` for descending. Default: `-winner_date`.").optional(),
@@ -79,7 +79,7 @@ export function registerFetchMiningLicenseAuctionsTool(
         .describe("Number of results to return. Maximum: 30.").optional(),
       offset: z.number()
         .describe("Number of results to skip.").optional(),
-      area_type: z.string()
+      area_type: z.enum(["WIUP", "WIUPK"])
         .describe("Filter by area type (e.g., `WIUPK`). Case-insensitive.").optional(),
       status: z.string()
         .describe("Filter by auction status (e.g., `Lelang Selesai`). Case-insensitive.").optional(),

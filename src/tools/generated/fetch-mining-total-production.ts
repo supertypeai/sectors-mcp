@@ -6,7 +6,7 @@ export async function fetchMiningTotalProduction(
   baseUrl: string,
   apiKey: string | undefined,
   params: {
-  commodity_type: string;
+  commodity_type: "Coal" | "Copper" | "Gold" | "Nickel";
 }
 ): Promise<any> {
   if (!apiKey) throw new Error("SECTORS_API_KEY not found");
@@ -31,7 +31,7 @@ export function registerFetchMiningTotalProductionTool(
     "fetch-mining-total-production",
     "Returns total national production for a commodity across all years, including year-over-year percentage change. Results are ordered by year descending.\n\n<Note>Available `commodity_type` values: `Coal`, `Nickel`, `Gold`, `Copper`.</Note>\n\n<Info>Costs 1 API credit.</Info>",
     {
-      commodity_type: z.string()
+      commodity_type: z.enum(["Coal", "Copper", "Gold", "Nickel"])
         .describe("The commodity to analyze (e.g., `Coal`). Required."),
     },
     { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
