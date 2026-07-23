@@ -246,4 +246,7 @@ dist
 .dev.vars
 .wrangler/
 
+# codegraph local data
+.codegraph/
+
 .vscode/
