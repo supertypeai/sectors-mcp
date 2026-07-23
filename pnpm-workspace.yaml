@@ -1,7 +1,6 @@
 packages: []
 
-onlyBuiltDependencies:
-  - esbuild
-  - sharp
-  - supabase
-  - workerd
+allowBuilds:
+  esbuild: true
+  sharp: true
+  workerd: true
