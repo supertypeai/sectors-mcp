@@ -8,7 +8,16 @@ Welcome to the official documentation for the **Sectors MCP Server**. This Model
 
 ### Using with Claude Desktop or Claude Code
 
-To add financial data capabilities to Claude, edit your configuration file:
+To add financial data capabilities to Claude, you have two options:
+
+**Option 1: Using `claude mcp add` command (Recommended for Claude Code)**
+
+```bash
+claude mcp add --transport sse sectors https://sectors-mcp.supertype.ai/sse \
+  --header "Authorization: Bearer YOUR_API_KEY_HERE"
+```
+
+**Option 2: Manual Configuration (Claude Desktop)**
 
 1.  Open your config file:
     *   **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
@@ -24,7 +33,7 @@ To add financial data capabilities to Claude, edit your configuration file:
       "args": [
         "-y",
         "mcp-remote",
-        "https://sectors-mcp.aidityasadhakim250.workers.dev/sse",
+        "https://sectors-mcp.supertype.ai/sse",
         "--header",
         "Authorization:${AUTH_TOKEN}"
       ],
@@ -45,7 +54,7 @@ This uses `mcp-remote` to bridge the SSE connection into stdio.
 For any standard MCP client (TypeScript/Python/Go), use the following connection details:
 
 *   **Transport Type**: `sse`
-*   **URL**: `https://sectors-mcp.aidityasadhakim250.workers.dev/sse`
+*   **URL**: `https://sectors-mcp.supertype.ai/sse`
 *   **Headers**: `Authorization: Bearer <YOUR_API_KEY>`
 
 ---

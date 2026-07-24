@@ -6,7 +6,16 @@ A Model Context Protocol (MCP) server that provides financial market data and an
 
 **No installation required!** Connect directly to our cloud-hosted MCP server.
 
-### Option 1: Native SSE Transport
+### Option 1: Claude Desktop or Claude Code (CLI)
+
+The easiest way to add Sectors to your Claude environment:
+
+```bash
+claude mcp add --transport sse sectors https://sectors-mcp.supertype.ai/sse \
+  --header "Authorization: Bearer YOUR_API_KEY_HERE"
+```
+
+### Option 2: Native SSE Transport (Configuration)
 
 For MCP clients that support SSE transport natively:
 
@@ -16,7 +25,7 @@ For MCP clients that support SSE transport natively:
     sectors: {
       transport: {
         type: 'sse',
-        url: 'https://sectors-mcp.aidityasadhakim250.workers.dev/sse',
+        url: 'https://sectors-mcp.supertype.ai/sse',
         headers: {
           Authorization: `Bearer ${process.env.SECTORS_API_KEY}`,
         },
@@ -26,9 +35,9 @@ For MCP clients that support SSE transport natively:
 }
 ```
 
-### Option 2: stdio via mcp-remote
+### Option 3: stdio via mcp-remote
 
-For Claude Desktop, Claude Code, or other stdio-based clients, use `mcp-remote` as a bridge:
+For other stdio-based clients, use `mcp-remote` as a bridge:
 
 ```json
 {
@@ -38,7 +47,7 @@ For Claude Desktop, Claude Code, or other stdio-based clients, use `mcp-remote` 
       "args": [
         "-y",
         "mcp-remote",
-        "https://sectors-mcp.aidityasadhakim250.workers.dev/sse",
+        "https://sectors-mcp.supertype.ai/sse",
         "--header",
         "Authorization:${AUTH_TOKEN}"
       ],
@@ -113,70 +122,67 @@ npm run dev
 
 ## Available Tools
 
-### Market Indices & Data
+The server provides **80+ financial data tools** across multiple categories:
 
-- `fetch-index`: Fetch data for a specific market index
-- `fetch-index-daily`: Get daily transaction data for an index
-- `fetch-idx-market-cap`: Retrieve historical market capitalization data for IDX
-- `fetch-daily-transaction`: Get daily transaction data for Indonesian stocks
-- `fetch-singapore-daily-transaction`: Get daily transaction data for SGX stocks
+### Market Coverage
 
-### Company Reports & Information
+- **Indonesia (IDX)**: Comprehensive coverage of Indonesian stocks, indices, and market data
+- **Singapore (SGX)**: Full SGX market data including equities, buybacks, short selling
+- **Malaysia (KLSE)**: Bursa Malaysia company reports, sectors, and top performers
+- **Mining Sector**: Specialized tools for mining commodities, contracts, licenses, production data
 
-**Indonesia (IDX):**
-- `fetch-company-report`: Get comprehensive company reports with overview, financials, valuation
-- `fetch-companies-report`: Batch fetch multiple company reports
-- `fetch-company-segments`: Access company revenue breakdown by segments
-- `fetch-listing-performance`: View listing performance metrics (7d, 30d, 90d, 365d changes)
-- `fetch-ipo-companies`: Get information about IPO companies
+### Core Categories
 
-**Singapore (SGX):**
-- `fetch-sgx-company-report`: Specialized comprehensive reports for SGX-listed companies
-- `fetch-singapore-companies-report`: Batch fetch SGX company reports
+**Company Data & Reports**
+- Company reports (overview, financials, valuation, segments)
+- Batch company reports for portfolio analysis
+- Listing performance metrics (7d, 30d, 90d, 365d changes)
+- IPO companies and corporate actions
+- Shareholder composition and ownership data
 
-### Financial Data
+**Financial Statements**
+- Quarterly and annual financials
+- Historical financial data across multiple periods
+- Dividend history and yield calculations
+- Earnings yield and advanced valuation metrics
 
-**Indonesia (IDX):**
-- `fetch-quarterly-financials`: Access quarterly financial statements
-- `fetch-quarterly-financial-dates`: Get reporting dates for financials
-- `fetch-historical-financial`: Get historical financial data
-- `fetch-company-financial`: Fetch detailed company financials
-- `fetch-company-dividend`: Get dividend information and history
+**Market Indices & Trading Data**
+- Index composition and daily performance
+- Daily transaction data (volume, value, frequency)
+- Market capitalization historical data
+- Most traded stocks and top movers
+- Foreign flow tracking
 
-**Singapore (SGX):**
-- `fetch-singapore-company-historical-financial`: Get historical financials for SGX companies
-- `fetch-singapore-company-dividend`: Get SGX company dividend data
+**Sector & Industry Analysis**
+- Sector/subsector/industry hierarchies
+- Companies by sector/subsector/industry
+- Subsector reports with aggregated metrics
+- Free float data and NIPE (Net Income to Price to Equity)
 
-### Sector & Industry Analysis
+**Broker Activity**
+- Individual broker activity and positions
+- Top broker rankings by volume/value
+- Broker summaries and trends
 
-**Indonesia (IDX):**
-- `get-subsectors`: List all available subsectors
-- `fetch-subindustries`: Get subindustry data
-- `fetch-industries`: Access industry information
-- `fetch-companies-by-subsector`: Find companies by subsector
-- `fetch-companies-by-subindustry`: Find companies by subindustry
-- `fetch-companies-by-index`: Get companies listed in a specific index
-- `fetch-subsector-report`: Get comprehensive subsector analysis
-- `fetch-companies-nipe`: Get NIPE (Net Income to Price to Equity) data
+**News & Filings**
+- Company news and announcements
+- Regulatory filings and disclosures
+- Trading suspensions and resumptions
 
-**Singapore (SGX):**
-- `fetch-sgx-sectors`: List all available SGX sectors
-- `fetch-sgx-companies-by-sector`: Find SGX-listed companies by sector
-- `fetch-sgx-top-companies`: Get top performing SGX companies
+**Advanced Analytics**
+- Historical volatility calculations
+- Earnings yield rankings
+- Custom metric filtering and screening
+- Tag-based company discovery
 
-### Market Analysis & Rankings
+**Mining Sector (Specialized)**
+- Mining companies and site details
+- Commodity prices and global benchmarks
+- Production data and exports
+- License auctions and contracts
+- Resources and reserves reporting
 
-**Indonesia (IDX):**
-- `fetch-top-companies`: Get top companies by various metrics
-- `fetch-top-companies-by-metrics`: Advanced filtering with custom metrics
-- `fetch-top-company-movers`: Identify top gaining and losing stocks
-- `fetch-top-growth-companies`: Find companies with highest growth metrics
-- `fetch-most-traded-stocks`: Get most actively traded stocks
-
-**Singapore (SGX):**
-- `fetch-singapore-top-companies-by-metrics`: Top SGX companies by custom metrics
-- `fetch-singapore-earnings-yield`: Calculate and rank by earnings yield
-- `fetch-singapore-historical-volatility`: Analyze historical price volatility
+For a complete list of available tools and their parameters, connect to the server and use the MCP `tools/list` method.
 
 ## Architecture & Implementation
 
@@ -273,7 +279,7 @@ Example client configuration:
 {
   transport: {
     type: 'sse',
-    url: 'https://sectors-mcp.aidityasadhakim250.workers.dev/sse',
+    url: 'https://sectors-mcp.supertype.ai/sse',
     headers: {
       Authorization: `Bearer ${process.env.SECTORS_API_KEY}`,
     },
@@ -283,7 +289,14 @@ Example client configuration:
 
 ## Usage Examples
 
-### With Claude Desktop or Claude Code
+### With Claude CLI (Recommended)
+
+```bash
+claude mcp add --transport sse sectors https://sectors-mcp.supertype.ai/sse \
+  --header "Authorization: Bearer YOUR_API_KEY_HERE"
+```
+
+### With Claude Desktop (Manual Config)
 
 Add to your configuration file (`~/Library/Application Support/Claude/claude_desktop_config.json` on macOS, `%APPDATA%\Claude\claude_desktop_config.json` on Windows):
 
@@ -295,7 +308,7 @@ Add to your configuration file (`~/Library/Application Support/Claude/claude_des
       "args": [
         "-y",
         "mcp-remote",
-        "https://sectors-mcp.aidityasadhakim250.workers.dev/sse",
+        "https://sectors-mcp.supertype.ai/sse",
         "--header",
         "Authorization:${AUTH_TOKEN}"
       ],
@@ -321,7 +334,7 @@ const client = new Client({
 });
 
 const transport = new SSEClientTransport(
-  new URL("https://sectors-mcp.aidityasadhakim250.workers.dev/sse"),
+  new URL("https://sectors-mcp.supertype.ai/sse"),
   {
     headers: {
       Authorization: `Bearer ${process.env.SECTORS_API_KEY}`
