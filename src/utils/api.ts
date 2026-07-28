@@ -17,7 +17,14 @@ export const createApiHeaders = (apiKey: string | undefined) => {
 
 export const handleApiResponse = async <T>(response: Response): Promise<T> => {
   if (!response.ok) {
-    throw new Error(`API error: ${response.statusText}`);
+    let detail = response.statusText;
+    try {
+      const body = await response.json() as Record<string, unknown>;
+      if (body?.error && typeof body.error === 'string') detail = body.error;
+    } catch {
+      // body may not be JSON (e.g. HTML error page); fall back to statusText
+    }
+    throw new Error(`API error (${response.status}): ${detail}`);
   }
   return response.json() as T;
 };

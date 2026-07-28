@@ -7,7 +7,7 @@ export async function fetchKlseCompanyReport(
   apiKey: string | undefined,
   params: {
   symbol: string;
-  sections?: string;
+  sections?: ("dividend" | "financials" | "overview" | "valuation")[];
 }
 ): Promise<any> {
   if (!apiKey) throw new Error("SECTORS_API_KEY not found");
@@ -36,7 +36,7 @@ export function registerFetchKlseCompanyReportTool(
     {
       symbol: z.string()
         .describe("KLSE symbol symbol (4-digit numeric code). E.g. `1155`, `4197`."),
-      sections: z.string()
+      sections: z.array(z.enum(["dividend", "financials", "overview", "valuation"]))
         .describe("Comma-separated sections to include. Options: `overview`, `valuation`, `financials`, `dividend`. Default: all sections.").optional(),
     },
     { readOnlyHint: true, openWorldHint: true, destructiveHint: false },

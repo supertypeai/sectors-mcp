@@ -8,7 +8,7 @@ export async function fetchKlseTopCompanies(
   params: {
   sector?: string;
   n_stock?: number;
-  classifications?: string;
+  classifications?: ("dividend_yield" | "earnings" | "market_cap" | "pe" | "revenue")[];
   min_mcap_million?: number;
 }
 ): Promise<any> {
@@ -49,7 +49,7 @@ export function registerFetchKlseTopCompaniesTool(
         .describe("Filter by sector slug. E.g. `financials`, `healthcare`. Default: all sectors.").optional(),
       n_stock: z.number()
         .describe("Number of top companies to return per classification. Max 10. Default: 5.").optional(),
-      classifications: z.string()
+      classifications: z.array(z.enum(["dividend_yield", "earnings", "market_cap", "pe", "revenue"]))
         .describe("Comma-separated list of classifications. Options: `dividend_yield`, `revenue`, `earnings`, `market_cap`, `pe`. Default: all.").optional(),
       min_mcap_million: z.number()
         .describe("Minimum market cap in million MYR. Default: 1000.").optional(),

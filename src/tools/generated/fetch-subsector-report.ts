@@ -7,7 +7,7 @@ export async function fetchSubsectorReport(
   apiKey: string | undefined,
   params: {
   sub_sector: string;
-  sections?: string;
+  sections?: ("companies" | "growth" | "market_cap" | "stability" | "statistics" | "valuation")[];
 }
 ): Promise<any> {
   if (!apiKey) throw new Error("SECTORS_API_KEY not found");
@@ -36,7 +36,7 @@ export function registerFetchSubsectorReportTool(
     {
       sub_sector: z.string()
         .describe("Kebab-case subsector slug. E.g. `banks`, `utilities`. Get valid values from the [Subsectors](./helper-list/subsectors) endpoint."),
-      sections: z.string()
+      sections: z.array(z.enum(["companies", "growth", "market_cap", "stability", "statistics", "valuation"]))
         .describe("Comma-separated sections to include. Default to all.").optional(),
     },
     { readOnlyHint: true, openWorldHint: true, destructiveHint: false },

@@ -250,3 +250,5 @@ dist
 .codegraph/
 
 .vscode/
+# Project-specific MCP config (contains API keys)
+.mcp.json

@@ -8,8 +8,8 @@ export async function fetchCompaniesTopChanges(
   params: {
   sub_sector?: string;
   n_stock?: number;
-  classifications?: string;
-  periods?: string;
+  classifications?: ("top_gainers" | "top_losers")[];
+  periods?: ("14d" | "1d" | "30d" | "365d" | "7d")[];
   min_mcap_billion?: number;
 }
 ): Promise<any> {
@@ -53,9 +53,9 @@ export function registerFetchCompaniesTopChangesTool(
         .describe("Filter by kebab-case subsector slug. E.g. `banks`. Get valid values from the [Subsectors](./helper-list/subsectors) endpoint.").optional(),
       n_stock: z.number()
         .describe("Number of companies per period. Default 5, max 10.").optional(),
-      classifications: z.string()
+      classifications: z.array(z.enum(["top_gainers", "top_losers"]))
         .describe("Comma-separated. Choices: `top_gainers`, `top_losers`. Default: both.").optional(),
-      periods: z.string()
+      periods: z.array(z.enum(["14d", "1d", "30d", "365d", "7d"]))
         .describe("Comma-separated periods. Choices: `1d`, `7d`, `14d`, `30d`, `365d`. Default: all.").optional(),
       min_mcap_billion: z.number()
         .describe("Minimum market cap filter in billion IDR. Default 5000.").optional(),

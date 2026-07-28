@@ -69,15 +69,12 @@ function autoDeriveToolName(operationId: string): string {
   return `fetch-${kebab}`;
 }
 
-function getZodType(param: Parameter): string {
-  const { type, enum: enumValues } = param.schema;
-  
-  if (enumValues && enumValues.length > 0) {
-    const values = enumValues.map((v) => `"${v}"`).join(", ");
+function getZodItemType(schema: { type: string; enum?: string[]; items?: any; format?: string; default?: any }): string {
+  if (schema.enum && schema.enum.length > 0) {
+    const values = schema.enum.map((v) => `"${v}"`).join(", ");
     return `z.enum([${values}])`;
   }
-  
-  switch (type) {
+  switch (schema.type) {
     case "string":
       return "z.string()";
     case "integer":
@@ -88,6 +85,19 @@ function getZodType(param: Parameter): string {
     default:
       return "z.string()";
   }
+}
+
+function getZodType(param: Parameter): string {
+  const { type, enum: enumValues, items } = param.schema;
+  
+  if (type === "array") {
+    if (items) {
+      return `z.array(${getZodItemType(items)})`;
+    }
+    return "z.array(z.string())";
+  }
+  
+  return getZodItemType(param.schema);
 }
 
 function buildUrlConstruction(path: string, params: Parameter[]): string {
@@ -143,7 +153,14 @@ function generateToolFile(
     const paramName = p.name;
     const optional = p.required ? "" : "?";
     let tsType: string;
-    if (p.schema.enum) {
+    if (p.schema.type === "array") {
+      const itemSchema = p.schema.items;
+      if (itemSchema?.enum) {
+        tsType = `(${itemSchema.enum.map((v: string) => `"${v}"`).join(" | ")})[]`;
+      } else {
+        tsType = "string[]";
+      }
+    } else if (p.schema.enum) {
       tsType = p.schema.enum.map((v: string) => `"${v}"`).join(" | ");
     } else if (p.schema.type === "integer" || p.schema.type === "number") {
       tsType = "number";

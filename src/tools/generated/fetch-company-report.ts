@@ -7,7 +7,7 @@ export async function fetchCompanyReport(
   apiKey: string | undefined,
   params: {
   symbol: string;
-  sections?: string;
+  sections?: ("dividend" | "financials" | "future" | "management" | "overview" | "ownership" | "peers" | "valuation")[];
 }
 ): Promise<any> {
   if (!apiKey) throw new Error("SECTORS_API_KEY not found");
@@ -36,7 +36,7 @@ export function registerFetchCompanyReportTool(
     {
       symbol: z.string()
         .describe("IDX symbol symbol. E.g. `BREN`, `BBCA`."),
-      sections: z.string()
+      sections: z.array(z.enum(["dividend", "financials", "future", "management", "overview", "ownership", "peers", "valuation"]))
         .describe("Comma-separated list of sections to include. Default to all.").optional(),
     },
     { readOnlyHint: true, openWorldHint: true, destructiveHint: false },

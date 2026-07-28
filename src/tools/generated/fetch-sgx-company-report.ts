@@ -7,7 +7,7 @@ export async function fetchSgxCompanyReport(
   apiKey: string | undefined,
   params: {
   symbol: string;
-  sections?: string;
+  sections?: ("dividend" | "financials" | "overview" | "valuation")[];
 }
 ): Promise<any> {
   if (!apiKey) throw new Error("SECTORS_API_KEY not found");
@@ -36,7 +36,7 @@ export function registerFetchSgxCompanyReportTool(
     {
       symbol: z.string()
         .describe("SGX symbol symbol. E.g. `D05`, `U11`, `Z74`."),
-      sections: z.string()
+      sections: z.array(z.enum(["dividend", "financials", "overview", "valuation"]))
         .describe("Comma-separated sections to include. Options: `overview`, `valuation`, `financials`, `dividend`. Default: all sections.").optional(),
     },
     { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
