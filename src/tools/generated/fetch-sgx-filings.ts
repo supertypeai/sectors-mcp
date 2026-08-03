@@ -1,4 +1,4 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { McpServer } from "@modelcontextprotocol/server";
 import { z } from "zod";
 import { createApiHeaders, handleApiResponse } from "../../utils/api.js";
 
@@ -53,10 +53,11 @@ export function registerFetchSgxFilingsTool(
   baseUrl: string,
   apiKey: string | undefined
 ) {
-  server.tool(
+  server.registerTool(
     "fetch-sgx-filings",
-    "Returns SGX insider trading filings — buy/sell transactions by company insiders and major shareholders. Supports filtering by symbol, transaction type, holder type, and date range.\n\n<Note>SGX symbol: 3 characters (letters or digits). E.g. `D05`, `U11`, `Z74`.</Note>\n\n<Note>Date filters: both `start` and `end` are independent and optional — omit either side to leave that bound unconstrained. Future `end` dates return 400.</Note>\n\n<Info>Costs 1 API credit.</Info>",
     {
+      description: "Returns SGX insider trading filings — buy/sell transactions by company insiders and major shareholders. Supports filtering by symbol, transaction type, holder type, and date range.\n\n<Note>SGX symbol: 3 characters (letters or digits). E.g. `D05`, `U11`, `Z74`.</Note>\n\n<Note>Date filters: both `start` and `end` are independent and optional — omit either side to leave that bound unconstrained. Future `end` dates return 400.</Note>\n\n<Info>Costs 1 API credit.</Info>",
+      inputSchema: z.object({
       symbol: z.string()
         .describe("SGX symbol to filter by. E.g. `D05`, `U11`.").optional(),
       start: z.string()
@@ -71,14 +72,15 @@ export function registerFetchSgxFilingsTool(
         .describe("Filter by transaction type (case-insensitive).").optional(),
       holder_type: z.enum(["insider", "institution"])
         .describe("Filter by holder type (case-insensitive).").optional(),
+      }),
+      annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     },
-    { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     async (params) => {
       const result = await fetchSgxFilings(baseUrl, apiKey, params);
       return {
         content: [
           {
-            type: "text",
+            type: "text" as const,
             text: JSON.stringify(result, null, 2),
           },
         ],

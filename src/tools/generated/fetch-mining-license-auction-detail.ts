@@ -1,4 +1,4 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { McpServer } from "@modelcontextprotocol/server";
 import { z } from "zod";
 import { createApiHeaders, handleApiResponse } from "../../utils/api.js";
 
@@ -26,20 +26,22 @@ export function registerFetchMiningLicenseAuctionDetailTool(
   baseUrl: string,
   apiKey: string | undefined
 ) {
-  server.tool(
+  server.registerTool(
     "fetch-mining-license-auction-detail",
-    "Retrieves the full record for a single mining license auction by its WIUP code, including the parsed phases timeline and participant qualification list.\n\n<Info>Costs 1 API credit.</Info>",
     {
+      description: "Retrieves the full record for a single mining license auction by its WIUP code, including the parsed phases timeline and participant qualification list.\n\n<Info>Costs 1 API credit.</Info>",
+      inputSchema: z.object({
       wiup_code: z.string()
         .describe("The unique WIUP code identifier for the auction."),
+      }),
+      annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     },
-    { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     async (params) => {
       const result = await fetchMiningLicenseAuctionDetail(baseUrl, apiKey, params);
       return {
         content: [
           {
-            type: "text",
+            type: "text" as const,
             text: JSON.stringify(result, null, 2),
           },
         ],

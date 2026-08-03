@@ -1,4 +1,4 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { McpServer } from "@modelcontextprotocol/server";
 import { z } from "zod";
 import { createApiHeaders, handleApiResponse } from "../../utils/api.js";
 
@@ -30,22 +30,24 @@ export function registerFetchSubsectorReportTool(
   baseUrl: string,
   apiKey: string | undefined
 ) {
-  server.tool(
+  server.registerTool(
     "fetch-subsector-report",
-    "Returns a comprehensive report for an IDX subsector, organized into distinct sections. Use `sections` to fetch only the data you need.\n\n<Note>The `sub_sector` path parameter must be in **kebab-case** format. Get valid values from the [Subsectors](./helper-list/subsectors) endpoint. E.g. `banks`, `utilities`, `food-beverage`.</Note>\n\n<Accordion title=\"Available sections\">\n- **statistics**: Company count, median PE, weighted avg PE, min/max PE\n- **market_cap**: Total and avg market cap, quarterly market cap trend, mcap change (1w/1y/YTD)\n- **stability**: Weighted max drawdown, weighted relative standard deviation\n- **valuation**: Historical PB, PE, PS, PCF by year\n- **growth**: Weighted avg revenue and earnings growth\n- **companies**: List of companies in the subsector with key metrics\n</Accordion>\n\n<Info>Costs 1 API credit per requested section. Default behavior (all 6 sections) consumes 6 credits.</Info>",
     {
+      description: "Returns a comprehensive report for an IDX subsector, organized into distinct sections. Use `sections` to fetch only the data you need.\n\n<Note>The `sub_sector` path parameter must be in **kebab-case** format. Get valid values from the [Subsectors](./helper-list/subsectors) endpoint. E.g. `banks`, `utilities`, `food-beverage`.</Note>\n\n<Accordion title=\"Available sections\">\n- **statistics**: Company count, median PE, weighted avg PE, min/max PE\n- **market_cap**: Total and avg market cap, quarterly market cap trend, mcap change (1w/1y/YTD)\n- **stability**: Weighted max drawdown, weighted relative standard deviation\n- **valuation**: Historical PB, PE, PS, PCF by year\n- **growth**: Weighted avg revenue and earnings growth\n- **companies**: List of companies in the subsector with key metrics\n</Accordion>\n\n<Info>Costs 1 API credit per requested section. Default behavior (all 6 sections) consumes 6 credits.</Info>",
+      inputSchema: z.object({
       sub_sector: z.string()
         .describe("Kebab-case subsector slug. E.g. `banks`, `utilities`. Get valid values from the [Subsectors](./helper-list/subsectors) endpoint."),
       sections: z.array(z.enum(["companies", "growth", "market_cap", "stability", "statistics", "valuation"]))
         .describe("Comma-separated sections to include. Default to all.").optional(),
+      }),
+      annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     },
-    { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     async (params) => {
       const result = await fetchSubsectorReport(baseUrl, apiKey, params);
       return {
         content: [
           {
-            type: "text",
+            type: "text" as const,
             text: JSON.stringify(result, null, 2),
           },
         ],

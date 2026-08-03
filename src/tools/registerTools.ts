@@ -1,4 +1,4 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { McpServer } from "@modelcontextprotocol/server";
 import { SECTORS_API_BASE } from "../config.js";
 
 // Import auto-generated REST tools (64 tools from schema.json)

@@ -1,4 +1,4 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { McpServer } from "@modelcontextprotocol/server";
 import { z } from "zod";
 import { createApiHeaders, handleApiResponse } from "../../utils/api.js";
 
@@ -30,22 +30,24 @@ export function registerFetchMiningCompanyFinancialsTool(
   baseUrl: string,
   apiKey: string | undefined
 ) {
-  server.tool(
+  server.registerTool(
     "fetch-mining-company-financials",
-    "Returns annual financial records (assets, revenue, profit with breakdowns) for a mining company. All monetary values are in USD millions. Defaults to the latest available year.\n\n<Info>Costs 1 API credit.</Info>",
     {
+      description: "Returns annual financial records (assets, revenue, profit with breakdowns) for a mining company. All monetary values are in USD millions. Defaults to the latest available year.\n\n<Info>Costs 1 API credit.</Info>",
+      inputSchema: z.object({
       slug: z.string()
         .describe("Company slug."),
       year: z.number()
         .describe("Year to retrieve. Defaults to the latest available year.").optional(),
+      }),
+      annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     },
-    { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     async (params) => {
       const result = await fetchMiningCompanyFinancials(baseUrl, apiKey, params);
       return {
         content: [
           {
-            type: "text",
+            type: "text" as const,
             text: JSON.stringify(result, null, 2),
           },
         ],

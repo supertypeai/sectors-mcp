@@ -1,4 +1,4 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { McpServer } from "@modelcontextprotocol/server";
 import { z } from "zod";
 import { createApiHeaders, handleApiResponse } from "../../utils/api.js";
 
@@ -26,20 +26,22 @@ export function registerFetchMiningCompanyOwnershipTool(
   baseUrl: string,
   apiKey: string | undefined
 ) {
-  server.tool(
+  server.registerTool(
     "fetch-mining-company-ownership",
-    "Returns the corporate ownership tree for a mining company — showing parent companies (who owns it) and subsidiaries (what it owns) with percentage stakes.\n\n<Info>Costs 1 API credit.</Info>",
     {
+      description: "Returns the corporate ownership tree for a mining company — showing parent companies (who owns it) and subsidiaries (what it owns) with percentage stakes.\n\n<Info>Costs 1 API credit.</Info>",
+      inputSchema: z.object({
       slug: z.string()
         .describe("Company slug."),
+      }),
+      annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     },
-    { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     async (params) => {
       const result = await fetchMiningCompanyOwnership(baseUrl, apiKey, params);
       return {
         content: [
           {
-            type: "text",
+            type: "text" as const,
             text: JSON.stringify(result, null, 2),
           },
         ],

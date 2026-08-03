@@ -1,4 +1,4 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { McpServer } from "@modelcontextprotocol/server";
 import { z } from "zod";
 import { createApiHeaders, handleApiResponse } from "../../utils/api.js";
 
@@ -57,10 +57,11 @@ export function registerFetchMiningSitesTool(
   baseUrl: string,
   apiKey: string | undefined
 ) {
-  server.tool(
+  server.registerTool(
     "fetch-mining-sites",
-    "Lists mining sites with advanced filtering for location, commodity type, and production volume, plus sorting capabilities and detailed site information.\n\n<Note>Available `commodity_type` values: `Coal`, `Gold`, `Nickel`, `Copper`.</Note>\n\nPrefix `order_by` with `-` for descending order (e.g. `-production_volume`).\n\n<Info>Costs 1 API credit.</Info>",
     {
+      description: "Lists mining sites with advanced filtering for location, commodity type, and production volume, plus sorting capabilities and detailed site information.\n\n<Note>Available `commodity_type` values: `Coal`, `Gold`, `Nickel`, `Copper`.</Note>\n\nPrefix `order_by` with `-` for descending order (e.g. `-production_volume`).\n\n<Info>Costs 1 API credit.</Info>",
+      inputSchema: z.object({
       province: z.enum(["Aceh", "Banten", "Gorontalo", "Jambi", "Jawa Timur", "Kalimantan Selatan", "Kalimantan Tengah", "Kalimantan Timur", "Kalimantan Utara", "Maluku", "Maluku Utara", "Nusa Tenggara Barat", "Papua", "Papua Barat", "Sulawesi Barat", "Sulawesi Selatan", "Sulawesi Tengah", "Sulawesi Tenggara", "Sulawesi Utara", "Sumatera Barat", "Sumatera Selatan", "Sumatera Utara"])
         .describe("Filter by exact province name (e.g., `Kalimantan Timur`).").optional(),
       commodity_type: z.enum(["Coal", "Copper", "Gold", "Nickel"])
@@ -77,14 +78,15 @@ export function registerFetchMiningSitesTool(
         .describe("Number of results to return. Maximum: 30.").optional(),
       offset: z.number()
         .describe("Number of results to skip.").optional(),
+      }),
+      annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     },
-    { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     async (params) => {
       const result = await fetchMiningSites(baseUrl, apiKey, params);
       return {
         content: [
           {
-            type: "text",
+            type: "text" as const,
             text: JSON.stringify(result, null, 2),
           },
         ],

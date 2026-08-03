@@ -1,4 +1,4 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { McpServer } from "@modelcontextprotocol/server";
 import { z } from "zod";
 import { createApiHeaders, handleApiResponse } from "../../utils/api.js";
 
@@ -65,10 +65,11 @@ export function registerFetchMiningLicensesTool(
   baseUrl: string,
   apiKey: string | undefined
 ) {
-  server.tool(
+  server.registerTool(
     "fetch-mining-licenses",
-    "Lists mining licenses (IUP/IUPK) from the ESDM Minerba portal with filters for status, commodity, location, and expiry date.\n\n<Note>Top `commodity_type` values: `Coal`, `Nickel`, `Non-Metallic Mineral`, `Sand/Stone/Gravel`, `Limestone`, `Gold`, `Tin`, `Iron`, `Bauxite`, `Clay`, `Copper`.</Note>\n\nPrefix `order_by` with `-` for descending order. Default sort: `license_expiry_date` (soonest expiring first).\n\n<Info>Costs 1 API credit.</Info>",
     {
+      description: "Lists mining licenses (IUP/IUPK) from the ESDM Minerba portal with filters for status, commodity, location, and expiry date.\n\n<Note>Top `commodity_type` values: `Coal`, `Nickel`, `Non-Metallic Mineral`, `Sand/Stone/Gravel`, `Limestone`, `Gold`, `Tin`, `Iron`, `Bauxite`, `Clay`, `Copper`.</Note>\n\nPrefix `order_by` with `-` for descending order. Default sort: `license_expiry_date` (soonest expiring first).\n\n<Info>Costs 1 API credit.</Info>",
+      inputSchema: z.object({
       province: z.enum(["Aceh", "Bali", "Banten", "Bengkulu", "Gorontalo", "Jambi", "Jawa Barat", "Jawa Tengah", "Jawa Timur", "Kalimantan Barat", "Kalimantan Selatan", "Kalimantan Tengah", "Kalimantan Tengah, Kalimantan Timur", "Kalimantan Timur", "Kalimantan Utara", "Kepulauan Bangka Belitung", "Kepulauan Riau", "Lampung", "Maluku", "Maluku Utara", "Nusa Tenggara Barat", "Nusa Tenggara Timur", "Papua", "Papua Barat", "Papua Barat Daya", "Papua Tengah", "Riau", "Sulawesi Barat", "Sulawesi Selatan", "Sulawesi Tengah", "Sulawesi Tengah, Gorontalo, Sulawesi Utara", "Sulawesi Tenggara", "Sulawesi Utara", "Sumatera Barat", "Sumatera Selatan", "Sumatera Utara", "Yogyakarta"])
         .describe("Filter by province. Exact match.").optional(),
       commodity_type: z.enum(["Bauxite", "Clay", "Coal", "Copper", "Gold", "Granite", "Iron", "Limestone", "Nickel", "Non-Metallic Mineral", "Others", "Sand", "Sand, Stone, Gravel", "Tin"])
@@ -89,14 +90,15 @@ export function registerFetchMiningLicensesTool(
         .describe("Filter by activity stage (e.g., `Eksplorasi`, `Operasi Produksi`). Case-insensitive.").optional(),
       cnc: z.boolean()
         .describe("Filter by Clear & Clean status. Case-insensitive.").optional(),
+      }),
+      annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     },
-    { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     async (params) => {
       const result = await fetchMiningLicenses(baseUrl, apiKey, params);
       return {
         content: [
           {
-            type: "text",
+            type: "text" as const,
             text: JSON.stringify(result, null, 2),
           },
         ],

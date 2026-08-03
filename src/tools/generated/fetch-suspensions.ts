@@ -1,4 +1,4 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { McpServer } from "@modelcontextprotocol/server";
 import { z } from "zod";
 import { createApiHeaders, handleApiResponse } from "../../utils/api.js";
 
@@ -45,10 +45,11 @@ export function registerFetchSuspensionsTool(
   baseUrl: string,
   apiKey: string | undefined
 ) {
-  server.tool(
+  server.registerTool(
     "fetch-suspensions",
-    "Returns a paginated list of historical IDX-listed stock suspensions, including the date a stock was suspended, the official reason, and a link to the IDX PDF notice. Filter by `symbol` to look up a specific company's suspension history, or by `start` / `end` to scope to a date window.\n\n<Note>Date filters: both `start` and `end` are independent and optional — omit either side to leave that bound unconstrained. Future `end` dates return 400.</Note>\n\n<Info>Costs 1 API credit.</Info>",
     {
+      description: "Returns a paginated list of historical IDX-listed stock suspensions, including the date a stock was suspended, the official reason, and a link to the IDX PDF notice. Filter by `symbol` to look up a specific company's suspension history, or by `start` / `end` to scope to a date window.\n\n<Note>Date filters: both `start` and `end` are independent and optional — omit either side to leave that bound unconstrained. Future `end` dates return 400.</Note>\n\n<Info>Costs 1 API credit.</Info>",
+      inputSchema: z.object({
       symbol: z.string()
         .describe("Optional filter by IDX symbol (case-insensitive). E.g. `BBCA`, `GOTO`.").optional(),
       start: z.string()
@@ -59,14 +60,15 @@ export function registerFetchSuspensionsTool(
         .describe("Items per page. Max 30.").optional(),
       offset: z.number()
         .describe("Number of items to skip.").optional(),
+      }),
+      annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     },
-    { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     async (params) => {
       const result = await fetchSuspensions(baseUrl, apiKey, params);
       return {
         content: [
           {
-            type: "text",
+            type: "text" as const,
             text: JSON.stringify(result, null, 2),
           },
         ],

@@ -1,4 +1,4 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { McpServer } from "@modelcontextprotocol/server";
 import { z } from "zod";
 import { createApiHeaders, handleApiResponse } from "../../utils/api.js";
 
@@ -33,22 +33,24 @@ export function registerFetchBrokersTool(
   baseUrl: string,
   apiKey: string | undefined
 ) {
-  server.tool(
+  server.registerTool(
     "fetch-brokers",
-    "Curated registry of IDX exchange-member brokers with name, origin (foreign / domestic), cohort (retail / mixed / institutional / unknown), and license type. Use this as the authoritative source for valid broker codes when calling broker-scoped endpoints such as `/v2/broker-activity/{broker_code}/`.\n\n<Info>Costs 1 API credit.</Info>",
     {
+      description: "Curated registry of IDX exchange-member brokers with name, origin (foreign / domestic), cohort (retail / mixed / institutional / unknown), and license type. Use this as the authoritative source for valid broker codes when calling broker-scoped endpoints such as `/v2/broker-activity/{broker_code}/`.\n\n<Info>Costs 1 API credit.</Info>",
+      inputSchema: z.object({
       cohort: z.enum(["institutional", "mixed", "retail", "unknown"])
         .describe("Optional filter by broker cohort (case-insensitive).").optional(),
       origin: z.enum(["domestic", "foreign"])
         .describe("Optional filter by broker origin.").optional(),
+      }),
+      annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     },
-    { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     async (params) => {
       const result = await fetchBrokers(baseUrl, apiKey, params);
       return {
         content: [
           {
-            type: "text",
+            type: "text" as const,
             text: JSON.stringify(result, null, 2),
           },
         ],

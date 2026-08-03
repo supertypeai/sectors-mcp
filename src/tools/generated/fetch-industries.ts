@@ -1,4 +1,4 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { McpServer } from "@modelcontextprotocol/server";
 import { z } from "zod";
 import { createApiHeaders, handleApiResponse } from "../../utils/api.js";
 
@@ -24,17 +24,19 @@ export function registerFetchIndustriesTool(
   baseUrl: string,
   apiKey: string | undefined
 ) {
-  server.tool(
+  server.registerTool(
     "fetch-industries",
-    "Returns all available subsector/industry pairs as kebab-case slugs. Use these values as inputs to the `industry` parameter.\n\n**Used by:** [Companies Screener](../companies), [Free Float Market Analysis](../free-float)\n\n<Info>Costs 1 API credit.</Info>",
-    {},
-    { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
+    {
+      description: "Returns all available subsector/industry pairs as kebab-case slugs. Use these values as inputs to the `industry` parameter.\n\n**Used by:** [Companies Screener](../companies), [Free Float Market Analysis](../free-float)\n\n<Info>Costs 1 API credit.</Info>",
+      inputSchema: z.object({}),
+      annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
+    },
     async (_) => {
       const result = await fetchIndustries(baseUrl, apiKey, {});
       return {
         content: [
           {
-            type: "text",
+            type: "text" as const,
             text: JSON.stringify(result, null, 2),
           },
         ],

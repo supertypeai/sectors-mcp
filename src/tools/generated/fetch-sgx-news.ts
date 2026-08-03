@@ -1,4 +1,4 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { McpServer } from "@modelcontextprotocol/server";
 import { z } from "zod";
 import { createApiHeaders, handleApiResponse } from "../../utils/api.js";
 
@@ -57,10 +57,11 @@ export function registerFetchSgxNewsTool(
   baseUrl: string,
   apiKey: string | undefined
 ) {
-  server.tool(
+  server.registerTool(
     "fetch-sgx-news",
-    "Returns paginated SGX news articles. Supports filtering by sector, sub-sector, tags, symbols, and date range.\n\n<Note>SGX symbol: 3 characters (letters or digits). E.g. `D05`, `U11`, `Z74`.</Note>\n\n<Note>Date filters: both `start` and `end` are independent and optional — omit either side to leave that bound unconstrained. Future `end` dates return 400.</Note>\n\n<Info>Costs 1 API credit.</Info>",
     {
+      description: "Returns paginated SGX news articles. Supports filtering by sector, sub-sector, tags, symbols, and date range.\n\n<Note>SGX symbol: 3 characters (letters or digits). E.g. `D05`, `U11`, `Z74`.</Note>\n\n<Note>Date filters: both `start` and `end` are independent and optional — omit either side to leave that bound unconstrained. Future `end` dates return 400.</Note>\n\n<Info>Costs 1 API credit.</Info>",
+      inputSchema: z.object({
       sector: z.string()
         .describe("Filter by sector (case-insensitive).").optional(),
       sub_sector: z.string()
@@ -77,14 +78,15 @@ export function registerFetchSgxNewsTool(
         .describe("Comma-separated tag slugs. Get values from [SGX Tags](../singapore/sgx-tags).").optional(),
       symbols: z.string()
         .describe("Comma-separated SGX symbols. E.g. `D05,U11`.").optional(),
+      }),
+      annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     },
-    { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     async (params) => {
       const result = await fetchSgxNews(baseUrl, apiKey, params);
       return {
         content: [
           {
-            type: "text",
+            type: "text" as const,
             text: JSON.stringify(result, null, 2),
           },
         ],

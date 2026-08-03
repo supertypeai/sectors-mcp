@@ -1,4 +1,4 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { McpServer } from "@modelcontextprotocol/server";
 import { z } from "zod";
 import { createApiHeaders, handleApiResponse } from "../../utils/api.js";
 
@@ -33,24 +33,26 @@ export function registerFetchMiningExportsTool(
   baseUrl: string,
   apiKey: string | undefined
 ) {
-  server.tool(
+  server.registerTool(
     "fetch-mining-exports",
-    "Ranks countries by total export value for a given year and commodity, showing the top destinations for Indonesian commodity exports.\n\n<Note>Available `commodity_type` values: `Gold`, `Copper`, `Coal`.</Note>\n\n`export_usd` is in base USD. Volume unit is specified per row in `volume_unit` (typically `Mt`). Two volume sources are provided: **BPS** (Badan Pusat Statistik) and **ESDM** (Energi Sumber Daya Mineral) — values may differ due to methodology.\n\n<Info>Costs 1 API credit.</Info>",
     {
+      description: "Ranks countries by total export value for a given year and commodity, showing the top destinations for Indonesian commodity exports.\n\n<Note>Available `commodity_type` values: `Gold`, `Copper`, `Coal`.</Note>\n\n`export_usd` is in base USD. Volume unit is specified per row in `volume_unit` (typically `Mt`). Two volume sources are provided: **BPS** (Badan Pusat Statistik) and **ESDM** (Energi Sumber Daya Mineral) — values may differ due to methodology.\n\n<Info>Costs 1 API credit.</Info>",
+      inputSchema: z.object({
       commodity_type: z.enum(["Coal", "Copper", "Gold"])
         .describe("The commodity to analyze (e.g., `Gold`, `Coal`)."),
       year: z.number()
         .describe("The year to analyze export data for (e.g., `2024`)."),
       limit: z.number()
         .describe("Number of top countries to return. Maximum: 30.").optional(),
+      }),
+      annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     },
-    { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     async (params) => {
       const result = await fetchMiningExports(baseUrl, apiKey, params);
       return {
         content: [
           {
-            type: "text",
+            type: "text" as const,
             text: JSON.stringify(result, null, 2),
           },
         ],

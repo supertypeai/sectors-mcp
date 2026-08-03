@@ -1,0 +1,19 @@
+{
+  // Type config for build-time Node scripts (e.g. generateTools.ts), run via
+  // `tsx`. These are NOT part of the Cloudflare Worker bundle, so they use a
+  // Node environment (fs/path/process) instead of the Worker's webworker lib.
+  // The root tsconfig.json (Worker build) intentionally excludes this folder.
+  "compilerOptions": {
+    "target": "es2022",
+    "module": "es2022",
+    "moduleResolution": "bundler",
+    "lib": ["es2023"],
+    "types": ["node"],
+    "resolveJsonModule": true,
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "noEmit": true
+  },
+  "include": ["**/*.ts"]
+}

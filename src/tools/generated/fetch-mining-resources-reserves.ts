@@ -1,4 +1,4 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { McpServer } from "@modelcontextprotocol/server";
 import { z } from "zod";
 import { createApiHeaders, handleApiResponse } from "../../utils/api.js";
 
@@ -24,17 +24,19 @@ export function registerFetchMiningResourcesReservesTool(
   baseUrl: string,
   apiKey: string | undefined
 ) {
-  server.tool(
+  server.registerTool(
     "fetch-mining-resources-reserves",
-    "Discovery index showing which provinces, years, and commodities have resources and reserves data available. Use this before querying the detail endpoint to confirm data availability.\n\n<Note>This index endpoint does not accept any query parameters.</Note>\n\nUse [Resources & Reserves Detail](../sites-production/commodity-resources-reserves-detail) to retrieve actual values.\n\n<Info>Costs 1 API credit.</Info>",
-    {},
-    { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
+    {
+      description: "Discovery index showing which provinces, years, and commodities have resources and reserves data available. Use this before querying the detail endpoint to confirm data availability.\n\n<Note>This index endpoint does not accept any query parameters.</Note>\n\nUse [Resources & Reserves Detail](../sites-production/commodity-resources-reserves-detail) to retrieve actual values.\n\n<Info>Costs 1 API credit.</Info>",
+      inputSchema: z.object({}),
+      annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
+    },
     async (_) => {
       const result = await fetchMiningResourcesReserves(baseUrl, apiKey, {});
       return {
         content: [
           {
-            type: "text",
+            type: "text" as const,
             text: JSON.stringify(result, null, 2),
           },
         ],

@@ -1,4 +1,4 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { McpServer } from "@modelcontextprotocol/server";
 import { z } from "zod";
 import { createApiHeaders, handleApiResponse } from "../../utils/api.js";
 
@@ -45,10 +45,11 @@ export function registerFetchCompaniesTopChangesTool(
   baseUrl: string,
   apiKey: string | undefined
 ) {
-  server.tool(
+  server.registerTool(
     "fetch-companies-top-changes",
-    "Returns top gainers and losers across multiple time periods. Supports two classifications (`top_gainers`, `top_losers`) and five periods (`1d`, `7d`, `14d`, `30d`, `365d`).\n\n<Info>Costs 1 API credit per requested classification × period combination. Default behavior (2 classifications × 5 periods) consumes 10 credits.</Info>",
     {
+      description: "Returns top gainers and losers across multiple time periods. Supports two classifications (`top_gainers`, `top_losers`) and five periods (`1d`, `7d`, `14d`, `30d`, `365d`).\n\n<Info>Costs 1 API credit per requested classification × period combination. Default behavior (2 classifications × 5 periods) consumes 10 credits.</Info>",
+      inputSchema: z.object({
       sub_sector: z.string()
         .describe("Filter by kebab-case subsector slug. E.g. `banks`. Get valid values from the [Subsectors](./helper-list/subsectors) endpoint.").optional(),
       n_stock: z.number()
@@ -59,14 +60,15 @@ export function registerFetchCompaniesTopChangesTool(
         .describe("Comma-separated periods. Choices: `1d`, `7d`, `14d`, `30d`, `365d`. Default: all.").optional(),
       min_mcap_billion: z.number()
         .describe("Minimum market cap filter in billion IDR. Default 5000.").optional(),
+      }),
+      annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     },
-    { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     async (params) => {
       const result = await fetchCompaniesTopChanges(baseUrl, apiKey, params);
       return {
         content: [
           {
-            type: "text",
+            type: "text" as const,
             text: JSON.stringify(result, null, 2),
           },
         ],

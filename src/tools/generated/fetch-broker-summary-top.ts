@@ -1,4 +1,4 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { McpServer } from "@modelcontextprotocol/server";
 import { z } from "zod";
 import { createApiHeaders, handleApiResponse } from "../../utils/api.js";
 
@@ -46,10 +46,11 @@ export function registerFetchBrokerSummaryTopTool(
   baseUrl: string,
   apiKey: string | undefined
 ) {
-  server.tool(
+  server.registerTool(
     "fetch-broker-summary-top",
-    "Returns the brokers most actively accumulating and distributing a single IDX ticker over a date range. `top_buyers` ranks brokers by net buy value (largest positive net IDR first); `top_sellers` ranks brokers by net sell value (largest negative net IDR first). Useful for spotting institutional accumulation or distribution patterns on a specific stock.\n\n<Note>IDX symbol: 4 letters, optionally followed by `.jk` (case-insensitive). E.g. `BBCA`, `GOTO`.</Note>\n\n<Info>Costs 2 API credits.</Info>",
     {
+      description: "Returns the brokers most actively accumulating and distributing a single IDX ticker over a date range. `top_buyers` ranks brokers by net buy value (largest positive net IDR first); `top_sellers` ranks brokers by net sell value (largest negative net IDR first). Useful for spotting institutional accumulation or distribution patterns on a specific stock.\n\n<Note>IDX symbol: 4 letters, optionally followed by `.jk` (case-insensitive). E.g. `BBCA`, `GOTO`.</Note>\n\n<Info>Costs 2 API credits.</Info>",
+      inputSchema: z.object({
       symbol: z.string()
         .describe("IDX ticker symbol. E.g. `BBCA`, `GOTO`."),
       start: z.string()
@@ -62,14 +63,15 @@ export function registerFetchBrokerSummaryTopTool(
         .describe("How many buyers and sellers to return each (default 10, max 90).").optional(),
       origin: z.enum(["all", "domestic", "foreign"])
         .describe("Filter brokers by origin. Default `all`.").optional(),
+      }),
+      annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     },
-    { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     async (params) => {
       const result = await fetchBrokerSummaryTop(baseUrl, apiKey, params);
       return {
         content: [
           {
-            type: "text",
+            type: "text" as const,
             text: JSON.stringify(result, null, 2),
           },
         ],

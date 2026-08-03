@@ -1,4 +1,4 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { McpServer } from "@modelcontextprotocol/server";
 import { z } from "zod";
 import { createApiHeaders, handleApiResponse } from "../../utils/api.js";
 
@@ -38,10 +38,11 @@ export function registerFetchBrokerActivityTopTool(
   baseUrl: string,
   apiKey: string | undefined
 ) {
-  server.tool(
+  server.registerTool(
     "fetch-broker-activity-top",
-    "Returns the stocks a single broker has been most actively accumulating and distributing over a date range. `top_accumulations` ranks stocks the broker has net bought (largest positive net IDR first); `top_distributions` ranks stocks the broker has net sold (largest negative net IDR first). Useful for tracking a specific broker's directional positioning across the IDX universe.\n\n<Note>Broker codes are the two-letter exchange-member identifiers (e.g. `MG`, `AK`, `CC`). Retrieve the full list of valid codes from the [Broker Registry](./broker-registry) endpoint.</Note>\n\n<Info>Costs 2 API credits.</Info>",
     {
+      description: "Returns the stocks a single broker has been most actively accumulating and distributing over a date range. `top_accumulations` ranks stocks the broker has net bought (largest positive net IDR first); `top_distributions` ranks stocks the broker has net sold (largest negative net IDR first). Useful for tracking a specific broker's directional positioning across the IDX universe.\n\n<Note>Broker codes are the two-letter exchange-member identifiers (e.g. `MG`, `AK`, `CC`). Retrieve the full list of valid codes from the [Broker Registry](./broker-registry) endpoint.</Note>\n\n<Info>Costs 2 API credits.</Info>",
+      inputSchema: z.object({
       broker_code: z.string()
         .describe("Broker code. E.g. `MG`, `AK`, `CC`."),
       start: z.string()
@@ -50,14 +51,15 @@ export function registerFetchBrokerActivityTopTool(
         .describe("End date (YYYY-MM-DD). Default: today.").optional(),
       n_brokers: z.number()
         .describe("How many accumulations and distributions to return each (default 10, max 90).").optional(),
+      }),
+      annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     },
-    { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     async (params) => {
       const result = await fetchBrokerActivityTop(baseUrl, apiKey, params);
       return {
         content: [
           {
-            type: "text",
+            type: "text" as const,
             text: JSON.stringify(result, null, 2),
           },
         ],

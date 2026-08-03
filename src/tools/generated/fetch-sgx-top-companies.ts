@@ -1,4 +1,4 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { McpServer } from "@modelcontextprotocol/server";
 import { z } from "zod";
 import { createApiHeaders, handleApiResponse } from "../../utils/api.js";
 
@@ -41,10 +41,11 @@ export function registerFetchSgxTopCompaniesTool(
   baseUrl: string,
   apiKey: string | undefined
 ) {
-  server.tool(
+  server.registerTool(
     "fetch-sgx-top-companies",
-    "Returns top SGX-listed companies ranked by one or more classifications.\n\n<Accordion title=\"Available classifications\">\n`dividend_yield`, `revenue`, `earnings`, `market_cap`, `pe`\n</Accordion>\n\n<Note>Get valid sector slugs from the [SGX Sectors](../singapore/sgx-sectors) endpoint.</Note>\n\n<Info>Costs 1 API credit per requested classification. Default behavior (all 5 classifications) consumes 5 credits.</Info>",
     {
+      description: "Returns top SGX-listed companies ranked by one or more classifications.\n\n<Accordion title=\"Available classifications\">\n`dividend_yield`, `revenue`, `earnings`, `market_cap`, `pe`\n</Accordion>\n\n<Note>Get valid sector slugs from the [SGX Sectors](../singapore/sgx-sectors) endpoint.</Note>\n\n<Info>Costs 1 API credit per requested classification. Default behavior (all 5 classifications) consumes 5 credits.</Info>",
+      inputSchema: z.object({
       sector: z.string()
         .describe("Filter by sector slug. E.g. `financial-services`, `technology`. Default: all sectors.").optional(),
       n_stock: z.number()
@@ -53,14 +54,15 @@ export function registerFetchSgxTopCompaniesTool(
         .describe("Comma-separated list of classifications. Options: `dividend_yield`, `revenue`, `earnings`, `market_cap`, `pe`. Default: all.").optional(),
       min_mcap_million: z.number()
         .describe("Minimum market cap in million SGD. Default: 1000.").optional(),
+      }),
+      annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     },
-    { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     async (params) => {
       const result = await fetchSgxTopCompanies(baseUrl, apiKey, params);
       return {
         content: [
           {
-            type: "text",
+            type: "text" as const,
             text: JSON.stringify(result, null, 2),
           },
         ],

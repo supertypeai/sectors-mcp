@@ -1,4 +1,4 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { McpServer } from "@modelcontextprotocol/server";
 import { z } from "zod";
 import { createApiHeaders, handleApiResponse } from "../../utils/api.js";
 
@@ -24,17 +24,19 @@ export function registerFetchKlseSectorsTool(
   baseUrl: string,
   apiKey: string | undefined
 ) {
-  server.tool(
+  server.registerTool(
     "fetch-klse-sectors",
-    "Returns all available KLSE sector slugs as a flat array.\n\n**Used by:** [KLSE Companies](../malaysia/klse-companies), [KLSE Top Companies](../malaysia/klse-top-companies)\n\n<Info>Costs 1 API credit.</Info>",
-    {},
-    { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
+    {
+      description: "Returns all available KLSE sector slugs as a flat array.\n\n**Used by:** [KLSE Companies](../malaysia/klse-companies), [KLSE Top Companies](../malaysia/klse-top-companies)\n\n<Info>Costs 1 API credit.</Info>",
+      inputSchema: z.object({}),
+      annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
+    },
     async (_) => {
       const result = await fetchKlseSectors(baseUrl, apiKey, {});
       return {
         content: [
           {
-            type: "text",
+            type: "text" as const,
             text: JSON.stringify(result, null, 2),
           },
         ],

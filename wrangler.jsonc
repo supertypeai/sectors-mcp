@@ -10,22 +10,24 @@
 	"compatibility_flags": [
 		"nodejs_compat"
 	],
+	// The MCP transport is now stateless (no Durable Object). The v1 migration
+	// created the SQLite-backed MyMCP DO; the v2 migration deletes it so
+	// Cloudflare tears down the existing namespace. Do not remove the v1 entry —
+	// migrations are a cumulative, ordered log.
 	"migrations": [
 		{
+			"tag": "v1",
 			"new_sqlite_classes": [
 				"MyMCP"
-			],
-			"tag": "v1"
+			]
+		},
+		{
+			"tag": "v2",
+			"deleted_classes": [
+				"MyMCP"
+			]
 		}
 	],
-	"durable_objects": {
-		"bindings": [
-			{
-				"class_name": "MyMCP",
-				"name": "MCP_OBJECT"
-			}
-		]
-	},
 	"observability": {
 		"enabled": true
 	},
