@@ -107,22 +107,32 @@ const mcpHandler = createMcpHandler(
   }
 );
 
-// JSON body returned for retired SSE endpoints.
-function sseGoneResponse(): Response {
-  return new Response(
-    JSON.stringify({
-      error: "gone",
-      error_description:
-        "The SSE transport has been retired. Connect using the Streamable HTTP transport at /mcp instead.",
-    }),
-    {
-      status: 410,
-      headers: {
-        "Content-Type": "application/json",
-        ...corsHeaders,
-      },
-    }
-  );
+// Hard-retirement switch for the legacy /sse transport.
+//
+// While false, /sse is transparently bridged to the stateless /mcp handler so
+// existing clients keep working (see the fetch handler). Flip to true once
+// traffic confirms no client depends on /sse. In that mode /sse is rejected in
+// a way that does NOT provoke the OAuth discovery retry loop (see below).
+const HARD_RETIRE_SSE = false;
+
+// Terminal response for the hard-retired /sse endpoint.
+//
+// Design notes, to avoid re-triggering the client discovery/retry loop:
+//  - Use 404 Not Found, not 401/410. A 401 carries a WWW-Authenticate challenge
+//    that makes MCP clients re-run OAuth discovery; 410 was observed to make
+//    clients re-discover and retry. 404 reads as "this endpoint does not exist"
+//    and lets a client give up.
+//  - Send no auth challenge header and no JSON error body that a client might
+//    interpret as a recoverable protocol error. A short text/plain body is
+//    inert.
+function sseRetiredResponse(): Response {
+  return new Response("Not found", {
+    status: 404,
+    headers: {
+      "Content-Type": "text/plain; charset=utf-8",
+      ...corsHeaders,
+    },
+  });
 }
 
 export default {
@@ -159,40 +169,64 @@ export default {
       return oauthResponse;
     }
 
-    // 5. Retire the legacy SSE transport. The persistent SSE connection kept a
-    //    Durable Object alive and was the source of the DO `rows_written`
-    //    exhaustion. Modern clients (Claude, ChatGPT, MCP Inspector) use the
-    //    Streamable HTTP transport at /mcp instead.
+    // 5. Legacy /sse path. The old Server-Sent Events transport is retired.
+    //
+    //    Observed clients on /sse are not opening classic held-open EventSource
+    //    streams. They POST self-contained JSON-RPC with an
+    //    `Accept: application/json, text/event-stream` header, which is the
+    //    Streamable HTTP shape. So instead of returning 410 (which made those
+    //    clients loop and re-run OAuth discovery), we transparently serve /sse
+    //    through the same stateless handler as /mcp by rewriting the path.
+    //
+    //    Flip HARD_RETIRE_SSE to true once traffic confirms no client depends on
+    //    /sse. In that mode /sse gets a terminal 404 with no auth challenge and
+    //    no JSON error body, so clients stop rather than re-triggering discovery.
     if (url.pathname === "/sse" || url.pathname === "/sse/message") {
-      return sseGoneResponse();
+      if (HARD_RETIRE_SSE) {
+        return sseRetiredResponse();
+      }
+      // Bridge to the stateless handler: rewrite the path to /mcp so the
+      // handler's route check passes, then serve it exactly like /mcp.
+      const mcpUrl = new URL(request.url);
+      mcpUrl.pathname = "/mcp";
+      const bridged = new Request(mcpUrl.toString(), request);
+      return handleMcpRequest(bridged);
     }
 
     // 6. Handle the MCP endpoint (authenticated, stateless Streamable HTTP)
     if (url.pathname === "/mcp") {
-      const authHeader = request.headers.get("authorization");
-      const apiKeyHeader = request.headers.get("x-api-key");
-
-      let token: string | undefined;
-
-      if (authHeader?.startsWith("Bearer ")) {
-        token = authHeader.split(/\s+/)[1] ?? "";
-      } else if (authHeader) {
-        token = authHeader;
-      } else if (apiKeyHeader) {
-        token = apiKeyHeader;
-      }
-
-      if (!token) {
-        return unauthorizedResponse();
-      }
-
-      // Pass the caller's credential to the per-request server factory via
-      // authInfo.token; the handler is stateless and performs no persistence.
-      return mcpHandler.fetch(request, {
-        authInfo: { token, clientId: "sectors-mcp", scopes: ["read"] },
-      });
+      return handleMcpRequest(request);
     }
 
     return new Response("Not found", { status: 404 });
   },
 };
+
+/**
+ * Extract the caller's credential and serve the request through the stateless
+ * MCP handler. Shared by the /mcp route and the /sse compatibility bridge.
+ */
+async function handleMcpRequest(request: Request): Promise<Response> {
+  const authHeader = request.headers.get("authorization");
+  const apiKeyHeader = request.headers.get("x-api-key");
+
+  let token: string | undefined;
+
+  if (authHeader?.startsWith("Bearer ")) {
+    token = authHeader.split(/\s+/)[1] ?? "";
+  } else if (authHeader) {
+    token = authHeader;
+  } else if (apiKeyHeader) {
+    token = apiKeyHeader;
+  }
+
+  if (!token) {
+    return unauthorizedResponse();
+  }
+
+  // Pass the caller's credential to the per-request server factory via
+  // authInfo.token; the handler is stateless and performs no persistence.
+  return mcpHandler.fetch(request, {
+    authInfo: { token, clientId: "sectors-mcp", scopes: ["read"] },
+  });
+}
