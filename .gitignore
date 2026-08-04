@@ -252,3 +252,6 @@ dist
 .vscode/
 # Project-specific MCP config (contains API keys)
 .mcp.json
+
+# local debug / diagnostic scripts (not for commit)
+debug/
