@@ -4,8 +4,10 @@ export { fetchBrokerSummary, registerFetchBrokerSummaryTool } from "./fetch-brok
 export { fetchBrokerSummaryTop, registerFetchBrokerSummaryTopTool } from "./fetch-broker-summary-top.js";
 export { fetchBrokers, registerFetchBrokersTool } from "./fetch-brokers.js";
 export { fetchTopBrokers, registerFetchTopBrokersTool } from "./fetch-top-brokers.js";
+export { fetchClose, registerFetchCloseTool } from "./fetch-close.js";
 export { fetchCompaniesBySubsector, registerFetchCompaniesBySubsectorTool } from "./fetch-companies-by-subsector.js";
 export { fetchCompaniesWithSegments, registerFetchCompaniesWithSegmentsTool } from "./fetch-companies-with-segments.js";
+export { fetchCompaniesQuarterlyFinancialDates, registerFetchCompaniesQuarterlyFinancialDatesTool } from "./fetch-companies-quarterly-financial-dates.js";
 export { fetchCompaniesTopChanges, registerFetchCompaniesTopChangesTool } from "./fetch-companies-top-changes.js";
 export { fetchCorporateActions, registerFetchCorporateActionsTool } from "./fetch-corporate-actions.js";
 export { fetchCompanySegments, registerFetchCompanySegmentsTool } from "./fetch-company-segments.js";
