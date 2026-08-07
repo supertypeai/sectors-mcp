@@ -1,4 +1,4 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { McpServer } from "@modelcontextprotocol/server";
 import { z } from "zod";
 import { createApiHeaders, handleApiResponse } from "../../utils/api.js";
 
@@ -24,17 +24,19 @@ export function registerFetchCompaniesWithSegmentsTool(
   baseUrl: string,
   apiKey: string | undefined
 ) {
-  server.tool(
+  server.registerTool(
     "fetch-companies-with-segments",
-    "Returns a dictionary of all companies that have revenue and cost segment data available, along with their available financial years.\n\n**Used by:** [Company Revenue and Cost Segments](../report/company-segments)\n\n<Info>Costs 1 API credit.</Info>",
-    {},
-    { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
+    {
+      description: "Returns a dictionary of all companies that have revenue and cost segment data available, along with their available financial years.\n\n**Used by:** [Company Revenue and Cost Segments](../report/company-segments)\n\n<Info>Costs 1 API credit.</Info>",
+      inputSchema: z.object({}),
+      annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
+    },
     async (_) => {
       const result = await fetchCompaniesWithSegments(baseUrl, apiKey, {});
       return {
         content: [
           {
-            type: "text",
+            type: "text" as const,
             text: JSON.stringify(result, null, 2),
           },
         ],

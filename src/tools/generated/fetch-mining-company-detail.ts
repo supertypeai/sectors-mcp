@@ -1,4 +1,4 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { McpServer } from "@modelcontextprotocol/server";
 import { z } from "zod";
 import { createApiHeaders, handleApiResponse } from "../../utils/api.js";
 
@@ -26,20 +26,22 @@ export function registerFetchMiningCompanyDetailTool(
   baseUrl: string,
   apiKey: string | undefined
 ) {
-  server.tool(
+  server.registerTool(
     "fetch-mining-company-detail",
-    "Returns comprehensive operational details for a single mining company including activities, commodity types, licenses, contracts, and site count.\n\n<Info>Costs 1 API credit.</Info>",
     {
+      description: "Returns comprehensive operational details for a single mining company including activities, commodity types, licenses, contracts, and site count.\n\n<Info>Costs 1 API credit.</Info>",
+      inputSchema: z.object({
       slug: z.string()
         .describe("Company slug. Get valid slugs from the [Mining Companies List](./mining-companies) endpoint."),
+      }),
+      annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     },
-    { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     async (params) => {
       const result = await fetchMiningCompanyDetail(baseUrl, apiKey, params);
       return {
         content: [
           {
-            type: "text",
+            type: "text" as const,
             text: JSON.stringify(result, null, 2),
           },
         ],

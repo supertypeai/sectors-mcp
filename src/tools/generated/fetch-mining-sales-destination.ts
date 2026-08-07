@@ -1,4 +1,4 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { McpServer } from "@modelcontextprotocol/server";
 import { z } from "zod";
 import { createApiHeaders, handleApiResponse } from "../../utils/api.js";
 
@@ -30,22 +30,24 @@ export function registerFetchMiningSalesDestinationTool(
   baseUrl: string,
   apiKey: string | undefined
 ) {
-  server.tool(
+  server.registerTool(
     "fetch-mining-sales-destination",
-    "Retrieves sales destination breakdown for a specific mining company by its slug, showing revenue and volume distribution by country for a specific year. Defaults to the latest available year if none is specified.\n\n`revenue_usd` is in base USD. Volume unit is specified per country entry in `unit` (e.g., `Mt`).\n\n<Info>Costs 1 API credit.</Info>",
     {
+      description: "Retrieves sales destination breakdown for a specific mining company by its slug, showing revenue and volume distribution by country for a specific year. Defaults to the latest available year if none is specified.\n\n`revenue_usd` is in base USD. Volume unit is specified per country entry in `unit` (e.g., `Mt`).\n\n<Info>Costs 1 API credit.</Info>",
+      inputSchema: z.object({
       slug: z.string()
         .describe("The company's unique identifier slug (e.g., `adaro-energy`)."),
       year: z.number()
         .describe("The year to retrieve. Defaults to the latest available year.").optional(),
+      }),
+      annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     },
-    { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     async (params) => {
       const result = await fetchMiningSalesDestination(baseUrl, apiKey, params);
       return {
         content: [
           {
-            type: "text",
+            type: "text" as const,
             text: JSON.stringify(result, null, 2),
           },
         ],

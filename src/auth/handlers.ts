@@ -431,12 +431,25 @@ export async function handleOAuthRoute(
     });
   }
 
-  // Discovery endpoints
-  if (path === "/.well-known/oauth-protected-resource" && method === "GET") {
+  // Discovery endpoints. Some clients probe a transport-suffixed variant of the
+  // protected-resource metadata (for example /.well-known/oauth-protected-resource/sse
+  // or /mcp). Serving the same metadata for those suffixes stops clients from
+  // re-running discovery in a loop when the suffixed path would otherwise 404.
+  if (
+    (path === "/.well-known/oauth-protected-resource" ||
+      path === "/.well-known/oauth-protected-resource/sse" ||
+      path === "/.well-known/oauth-protected-resource/mcp") &&
+    method === "GET"
+  ) {
     return handleResourceMetadata(request);
   }
 
-  if (path === "/.well-known/oauth-authorization-server" && method === "GET") {
+  if (
+    (path === "/.well-known/oauth-authorization-server" ||
+      path === "/.well-known/oauth-authorization-server/sse" ||
+      path === "/.well-known/oauth-authorization-server/mcp") &&
+    method === "GET"
+  ) {
     return handleAuthServerMetadata(request);
   }
 

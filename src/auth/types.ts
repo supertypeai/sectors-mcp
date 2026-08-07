@@ -130,12 +130,9 @@ export interface OAuthAuthorizationServerMetadata {
 export interface ExtendedEnv {
   SECTORS_API_KEY?: string;
   SECTORS_API_BASE?: string;
-  SUPABASE_URL?: string;
-  SUPABASE_ANON_KEY?: string;
   SECTORS_OAUTH_CLIENT_ID: string;
   SECTORS_OAUTH_CLIENT_SECRET?: string;
   OAUTH_KV: KVNamespace;
-  MCP_OBJECT: DurableObjectNamespace;
 }
 
 /**

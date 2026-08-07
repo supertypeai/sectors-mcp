@@ -1,4 +1,4 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { McpServer } from "@modelcontextprotocol/server";
 import { z } from "zod";
 import { createApiHeaders, handleApiResponse } from "../../utils/api.js";
 
@@ -45,10 +45,11 @@ export function registerFetchTopBrokersTool(
   baseUrl: string,
   apiKey: string | undefined
 ) {
-  server.tool(
+  server.registerTool(
     "fetch-top-brokers",
-    "Brokers ranked by gross trade value (default) or absolute net flow for a single date. Optionally filter by `origin` (foreign/domestic) and `cohort` (retail/mixed/institutional/unknown). Returns all matching brokers if `n_brokers` is omitted.\n\n<Note>Origin and cohort classifications come from the broker registry. Retrieve the full list with these classifications from the [Broker Registry](./broker-registry) endpoint.</Note>\n\n<Info>Costs 2 API credits.</Info>",
     {
+      description: "Brokers ranked by gross trade value (default) or absolute net flow for a single date. Optionally filter by `origin` (foreign/domestic) and `cohort` (retail/mixed/institutional/unknown). Returns all matching brokers if `n_brokers` is omitted.\n\n<Note>Origin and cohort classifications come from the broker registry. Retrieve the full list with these classifications from the [Broker Registry](./broker-registry) endpoint.</Note>\n\n<Info>Costs 2 API credits.</Info>",
+      inputSchema: z.object({
       cohort: z.enum(["all", "institutional", "mixed", "retail", "unknown"])
         .describe("Filter by broker cohort (case-insensitive). Default `all`.").optional(),
       date: z.string()
@@ -59,14 +60,15 @@ export function registerFetchTopBrokersTool(
         .describe("How many brokers to return. Default: all matching (~88 total). Max 90.").optional(),
       origin: z.enum(["all", "domestic", "foreign"])
         .describe("Filter by broker origin. Default `all`.").optional(),
+      }),
+      annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     },
-    { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     async (params) => {
       const result = await fetchTopBrokers(baseUrl, apiKey, params);
       return {
         content: [
           {
-            type: "text",
+            type: "text" as const,
             text: JSON.stringify(result, null, 2),
           },
         ],

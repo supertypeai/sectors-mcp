@@ -37,6 +37,7 @@ interface Parameter {
     enum?: string[];
     format?: string;
     default?: any;
+    items?: { type: string; enum?: string[]; format?: string; default?: any };
   };
   description?: string;
 }
@@ -192,7 +193,7 @@ function generateToolFile(
   const hasParams = params.length > 0;
   const paramsType = hasParams ? `{\n${paramInterface.join("\n")}\n}` : "{}";
   
-  return `import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+  return `import { McpServer } from "@modelcontextprotocol/server";
 import { z } from "zod";
 import { createApiHeaders, handleApiResponse } from "../../utils/api.js";
 
@@ -218,17 +219,19 @@ export function ${registerFnName}(
   baseUrl: string,
   apiKey: string | undefined
 ) {
-  server.tool(
+  server.registerTool(
     "${toolName}",
-    ${JSON.stringify(description)},
-    {${zodSchema.length > 0 ? "\n" + zodSchema.join("\n") + "\n    " : ""}},
-    { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
+    {
+      description: ${JSON.stringify(description)},
+      inputSchema: z.object({${zodSchema.length > 0 ? "\n" + zodSchema.join("\n") + "\n      " : ""}}),
+      annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
+    },
     async (${hasParams ? `params` : "_"}) => {
       const result = await ${functionName}(baseUrl, apiKey, ${hasParams ? "params" : "{}"});
       return {
         content: [
           {
-            type: "text",
+            type: "text" as const,
             text: JSON.stringify(result, null, 2),
           },
         ],

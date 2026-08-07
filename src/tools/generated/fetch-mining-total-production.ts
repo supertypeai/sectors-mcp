@@ -1,4 +1,4 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { McpServer } from "@modelcontextprotocol/server";
 import { z } from "zod";
 import { createApiHeaders, handleApiResponse } from "../../utils/api.js";
 
@@ -27,20 +27,22 @@ export function registerFetchMiningTotalProductionTool(
   baseUrl: string,
   apiKey: string | undefined
 ) {
-  server.tool(
+  server.registerTool(
     "fetch-mining-total-production",
-    "Returns total national production for a commodity across all years, including year-over-year percentage change. Results are ordered by year descending.\n\n<Note>Available `commodity_type` values: `Coal`, `Nickel`, `Gold`, `Copper`.</Note>\n\n<Info>Costs 1 API credit.</Info>",
     {
+      description: "Returns total national production for a commodity across all years, including year-over-year percentage change. Results are ordered by year descending.\n\n<Note>Available `commodity_type` values: `Coal`, `Nickel`, `Gold`, `Copper`.</Note>\n\n<Info>Costs 1 API credit.</Info>",
+      inputSchema: z.object({
       commodity_type: z.enum(["Coal", "Copper", "Gold", "Nickel"])
         .describe("The commodity to analyze (e.g., `Coal`). Required."),
+      }),
+      annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     },
-    { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     async (params) => {
       const result = await fetchMiningTotalProduction(baseUrl, apiKey, params);
       return {
         content: [
           {
-            type: "text",
+            type: "text" as const,
             text: JSON.stringify(result, null, 2),
           },
         ],

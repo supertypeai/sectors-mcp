@@ -1,4 +1,4 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { McpServer } from "@modelcontextprotocol/server";
 import { z } from "zod";
 import { createApiHeaders, handleApiResponse } from "../../utils/api.js";
 
@@ -34,24 +34,26 @@ export function registerFetchMiningCommodityPriceTool(
   baseUrl: string,
   apiKey: string | undefined
 ) {
-  server.tool(
+  server.registerTool(
     "fetch-mining-commodity-price",
-    "Retrieves historical price data for a commodity by year range. Data is monthly (bi-weekly for recent Coal entries). Maximum range: 3 years.\n\n<Note>Use [List Commodities](../commodities-trade/commodities) to discover all available commodity names.</Note>\n\n<Warning>Requesting more than 3 years will return a 400 error.</Warning>\n\n<Info>Costs 1 API credit.</Info>",
     {
+      description: "Retrieves historical price data for a commodity by year range. Data is monthly (bi-weekly for recent Coal entries). Maximum range: 3 years.\n\n<Note>Use [List Commodities](../commodities-trade/commodities) to discover all available commodity names.</Note>\n\n<Warning>Requesting more than 3 years will return a 400 error.</Warning>\n\n<Info>Costs 1 API credit.</Info>",
+      inputSchema: z.object({
       commodity_name: z.string()
         .describe("The commodity name (e.g., `Gold`, `Coal`). Get valid names from the [List Commodities](../commodities-trade/commodities) endpoint."),
       start_year: z.number()
         .describe("Start year (e.g., `2022`). Defaults to current year − 2.").optional(),
       end_year: z.number()
         .describe("End year inclusive (e.g., `2024`). Defaults to current year. Maximum 3-year range from `start_year`.").optional(),
+      }),
+      annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     },
-    { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     async (params) => {
       const result = await fetchMiningCommodityPrice(baseUrl, apiKey, params);
       return {
         content: [
           {
-            type: "text",
+            type: "text" as const,
             text: JSON.stringify(result, null, 2),
           },
         ],

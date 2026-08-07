@@ -1,4 +1,4 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { McpServer } from "@modelcontextprotocol/server";
 import { z } from "zod";
 import { createApiHeaders, handleApiResponse } from "../../utils/api.js";
 
@@ -45,10 +45,11 @@ export function registerFetchSgxBuybacksTool(
   baseUrl: string,
   apiKey: string | undefined
 ) {
-  server.tool(
+  server.registerTool(
     "fetch-sgx-buybacks",
-    "Returns SGX share buyback records. Each row includes the purchase date, buyback type, price range, total value, total shares purchased, treasury shares after purchase, and mandate details.\n\n<Note>SGX symbol: 3 characters (letters or digits). E.g. `D05`, `U11`, `Z74`.</Note>\n\n<Note>Date filters: both `start` and `end` are independent and optional — omit either side to leave that bound unconstrained. Future `end` dates return 400.</Note>\n\n<Info>Costs 1 API credit.</Info>",
     {
+      description: "Returns SGX share buyback records. Each row includes the purchase date, buyback type, price range, total value, total shares purchased, treasury shares after purchase, and mandate details.\n\n<Note>SGX symbol: 3 characters (letters or digits). E.g. `D05`, `U11`, `Z74`.</Note>\n\n<Note>Date filters: both `start` and `end` are independent and optional — omit either side to leave that bound unconstrained. Future `end` dates return 400.</Note>\n\n<Info>Costs 1 API credit.</Info>",
+      inputSchema: z.object({
       symbol: z.string()
         .describe("SGX symbol to filter by. E.g. `D05`, `U11`.").optional(),
       start: z.string()
@@ -59,14 +60,15 @@ export function registerFetchSgxBuybacksTool(
         .describe("Items per page. Max 30.").optional(),
       offset: z.number()
         .describe("Number of items to skip.").optional(),
+      }),
+      annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     },
-    { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     async (params) => {
       const result = await fetchSgxBuybacks(baseUrl, apiKey, params);
       return {
         content: [
           {
-            type: "text",
+            type: "text" as const,
             text: JSON.stringify(result, null, 2),
           },
         ],

@@ -1,4 +1,4 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { McpServer } from "@modelcontextprotocol/server";
 import { z } from "zod";
 import { createApiHeaders, handleApiResponse } from "../../utils/api.js";
 
@@ -41,10 +41,11 @@ export function registerFetchCompaniesQuarterlyFinancialDatesTool(
   baseUrl: string,
   apiKey: string | undefined
 ) {
-  server.tool(
+  server.registerTool(
     "fetch-companies-quarterly-financial-dates",
-    "Returns the **latest** available quarterly report date (and its quarter label) for **every** IDX company in one paginated feed — instead of calling the per-symbol [Quarterly Financial Dates](./company-quarterly-dates) helper once per ticker.\n\nBuilt for **freshness polling**: store the dates you've seen, then re-poll with `?since=` to fetch only the companies that have since reported a new quarter, keeping repeat polls cheap.\n\n**Related:** [Quarterly Financials](../report/quarterly-financials) for the actual figures on a given `report_date`.\n\n<Note>One row per company (~950), sorted by symbol. Companies with no quarterly data are omitted.</Note>\n\n<Info>Costs 1 API credit per page. The full universe is ~32 pages at the maximum `limit` of 30 (~32 credits per full sweep). Use `since` to poll incrementally for far fewer credits.</Info>",
     {
+      description: "Returns the **latest** available quarterly report date (and its quarter label) for **every** IDX company in one paginated feed — instead of calling the per-symbol [Quarterly Financial Dates](./company-quarterly-dates) helper once per ticker.\n\nBuilt for **freshness polling**: store the dates you've seen, then re-poll with `?since=` to fetch only the companies that have since reported a new quarter, keeping repeat polls cheap.\n\n**Related:** [Quarterly Financials](../report/quarterly-financials) for the actual figures on a given `report_date`.\n\n<Note>One row per company (~950), sorted by symbol. Companies with no quarterly data are omitted.</Note>\n\n<Info>Costs 1 API credit per page. The full universe is ~32 pages at the maximum `limit` of 30 (~32 credits per full sweep). Use `since` to poll incrementally for far fewer credits.</Info>",
+      inputSchema: z.object({
       year: z.number()
         .describe("Restrict to report dates within this calendar year, then return each company's latest quarter within it (e.g. `2024`).").optional(),
       limit: z.number()
@@ -53,14 +54,15 @@ export function registerFetchCompaniesQuarterlyFinancialDatesTool(
         .describe("Number of companies to skip for pagination.").optional(),
       since: z.string()
         .describe("Return only companies whose latest quarter-end date is on or after this date (`YYYY-MM-DD`). Use it to poll for newly-reported quarters. A future date returns an empty result set.").optional(),
+      }),
+      annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     },
-    { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     async (params) => {
       const result = await fetchCompaniesQuarterlyFinancialDates(baseUrl, apiKey, params);
       return {
         content: [
           {
-            type: "text",
+            type: "text" as const,
             text: JSON.stringify(result, null, 2),
           },
         ],

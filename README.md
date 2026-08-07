@@ -1,31 +1,35 @@
 # Sectors MCP Server
 
-A Model Context Protocol (MCP) server that provides financial market data and analysis tools, with a focus on stock market sectors, indices, and company data. This server is deployed as a Cloudflare Worker and uses Server-Sent Events (SSE) transport for real-time communication.
+A Model Context Protocol (MCP) server that provides financial market data and analysis tools, with a focus on stock market sectors, indices, and company data. The server is deployed as a Cloudflare Worker and speaks the Streamable HTTP transport at the `/mcp` endpoint.
 
-## 🚀 Quick Start - Use Cloud-Hosted Server
+> ### Transport change (August 2026)
+>
+> The recommended endpoint is now `https://sectors-mcp.supertype.ai/mcp`, served over the Streamable HTTP transport. The older Server-Sent Events endpoint at `/sse` is deprecated. If you added Sectors using a `/sse` URL, please update your configuration to `/mcp` following the examples below. See the [Changelog](#changelog) for the full background.
 
-**No installation required!** Connect directly to our cloud-hosted MCP server.
+## Quick Start, Use the Cloud-Hosted Server
+
+No installation required. Connect directly to the cloud-hosted MCP server using your [Sectors API key](https://sectors.app).
 
 ### Option 1: Claude Desktop or Claude Code (CLI)
 
-The easiest way to add Sectors to your Claude environment:
+The easiest way to add Sectors to your Claude environment is the CLI:
 
 ```bash
-claude mcp add --transport sse sectors https://sectors-mcp.supertype.ai/sse \
+claude mcp add --transport http sectors https://sectors-mcp.supertype.ai/mcp \
   --header "Authorization: Bearer YOUR_API_KEY_HERE"
 ```
 
-### Option 2: Native SSE Transport (Configuration)
+### Option 2: Native Streamable HTTP Transport (Configuration)
 
-For MCP clients that support SSE transport natively:
+For MCP clients that support the Streamable HTTP transport natively:
 
 ```javascript
 {
   mcpServers: {
     sectors: {
       transport: {
-        type: 'sse',
-        url: 'https://sectors-mcp.supertype.ai/sse',
+        type: 'http',
+        url: 'https://sectors-mcp.supertype.ai/mcp',
         headers: {
           Authorization: `Bearer ${process.env.SECTORS_API_KEY}`,
         },
@@ -47,7 +51,7 @@ For other stdio-based clients, use `mcp-remote` as a bridge:
       "args": [
         "-y",
         "mcp-remote",
-        "https://sectors-mcp.supertype.ai/sse",
+        "https://sectors-mcp.supertype.ai/mcp",
         "--header",
         "Authorization:${AUTH_TOKEN}"
       ],
@@ -83,12 +87,12 @@ Get your [Sectors API key](https://sectors.app) and start using all available to
 npm install
 ```
 
-3. Configure environment variables in Cloudflare dashboard or `.dev.vars`:
+3. Configure environment variables in the Cloudflare dashboard or `.dev.vars`. The OAuth values are only needed if you want the double-proxy OAuth flow; direct API key auth works without them:
 
 ```env
 SECTORS_API_KEY=your_api_key
-SUPABASE_URL=your_supabase_url
-SUPABASE_ANON_KEY=your_supabase_key
+SECTORS_OAUTH_CLIENT_ID=your_upstream_oauth_client_id
+SECTORS_OAUTH_CLIENT_SECRET=your_upstream_oauth_client_secret
 ```
 
 4. Deploy to Cloudflare:
@@ -110,8 +114,8 @@ npm install
 
 ```env
 SECTORS_API_KEY=your_api_key
-SUPABASE_URL=your_supabase_url
-SUPABASE_ANON_KEY=your_supabase_key
+SECTORS_OAUTH_CLIENT_ID=your_upstream_oauth_client_id
+SECTORS_OAUTH_CLIENT_SECRET=your_upstream_oauth_client_secret
 ```
 
 4. Start the development server:
@@ -122,7 +126,7 @@ npm run dev
 
 ## Available Tools
 
-The server provides **80+ financial data tools** across multiple categories:
+The server provides **66 financial data tools** across multiple categories:
 
 ### Market Coverage
 
@@ -188,12 +192,11 @@ For a complete list of available tools and their parameters, connect to the serv
 
 ### Technology Stack
 
-- **Runtime**: Cloudflare Workers with Durable Objects
-- **MCP SDK**: `@modelcontextprotocol/sdk` v1.13.1
-- **Agent Framework**: `agents` package for MCP agent management
-- **Data Storage**: Supabase for persistent data
+- **Runtime**: Cloudflare Workers, stateless with no Durable Object
+- **MCP SDK**: `@modelcontextprotocol/sdk` and `@modelcontextprotocol/server` v2
+- **Handler**: `createMcpHandler` from the `agents` package
 - **API Client**: Sectors API for financial data
-- **Transport**: Server-Sent Events (SSE) for real-time communication
+- **Transport**: Streamable HTTP at `/mcp`
 - **Validation**: Zod for schema validation
 - **Language**: TypeScript
 
@@ -201,46 +204,39 @@ For a complete list of available tools and their parameters, connect to the serv
 
 ```
 src/
-├── index.ts                 # Main worker entry point with SSE routing
-├── config.ts               # Configuration and environment variables
-├── lib/
-│   └── supabaseClient.ts  # Supabase client initialization
-├── tools/                 # MCP tool implementations
-│   ├── registerTools.ts   # Central tool registration
-│   ├── companies.ts       # Company data tools
-│   ├── companyReport.ts   # Company reports
-│   ├── indexData.ts       # Index data tools
-│   ├── topMovers.ts       # Market movers analysis
-│   ├── sgx*.ts           # Singapore Exchange tools
-│   ├── getSingapore*.ts  # Advanced SGX analytics
-│   └── ...               # Other specialized tools
+├── index.ts                 # Worker entry point, stateless /mcp handler and OAuth routing
+├── config.ts                # Configuration and environment variables
+├── auth/                    # OAuth double-proxy implementation (KV backed)
+│   ├── handlers.ts          # OAuth HTTP endpoints
+│   ├── provider.ts          # Upstream token exchange and introspection
+│   └── ...                  # Clients, PKCE, types
+├── tools/
+│   ├── registerTools.ts     # Central tool registration
+│   └── generated/           # 66 tools generated from schema.json
 ├── types/
-│   └── api.ts            # TypeScript type definitions
+│   └── api.ts               # Shared TypeScript interfaces
 └── utils/
-    └── api.ts            # API utility functions
+    └── api.ts               # API headers and response handling
 
-build/                     # Compiled JavaScript output
-wrangler.jsonc            # Cloudflare Workers configuration
+scripts/generateTools.ts     # Regenerates the tools from schema.json
+wrangler.jsonc               # Cloudflare Workers configuration
 ```
 
 ### How It Works
 
 1. **Cloudflare Worker Entry Point** (`src/index.ts`):
    - Handles incoming HTTP requests
-   - Validates API key via `Authorization: Bearer <token>` header
-   - Routes requests to appropriate endpoints:
-     - `/sse` - SSE transport for MCP communication
-     - `/mcp` - Alternative MCP endpoint
-   - Uses Durable Objects for stateful MCP agent instances
+   - Validates the API key from the `Authorization: Bearer <token>` header, with an `x-api-key` header accepted as an alternative for direct integrations
+   - Routes MCP traffic to the `/mcp` endpoint over the Streamable HTTP transport
+   - Runs statelessly with no Durable Object, so a fresh in-memory server is built per request and discarded when the request finishes
 
-2. **MCP Agent** (`MyMCP` class):
-   - Extends `McpAgent` from the agents framework
-   - Initializes MCP server with name and version
-   - Registers all tools during initialization
-   - Handles tool execution with proper authentication
+2. **Stateless MCP Handler**:
+   - Built with `createMcpHandler` from the agents framework
+   - Constructs an MCP server per request and registers all tools on it
+   - Threads the caller's token into the tools for authenticated API calls
 
 3. **Tool Registration** (`src/tools/registerTools.ts`):
-   - Centralized registration of 40+ financial data tools
+   - Centralized registration of all 66 financial data tools
    - Each tool is configured with:
      - Name and description
      - Zod schema for input validation
@@ -263,23 +259,20 @@ wrangler.jsonc            # Cloudflare Workers configuration
 The server requires these environment variables (configured in Cloudflare Workers dashboard or `.dev.vars`):
 
 - `SECTORS_API_KEY`: Your Sectors API key for accessing financial data
-- `SUPABASE_URL`: Supabase project URL (for persistent storage features)
-- `SUPABASE_ANON_KEY`: Supabase anonymous key
+- `SECTORS_OAUTH_CLIENT_ID`: Upstream OAuth client ID, needed only for the OAuth flow
+- `SECTORS_OAUTH_CLIENT_SECRET`: Upstream OAuth client secret, needed only for the OAuth flow
+- `OAUTH_KV`: KV namespace binding used to store OAuth clients, sessions, and codes
 
-### SSE Transport
+### Streamable HTTP Transport
 
-The server uses Server-Sent Events (SSE) transport which provides:
-- Real-time streaming communication
-- Better performance than traditional request/response
-- Automatic reconnection handling
-- Efficient for multiple tool calls
+The server speaks the Streamable HTTP transport at `/mcp`. Each request carries a JSON-RPC message and receives its response inline, so there is no long-lived connection to maintain and no per-session state on the server. This keeps the Worker stateless and lets it scale cheaply.
 
 Example client configuration:
 ```javascript
 {
   transport: {
-    type: 'sse',
-    url: 'https://sectors-mcp.supertype.ai/sse',
+    type: 'http',
+    url: 'https://sectors-mcp.supertype.ai/mcp',
     headers: {
       Authorization: `Bearer ${process.env.SECTORS_API_KEY}`,
     },
@@ -292,7 +285,7 @@ Example client configuration:
 ### With Claude CLI (Recommended)
 
 ```bash
-claude mcp add --transport sse sectors https://sectors-mcp.supertype.ai/sse \
+claude mcp add --transport http sectors https://sectors-mcp.supertype.ai/mcp \
   --header "Authorization: Bearer YOUR_API_KEY_HERE"
 ```
 
@@ -308,7 +301,7 @@ Add to your configuration file (`~/Library/Application Support/Claude/claude_des
       "args": [
         "-y",
         "mcp-remote",
-        "https://sectors-mcp.supertype.ai/sse",
+        "https://sectors-mcp.supertype.ai/mcp",
         "--header",
         "Authorization:${AUTH_TOKEN}"
       ],
@@ -320,24 +313,26 @@ Add to your configuration file (`~/Library/Application Support/Claude/claude_des
 }
 ```
 
-This uses `mcp-remote` to bridge the SSE connection into stdio.
+This uses `mcp-remote` to bridge the Streamable HTTP connection into stdio.
 
 ### With MCP Client (TypeScript/JavaScript)
 
 ```typescript
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
-import { SSEClientTransport } from "@modelcontextprotocol/sdk/client/sse.js";
+import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 
 const client = new Client({
   name: "sectors-client",
   version: "1.0.0"
 });
 
-const transport = new SSEClientTransport(
-  new URL("https://sectors-mcp.supertype.ai/sse"),
+const transport = new StreamableHTTPClientTransport(
+  new URL("https://sectors-mcp.supertype.ai/mcp"),
   {
-    headers: {
-      Authorization: `Bearer ${process.env.SECTORS_API_KEY}`
+    requestInit: {
+      headers: {
+        Authorization: `Bearer ${process.env.SECTORS_API_KEY}`
+      }
     }
   }
 );
@@ -365,11 +360,16 @@ npm run dev
 
 2. The server will be available at `http://localhost:8787`
 
-3. Test SSE endpoint:
+3. Test the MCP endpoint with an `initialize` handshake, which is the first request any real client sends:
 ```bash
-curl -H "Authorization: Bearer YOUR_API_KEY" \
-  http://localhost:8787/sse
+curl -X POST http://localhost:8787/mcp \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json, text/event-stream" \
+  -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"curl","version":"1.0.0"}}}'
 ```
+
+A healthy response streams back an `event: message` line whose data contains `serverInfo` with the server name and version. A follow-up `tools/list` call returns the full tool catalog.
 
 ### Adding New Tools
 
@@ -453,7 +453,7 @@ npm run deploy
 This will:
 - Compile TypeScript to JavaScript
 - Upload to Cloudflare Workers
-- Configure Durable Objects
+- Bind the OAuth KV namespace
 - Set up routes and observability
 
 ### Type Checking
@@ -474,31 +474,26 @@ npm run cf-typegen
 
 ## API Data Sources
 
-This server integrates with multiple data sources:
+This server draws its data from a single source:
 
 1. **Sectors API** (https://sectors.app/api)
    - Primary source for Indonesian (IDX) market data
-   - Singapore (SGX) market data
+   - Singapore (SGX) and Malaysia (KLSE) market data
    - Real-time and historical financial data
-   - Requires API key for authentication
-
-2. **Supabase**
-   - Caching layer for frequently accessed data
-   - Custom analytics and computed metrics
-   - Historical data storage
+   - Requires an API key for authentication
 
 ## Dependencies
 
 ### Core Dependencies
-- `@modelcontextprotocol/sdk` (v1.13.1): MCP server implementation
-- `agents` (v0.0.100): MCP agent framework with Durable Objects support
-- `zod` (v3.25.67): Schema validation for tool inputs
-- `@supabase/supabase-js` (v2.86.0): Supabase client for data storage
+- `@modelcontextprotocol/sdk`: MCP client and server primitives
+- `@modelcontextprotocol/server` (v2): the stateless server used by `createMcpHandler`
+- `agents`: provides `createMcpHandler` for the stateless Workers transport
+- `zod` (v4): schema validation for tool inputs
 
 ### Development Dependencies
-- `typescript` (v5.8.3): TypeScript compiler
-- `wrangler` (v4.24.3): Cloudflare Workers CLI
-- `@types/node` (v24.10.1): Node.js type definitions
+- `typescript`: TypeScript compiler
+- `wrangler`: Cloudflare Workers CLI
+- `@types/node`: Node.js type definitions
 
 ## Contributing
 
@@ -519,6 +514,20 @@ Contributions are welcome! Here's how you can help:
 6. Push to your branch (`git push origin feature/amazing-feature`)
 7. Open a Pull Request
 
+## Changelog
+
+### August 2026: stateless transport and the move to `/mcp`
+
+The server previously ran on a stateful MCP agent backed by a Cloudflare Durable Object, and it exposed the Server-Sent Events transport at `/sse`. Every SSE connection created a Durable Object instance, and each instance wrote to Durable Object storage, which steadily consumed the storage write allowance and eventually caused requests to fail.
+
+The server now runs as a stateless Streamable HTTP handler at `/mcp`. It builds a fresh MCP server for each request and holds no per-session state, so there are no Durable Object writes. Alongside this change the tools moved to the v2 server API, the schema was refreshed, and the unused Supabase dependency was removed.
+
+What this means for you:
+
+- Point your client at `https://sectors-mcp.supertype.ai/mcp` and use the `http` (Streamable HTTP) transport. The examples above show the exact configuration for the Claude CLI, Claude Desktop, and the TypeScript SDK.
+- Authentication is unchanged. Send your key as `Authorization: Bearer YOUR_API_KEY`, or as an `x-api-key` header for direct integrations.
+- If you added Sectors with a `/sse` URL, update it to `/mcp`. In the Claude CLI you can remove the old entry and add it again with `--transport http` and the `/mcp` URL.
+
 ## License
 
 This project is part of the Sectors financial data platform.
@@ -534,4 +543,4 @@ This project is part of the Sectors financial data platform.
 - [Model Context Protocol](https://modelcontextprotocol.io/)
 - [Cloudflare Workers](https://workers.cloudflare.com/)
 - [Sectors Financial Data Platform](https://sectors.app)
-- [Supabase](https://supabase.com/)
+- [Model Context Protocol](https://modelcontextprotocol.io/)

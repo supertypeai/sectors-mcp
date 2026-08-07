@@ -1,4 +1,4 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { McpServer } from "@modelcontextprotocol/server";
 import { z } from "zod";
 import { createApiHeaders, handleApiResponse } from "../../utils/api.js";
 
@@ -26,20 +26,22 @@ export function registerFetchMiningSiteDetailTool(
   baseUrl: string,
   apiKey: string | undefined
 ) {
-  server.tool(
+  server.registerTool(
     "fetch-mining-site-detail",
-    "Returns full details for a single mining site by its slug, including parsed resources/reserves and location (with latitude and longitude).\n\nUse [Mining Sites](../sites-production/mining-sites) to discover site slugs.\n\n<Info>Costs 1 API credit.</Info>",
     {
+      description: "Returns full details for a single mining site by its slug, including parsed resources/reserves and location (with latitude and longitude).\n\nUse [Mining Sites](../sites-production/mining-sites) to discover site slugs.\n\n<Info>Costs 1 API credit.</Info>",
+      inputSchema: z.object({
       slug: z.string()
         .describe("URL-friendly identifier for the mining site."),
+      }),
+      annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     },
-    { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     async (params) => {
       const result = await fetchMiningSiteDetail(baseUrl, apiKey, params);
       return {
         content: [
           {
-            type: "text",
+            type: "text" as const,
             text: JSON.stringify(result, null, 2),
           },
         ],

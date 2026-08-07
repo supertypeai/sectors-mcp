@@ -1,4 +1,4 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { McpServer } from "@modelcontextprotocol/server";
 import { z } from "zod";
 import { createApiHeaders, handleApiResponse } from "../../utils/api.js";
 
@@ -49,10 +49,11 @@ export function registerFetchMiningCompaniesTool(
   baseUrl: string,
   apiKey: string | undefined
 ) {
-  server.tool(
+  server.registerTool(
     "fetch-mining-companies",
-    "Searches for Indonesian mining companies by name, symbol, slug, or key operation. Supports filtering by commodity type and company type.\n\n<Info>Costs 1 API credit.</Info>",
     {
+      description: "Searches for Indonesian mining companies by name, symbol, slug, or key operation. Supports filtering by commodity type and company type.\n\n<Info>Costs 1 API credit.</Info>",
+      inputSchema: z.object({
       commodity_type: z.enum(["Aluminium", "Coal", "Copper", "Gold", "Nickel", "Silver", "Zinc and Lead"])
         .describe("Filter by commodity. E.g. `Coal`, `Nickel`, `Gold`.").optional(),
       limit: z.number()
@@ -65,14 +66,15 @@ export function registerFetchMiningCompaniesTool(
         .describe("Filter by company type.").optional(),
       has_financials: z.boolean()
         .describe("If `true`, return only companies with financial data available.").optional(),
+      }),
+      annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     },
-    { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     async (params) => {
       const result = await fetchMiningCompanies(baseUrl, apiKey, params);
       return {
         content: [
           {
-            type: "text",
+            type: "text" as const,
             text: JSON.stringify(result, null, 2),
           },
         ],

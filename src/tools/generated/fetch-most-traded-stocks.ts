@@ -1,4 +1,4 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { McpServer } from "@modelcontextprotocol/server";
 import { z } from "zod";
 import { createApiHeaders, handleApiResponse } from "../../utils/api.js";
 
@@ -45,10 +45,11 @@ export function registerFetchMostTradedStocksTool(
   baseUrl: string,
   apiKey: string | undefined
 ) {
-  server.tool(
+  server.registerTool(
     "fetch-most-traded-stocks",
-    "Returns the most traded IDX stocks by transaction volume over a date range of up to 90 days. Results are keyed by date.\n\n<Note>Date range: defaults to last 30 days. Max window 90 days; wider ranges are clamped to the most recent 90 days ending at `end`. Future `end` dates return 400.</Note>\n\n<Info>Costs 2 API credits.</Info>",
     {
+      description: "Returns the most traded IDX stocks by transaction volume over a date range of up to 90 days. Results are keyed by date.\n\n<Note>Date range: defaults to last 30 days. Max window 90 days; wider ranges are clamped to the most recent 90 days ending at `end`. Future `end` dates return 400.</Note>\n\n<Info>Costs 2 API credits.</Info>",
+      inputSchema: z.object({
       sub_sector: z.string()
         .describe("Filter by kebab-case subsector slug. E.g. `banks`. Get valid values from the [Subsectors](./helper-list/subsectors) endpoint.").optional(),
       start: z.string()
@@ -59,14 +60,15 @@ export function registerFetchMostTradedStocksTool(
         .describe("If `true`, rank by volume × closing price instead of raw volume.").optional(),
       n_stock: z.number()
         .describe("Number of tickers per day. Default 5, max 10.").optional(),
+      }),
+      annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     },
-    { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     async (params) => {
       const result = await fetchMostTradedStocks(baseUrl, apiKey, params);
       return {
         content: [
           {
-            type: "text",
+            type: "text" as const,
             text: JSON.stringify(result, null, 2),
           },
         ],

@@ -1,4 +1,4 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { McpServer } from "@modelcontextprotocol/server";
 import { z } from "zod";
 import { createApiHeaders, handleApiResponse } from "../../utils/api.js";
 
@@ -69,10 +69,11 @@ export function registerFetchNewsTool(
   baseUrl: string,
   apiKey: string | undefined
 ) {
-  server.tool(
+  server.registerTool(
     "fetch-news",
-    "Returns paginated news articles from either the IDX (Indonesian Stock Exchange) or mining news sources. Use the `extension` parameter to choose the data source — each extension has its own set of valid filter parameters.\n\n<Warning>Mixing IDX and mining parameters will return a 400 error. E.g. passing `sector` with `extension=mining` is invalid.</Warning>\n\n<Accordion title=\"IDX Extension Parameters (extension=idx)\">\n- **sector**: Comma-separated sector slugs (kebab-case). Get values from the [Subsectors](./helper-list/subsectors) endpoint.\n- **sub_sector**: Comma-separated subsector slugs (kebab-case). E.g. `banks`, `insurance`, `retailing`. Get valid values from the [Subsectors](./helper-list/subsectors) endpoint.\n- **tags**: Comma-separated tag slugs. Get values from the [News Tags](./helper-list/tags) endpoint.\n- **symbols**: Comma-separated IDX symbols. E.g. `BBCA,BBRI,BMRI`.\n- **keyword**: Case-insensitive substring match on article title.\n</Accordion>\n\n<Accordion title=\"Mining Extension Parameters (extension=mining)\">\n- **keyword**: Case-insensitive substring match on article title.\n- **commodity_type**: Filter by commodity. E.g. `Coal`, `Nickel`, `Gold`.\n</Accordion>\n\n<Note>Date filters: both `start` and `end` are independent and optional — omit either side to leave that bound unconstrained. Future `end` dates return 400.</Note>\n\n<Info>Costs 1 API credit.</Info>",
     {
+      description: "Returns paginated news articles from either the IDX (Indonesian Stock Exchange) or mining news sources. Use the `extension` parameter to choose the data source — each extension has its own set of valid filter parameters.\n\n<Warning>Mixing IDX and mining parameters will return a 400 error. E.g. passing `sector` with `extension=mining` is invalid.</Warning>\n\n<Accordion title=\"IDX Extension Parameters (extension=idx)\">\n- **sector**: Comma-separated sector slugs (kebab-case). Get values from the [Subsectors](./helper-list/subsectors) endpoint.\n- **sub_sector**: Comma-separated subsector slugs (kebab-case). E.g. `banks`, `insurance`, `retailing`. Get valid values from the [Subsectors](./helper-list/subsectors) endpoint.\n- **tags**: Comma-separated tag slugs. Get values from the [News Tags](./helper-list/tags) endpoint.\n- **symbols**: Comma-separated IDX symbols. E.g. `BBCA,BBRI,BMRI`.\n- **keyword**: Case-insensitive substring match on article title.\n</Accordion>\n\n<Accordion title=\"Mining Extension Parameters (extension=mining)\">\n- **keyword**: Case-insensitive substring match on article title.\n- **commodity_type**: Filter by commodity. E.g. `Coal`, `Nickel`, `Gold`.\n</Accordion>\n\n<Note>Date filters: both `start` and `end` are independent and optional — omit either side to leave that bound unconstrained. Future `end` dates return 400.</Note>\n\n<Info>Costs 1 API credit.</Info>",
+      inputSchema: z.object({
       sector: z.string()
         .describe("**IDX only.** Comma-separated sector slugs (kebab-case).").optional(),
       sub_sector: z.string()
@@ -95,14 +96,15 @@ export function registerFetchNewsTool(
         .describe("Case-insensitive substring match on article title. Works for both IDX and mining.").optional(),
       symbols: z.string()
         .describe("**IDX only.** Comma-separated IDX symbols. E.g. `BBCA,BBRI`.").optional(),
+      }),
+      annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     },
-    { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     async (params) => {
       const result = await fetchNews(baseUrl, apiKey, params);
       return {
         content: [
           {
-            type: "text",
+            type: "text" as const,
             text: JSON.stringify(result, null, 2),
           },
         ],

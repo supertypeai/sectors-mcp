@@ -1,4 +1,4 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { McpServer } from "@modelcontextprotocol/server";
 import { z } from "zod";
 import { createApiHeaders, handleApiResponse } from "../../utils/api.js";
 
@@ -37,24 +37,26 @@ export function registerFetchMiningGlobalCommodityTool(
   baseUrl: string,
   apiKey: string | undefined
 ) {
-  server.tool(
+  server.registerTool(
     "fetch-mining-global-commodity",
-    "Retrieves global commodity data including production, reserves, and trade information. At least one of `commodity_type` or `country` must be provided.\n\n<Note>Available `commodity_type` values: `Coal`, `Gold`, `Nickel`, `Copper`, `Bauxite`.</Note>\n\n<Info>Costs 1 API credit.</Info>",
     {
+      description: "Retrieves global commodity data including production, reserves, and trade information. At least one of `commodity_type` or `country` must be provided.\n\n<Note>Available `commodity_type` values: `Coal`, `Gold`, `Nickel`, `Copper`, `Bauxite`.</Note>\n\n<Info>Costs 1 API credit.</Info>",
+      inputSchema: z.object({
       commodity_type: z.enum(["Bauxite", "Coal", "Copper", "Gold", "Nickel"])
         .describe("Filter by commodity type. Required if `country` not provided.").optional(),
       country: z.string()
         .describe("Filter by country (exact match, e.g., `Australia`). Required if `commodity_type` not provided.").optional(),
       limit: z.number()
         .describe("Number of results to return. Maximum: 30.").optional(),
+      }),
+      annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     },
-    { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     async (params) => {
       const result = await fetchMiningGlobalCommodity(baseUrl, apiKey, params);
       return {
         content: [
           {
-            type: "text",
+            type: "text" as const,
             text: JSON.stringify(result, null, 2),
           },
         ],

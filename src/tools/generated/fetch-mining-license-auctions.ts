@@ -1,4 +1,4 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { McpServer } from "@modelcontextprotocol/server";
 import { z } from "zod";
 import { createApiHeaders, handleApiResponse } from "../../utils/api.js";
 
@@ -65,10 +65,11 @@ export function registerFetchMiningLicenseAuctionsTool(
   baseUrl: string,
   apiKey: string | undefined
 ) {
-  server.tool(
+  server.registerTool(
     "fetch-mining-license-auctions",
-    "Lists mining license auctions scraped from the ESDM Minerba portal. Phases and participants are omitted from list results — use the detail endpoint for the full auction record.\n\n<Note>Available `commodity_type` values: `Nickel`, `Coal`, `Gold`, `Copper`.</Note>\n\nUse `participant` + `qualified=true` to find auctions where a specific company passed pre-qualification.\n\n<Info>Costs 1 API credit.</Info>",
     {
+      description: "Lists mining license auctions scraped from the ESDM Minerba portal. Phases and participants are omitted from list results — use the detail endpoint for the full auction record.\n\n<Note>Available `commodity_type` values: `Nickel`, `Coal`, `Gold`, `Copper`.</Note>\n\nUse `participant` + `qualified=true` to find auctions where a specific company passed pre-qualification.\n\n<Info>Costs 1 API credit.</Info>",
+      inputSchema: z.object({
       province: z.enum(["Bengkulu", "Gorontalo", "Kalimantan Tengah", "Maluku Utara", "Nusa Tenggara Barat", "Sulawesi Selatan", "Sulawesi Utara", "Sumatera Selatan"])
         .describe("Filter by province (e.g., `Sulawesi Selatan`). Case-insensitive.").optional(),
       commodity_type: z.enum(["Coal", "Copper", "Gold", "Nickel"])
@@ -89,14 +90,15 @@ export function registerFetchMiningLicenseAuctionsTool(
         .describe("When `true`, only return auctions where the `participant` passed qualification. Requires `participant`.").optional(),
       min_participants: z.number()
         .describe("Only return auctions with at least this many participants.").optional(),
+      }),
+      annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     },
-    { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     async (params) => {
       const result = await fetchMiningLicenseAuctions(baseUrl, apiKey, params);
       return {
         content: [
           {
-            type: "text",
+            type: "text" as const,
             text: JSON.stringify(result, null, 2),
           },
         ],

@@ -1,4 +1,4 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { McpServer } from "@modelcontextprotocol/server";
 import { z } from "zod";
 import { createApiHeaders, handleApiResponse } from "../../utils/api.js";
 
@@ -34,24 +34,26 @@ export function registerFetchMiningCompanyPerformanceTool(
   baseUrl: string,
   apiKey: string | undefined
 ) {
-  server.tool(
+  server.registerTool(
     "fetch-mining-company-performance",
-    "Returns production volume, sales volume, strip ratio, and resources/reserves data for a mining company for a given year. Defaults to the latest available year.\n\n<Info>Costs 1 API credit.</Info>",
     {
+      description: "Returns production volume, sales volume, strip ratio, and resources/reserves data for a mining company for a given year. Defaults to the latest available year.\n\n<Info>Costs 1 API credit.</Info>",
+      inputSchema: z.object({
       slug: z.string()
         .describe("Company slug."),
       commodity_type: z.enum(["Coal", "Copper", "Gold", "Nickel", "Silver"])
         .describe("Filter by commodity. E.g. `Coal`, `Nickel`. Case-insensitive.").optional(),
       year: z.number()
         .describe("Year to retrieve. Defaults to the latest available year.").optional(),
+      }),
+      annotations: { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     },
-    { readOnlyHint: true, openWorldHint: true, destructiveHint: false },
     async (params) => {
       const result = await fetchMiningCompanyPerformance(baseUrl, apiKey, params);
       return {
         content: [
           {
-            type: "text",
+            type: "text" as const,
             text: JSON.stringify(result, null, 2),
           },
         ],
